@@ -1,13 +1,14 @@
-// Backer autopilot (Privy session signer + policy) end to end on the local fork, in fixture-signer mode:
+// Backer autopilot (Privy session signer + policy) end to end on the local fork:
 // enroll with a signature, then the keeper votes for the backer when a canon round opens and buys for them
 // when the episode becomes canon — each signature checked against the policy first.
-//   The app must run with KOMA_AUTOPILOT_FIXTURE_KEYS='{"<TEST_AGENT_ADDRESS>":"<TEST_AGENT_KEY>"}' (local only).
+//   Needs the app configured with Privy (PRIVY_APP_ID, PRIVY_APP_SECRET, PRIVY_AUTHORIZATION_KEY, PRIVY_SIGNER_ID) and a
+//   backer whose Privy embedded wallet has added KOMA's signer. Without them every check is reported UNTESTED.
 //   node scripts/e2e-autopilot.mjs
 import { readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { createPublicClient, createWalletClient, encodeAbiParameters, http, keccak256, parseAbi, parseEventLogs, stringToBytes, toHex } from "viem";
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
-import { creSettles, settleViaCre } from "./lib/cre.mjs";
+import { creSettles, settleViaCre, waitForWindow } from "./lib/cre.mjs";
 import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 
 const env = Object.fromEntries(readFileSync(".env.local", "utf8").split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
@@ -34,8 +35,14 @@ const enrollBody = async (acct, o, signer = acct) => {
 };
 
 const status = await getJson(`/api/autopilot`);
-check("P1", "autopilot signer configured (fixture mode locally; privy with keys)", status.mode === "fixture" || status.mode === "privy", JSON.stringify(status));
-if (status.mode === "off") process.exit(1);
+if (status.mode !== "privy") {
+  console.log("UNTESTED P1–P6 autopilot: the app has no Privy session signer (PRIVY_APP_ID, PRIVY_APP_SECRET, PRIVY_AUTHORIZATION_KEY, PRIVY_SIGNER_ID)");
+  const off = await send("POST", "/api/autopilot", await enrollBody(backer, { seriesId: 1, vote: true, buyUsd: 3 }));
+  check("P0", "without Privy the autopilot is honestly off: status mode \"off\", enrollment refused with 503", status.mode === "off" && off.status === 503, `mode ${status.mode}, enroll ${off.status}`);
+  console.log(`\n${results.filter(Boolean).length}/${results.length} passed (P1–P6 untested)`);
+  process.exit(results.every(Boolean) ? 0 : 1);
+}
+check("P1", "autopilot signer configured (Privy)", status.mode === "privy", JSON.stringify(status));
 
 // A fresh series with a 60 s canon window, created by the backer (so the backer's own proposal is the pick).
 const factoryAbi = parseAbi([
@@ -97,9 +104,9 @@ const canon = await getJson(`/api/canon/${S.seriesId}`);
 const counted = (canon.proposals ?? []).some((p) => Number(p.votes ?? 0) > 0);
 check("P4", "the keeper votes for the backer when the round opens (signed under the policy, counted at snapshot weight)", !!view && !view.error && counted, view ? `${view.detail}${view.error ? ` (${view.error})` : ""}; tally ${counted ? "counted" : "empty"}` : "no vote");
 
-// Close the window (chain time) and let the keeper finalize; the episode becomes canon → autopilot buys $3.
-await chain.request({ method: "evm_increaseTime", params: ["0x41"] });
-await chain.request({ method: "evm_mine", params: [] });
+// Let the window close and have it finalized (the keeper, or CRE in cre mode); the episode becomes canon → autopilot buys $3.
+console.log("     waiting for the 60 s voting window to close (real time)…");
+await waitForWindow(chain, LP.canonRegistry, S.seriesId);
 if (await creSettles(BASE)) settleViaCre(env.TEST_PAYTO_KEY); // Chainlink CRE settles in cre mode (scripts/lib/cre.mjs)
 let buyAction;
 for (let i = 0; i < 60; i++) {

@@ -25,7 +25,7 @@ export async function GET() {
     facilitator: config.account?.address ?? null,
     relayerEth,
     budget: budgetStatus(),
-    ai: { ...(await falHealth()), ...aiSummary() },
+    ai: { ...aiSummary(), ...(await falHealth()) },
     launchpad: lp ? { engine: lp.engine, addresses: lp } : null,
   });
 }

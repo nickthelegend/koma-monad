@@ -26,3 +26,15 @@ export function settleViaCre(key, rpc = "http://127.0.0.1:18643") {
   const last = out.trim().split("\n").at(-1);
   return JSON.parse(last);
 }
+
+/** Waits in real time (the fork mines a block a second) until chain time passes a canon slot's window. Warping
+ *  the clock instead would push the chain ahead of wall time and expire every x402 authorization signed after. */
+export async function waitForWindow(chain, registry, seriesId, episode = 1n) {
+  const abi = [{ type: "function", name: "slot", stateMutability: "view", inputs: [{ type: "uint256" }, { type: "uint256" }], outputs: [{ type: "uint64" }, { type: "uint64" }, { type: "bool" }, { type: "uint256" }, { type: "uint256" }] }];
+  const [, endsAt] = await chain.readContract({ address: registry, abi, functionName: "slot", args: [BigInt(seriesId), BigInt(episode)] });
+  for (;;) {
+    const { timestamp } = await chain.getBlock();
+    if (timestamp > endsAt) return;
+    await new Promise((r) => setTimeout(r, Math.min(5000, Number(endsAt - timestamp + 1n) * 1000)));
+  }
+}

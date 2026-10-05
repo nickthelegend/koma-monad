@@ -20,7 +20,6 @@ function read() {
     payTo: (process.env.KOMA_PAY_TO || account?.address) as `0x${string}` | undefined,
     contract: (process.env.KOMA_CONTRACT || undefined) as `0x${string}` | undefined,
     falKey: process.env.FAL_KEY,
-    llmModel: process.env.KOMA_LLM_MODEL || "anthropic/claude-sonnet-4.5",
     dataDir: process.env.KOMA_DATA_DIR || path.join(process.cwd(), ".data"),
     publicUrl: process.env.KOMA_PUBLIC_URL || "http://localhost:4310",
     missing,

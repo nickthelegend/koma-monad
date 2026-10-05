@@ -92,6 +92,13 @@ export default async function IssuePage({ params }: PageProps<"/c/[id]">) {
               <span>{plural(comic.reads, "read")}</span>
               <span>{plural(comic.remixes, "remix", "remixes")}</span>
             </div>
+            {comic.credits && (
+              <p className="mt-2 text-[12px] text-mute" data-credits>
+                Written by <span className="text-soft">{modelName(comic.credits.writer)}</span>
+                {comic.credits.toolCalls.includes("get_series_canon") && " (read the series canon first)"} · Art by{" "}
+                <span className="text-soft">{comic.credits.art.join(", ")}</span>
+              </p>
+            )}
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link href={`/c/${comic.id}/read`} className="slant h-12 px-8 text-[21px]">
@@ -140,4 +147,12 @@ export default async function IssuePage({ params }: PageProps<"/c/[id]">) {
       </section>
     </>
   );
+}
+
+/** "moonshotai/kimi-k2.6 (via fal)" → "Kimi K2.6"; "tencent/hy3" → "Hunyuan 3". */
+function modelName(id: string) {
+  const m = id.replace(/ \(via fal\)$/, "").split("/").pop() ?? id;
+  if (/^kimi-k(\d[\w.]*)/i.test(m)) return `Kimi ${m.replace(/^kimi-/i, "").toUpperCase()}`;
+  if (/^(hy|hunyuan)/i.test(m)) return `Hunyuan ${m.replace(/^(hy|hunyuan-?)/i, "")}`.trim();
+  return m;
 }

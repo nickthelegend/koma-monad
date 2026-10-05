@@ -1,5 +1,4 @@
 import { PrivyClient } from "@privy-io/node";
-import { privateKeyToAccount } from "viem/accounts";
 import type { Addr } from "@/lib/launchpad/types";
 import { evaluate, privyPolicy, type AutopilotPolicy, type TypedPayload } from "./policy";
 
@@ -9,17 +8,14 @@ import { evaluate, privyPolicy, type AutopilotPolicy, type TypedPayload } from "
  *   privy    — a Privy session signer on the backer's embedded wallet. KOMA holds an authorization key
  *              (PRIVY_AUTHORIZATION_KEY) for a key quorum (PRIVY_SIGNER_ID) the backer added with a policy;
  *              Privy signs inside its enclave only if the policy allows it.
- *   fixture  — MOCK, local tests only: KOMA_AUTOPILOT_FIXTURE_KEYS maps test addresses to their keys, and the
- *              same policy is enforced in code. Never enabled when Privy is configured.
- *   off      — neither is configured; the autopilot panel explains what's missing.
+ *   off      — Privy isn't configured; the autopilot panel says so and nothing is signed for anyone.
  */
-export type SignerMode = "privy" | "fixture" | "off";
+export type SignerMode = "privy" | "off";
 
 const env = (k: string) => (process.env[k] ?? "").trim();
 
 export function signerMode(): SignerMode {
   if (env("PRIVY_APP_ID") && env("PRIVY_APP_SECRET") && env("PRIVY_AUTHORIZATION_KEY") && env("PRIVY_SIGNER_ID")) return "privy";
-  if (env("KOMA_AUTOPILOT_FIXTURE_KEYS")) return "fixture";
   return "off";
 }
 
@@ -29,31 +25,19 @@ function privy() {
   return client;
 }
 
-function fixtureKey(address: Addr): `0x${string}` | null {
-  try {
-    const keys = JSON.parse(env("KOMA_AUTOPILOT_FIXTURE_KEYS")) as Record<string, `0x${string}`>;
-    const hit = Object.entries(keys).find(([a]) => a.toLowerCase() === address.toLowerCase());
-    return hit?.[1] ?? null;
-  } catch {
-    return null;
-  }
-}
-
 /** The signer id the backer's wallet must add (with the policy) so KOMA can sign. */
-export const signerId = () => (signerMode() === "privy" ? env("PRIVY_SIGNER_ID") : "fixture-signer");
+export const signerId = () => env("PRIVY_SIGNER_ID");
 
-/** Creates the policy for an enrollment. Privy stores it; the fixture mode just names it. */
+/** Creates the policy for an enrollment in Privy's policy engine. */
 export async function createPolicy(p: AutopilotPolicy, name: string): Promise<string> {
-  if (signerMode() === "privy") {
-    const created = await privy().policies().create(privyPolicy(p, name) as never);
-    return (created as { id: string }).id;
-  }
-  return `fixture-policy:${name}`;
+  if (signerMode() !== "privy") throw new Error("autopilot signer isn't configured");
+  const created = await privy().policies().create(privyPolicy(p, name) as never);
+  return (created as { id: string }).id;
 }
 
 /** Checks a claimed Privy wallet id really is this address's embedded wallet. */
 export async function walletMatches(walletId: string, address: Addr): Promise<boolean> {
-  if (signerMode() !== "privy") return Boolean(fixtureKey(address));
+  if (signerMode() !== "privy") return false;
   const w = (await privy().wallets().get(walletId)) as { address?: string };
   return w.address?.toLowerCase() === address.toLowerCase();
 }
@@ -82,12 +66,6 @@ export async function signFor(
         authorization_context: { authorization_private_keys: [env("PRIVY_AUTHORIZATION_KEY")] },
       } as never);
     return (r as { signature: `0x${string}` }).signature;
-  }
-  if (mode === "fixture") {
-    const key = fixtureKey(who.address);
-    if (!key) throw new Error("no fixture key for this address");
-    const acct = privateKeyToAccount(key);
-    return acct.signTypedData({ domain: t.domain as never, types: t.types, primaryType: t.primaryType, message: t.message } as never);
   }
   throw new Error("autopilot signer isn't configured");
 }

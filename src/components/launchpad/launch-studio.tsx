@@ -330,11 +330,14 @@ function LaunchProgress({ state, onReset }: { state: LaunchState; onReset: () =>
 
   // The series page reads the chain index, which trails the launch by a block or two.
   useEffect(() => {
-    if (!done || !state.seriesId) return;
+    if (!done || !state.seriesId || !state.jobId) return;
     let live = true;
     let tries = 0;
     const check = async () => {
-      const ok = await fetch(`/api/series/${state.seriesId}`, { cache: "no-store" }).then((x) => x.ok).catch(() => false);
+      const ok = await fetch(`/api/launches/${state.jobId}`, { cache: "no-store" })
+        .then((x) => x.json() as Promise<{ indexed?: boolean }>)
+        .then((j) => Boolean(j.indexed))
+        .catch(() => false);
       if (!live) return;
       if (ok || ++tries > 20) setIndexed(true);
       else setTimeout(check, 1500);
@@ -343,7 +346,7 @@ function LaunchProgress({ state, onReset }: { state: LaunchState; onReset: () =>
     return () => {
       live = false;
     };
-  }, [done, state.seriesId]);
+  }, [done, state.seriesId, state.jobId]);
 
   const detail = (k: LaunchState["stage"]) => {
     if (k === "settling") return state.paymentTx ? txLink(state.paymentTx, short(state.paymentTx, 8, 6)) : "Facilitator submitting the AUSD transfer…";

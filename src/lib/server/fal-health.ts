@@ -1,5 +1,5 @@
 import { config } from "./config";
-import { imageProvider } from "./providers";
+import { aiSummary } from "./providers";
 
 // Whether fal will actually run jobs right now. Checked before quoting, so a
 // locked or out-of-credit account never takes a payment it can't draw for.
@@ -9,9 +9,9 @@ const TTL_MS = 60_000;
 let cached: { at: number; ok: boolean; reason?: string } | null = null;
 
 export async function falHealth(): Promise<{ ok: true } | { ok: false; reason: string }> {
-  // No fal in the loop (mock mode, or text-only providers with mock art): nothing to probe.
-  if (imageProvider() !== "fal") return { ok: true };
-  if (!config.falKey) return { ok: false, reason: "server missing FAL_KEY" };
+  // A role with no model at all: say so, and take no payment.
+  const ai = aiSummary();
+  if (!ai.configured) return { ok: false, reason: `not configured: ${ai.missing.join(", ")}` };
   if (cached && Date.now() - cached.at < TTL_MS) return cached.ok ? { ok: true } : { ok: false, reason: cached.reason! };
   try {
     const res = await fetch("https://fal.run/fal-ai/flux-2", {
@@ -38,4 +38,4 @@ export function markFalDown(reason: string) {
   cached = { at: Date.now(), ok: false, reason };
 }
 
-export const FAL_DOWN_MESSAGE = "The studio's AI artist is offline right now, so nothing can be drawn. No payment was taken. Try again later.";
+export const FAL_DOWN_MESSAGE = "The studio's AI isn't available right now (not configured, or the provider is offline), so nothing can be written or drawn. No payment was taken.";

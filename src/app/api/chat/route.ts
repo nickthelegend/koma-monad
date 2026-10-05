@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { findComic } from "@/lib/catalog";
 import { clientIp } from "@/lib/server/client-ip";
 import { editorTurn, type ChatMessage } from "@/lib/server/chat";
+import { AiNotConfiguredError } from "@/lib/server/ai";
 import { GENRES } from "@/lib/studio-config";
 import type { Genre, Pitch } from "@/lib/types";
 
@@ -44,6 +45,6 @@ export async function POST(req: NextRequest) {
     const genre = GENRES.find((g) => g === body?.genre) as Genre | undefined;
     return NextResponse.json(await editorTurn(messages, body?.pitch ?? null, remix, genre));
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 502 });
+    return NextResponse.json({ error: (e as Error).message }, { status: e instanceof AiNotConfiguredError ? 503 : 502 });
   }
 }

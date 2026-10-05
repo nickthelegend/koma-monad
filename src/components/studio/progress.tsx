@@ -75,7 +75,7 @@ export function Steps({ state, className = "" }: { state: GenState; className?: 
   );
 }
 
-export function Progress({ state, onReset }: { state: GenState; onReset: () => void }) {
+export function Progress({ state, onReset, onRetry }: { state: GenState; onReset: () => void; onRetry?: () => void }) {
   const done = state.stage === "done";
   return (
     <div className="mx-auto grid max-w-[1320px] gap-8 px-4 pb-16 pt-6 md:grid-cols-[360px_1fr] md:gap-14 md:px-8 md:pt-10">
@@ -106,9 +106,16 @@ export function Progress({ state, onReset }: { state: GenState; onReset: () => v
                 <span className="font-mono">{state.jobId}</span>.
               </p>
             )}
-            <button onClick={onReset} className="mt-3 font-display text-[15px] uppercase text-paper underline decoration-kapow underline-offset-4">
-              Back to the studio
-            </button>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              {onRetry && state.jobId && (
+                <button onClick={onRetry} className="h-10 border border-paper/70 px-4 text-[13.5px] font-semibold text-paper hover:bg-paper hover:text-ink">
+                  Try again (no second charge)
+                </button>
+              )}
+              <button onClick={onReset} className="font-display text-[15px] uppercase text-paper underline decoration-kapow underline-offset-4">
+                Back to the studio
+              </button>
+            </div>
           </div>
         ) : (
           <p className="mt-8 flex items-center gap-2 text-[12.5px] text-mute">

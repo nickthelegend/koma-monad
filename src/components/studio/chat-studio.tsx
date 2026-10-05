@@ -14,7 +14,7 @@ import { Steps } from "./progress";
 import { useGeneration } from "./use-generation";
 import { EpisodeBanner, type EpisodeSeries } from "../launchpad/episode-banner";
 import { priceFor } from "@/lib/order";
-import { AI_DOWN_NOTE, AI_MOCK_NOTE, useServerStatus } from "../use-server-status";
+import { AI_DOWN_NOTE, AI_UNCONFIGURED_NOTE, useServerStatus } from "../use-server-status";
 
 type Msg = { role: "user" | "assistant"; content: string; pitched?: string };
 type Saved = { messages: Msg[]; pitch: Pitch | null; jobId?: string; genre?: Genre };
@@ -85,8 +85,8 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
-  const { offline, aiDown, aiMock } = useServerStatus();
-  const { state, requestQuote, pay, cancel, resume } = useGeneration();
+  const { offline, aiDown, aiUnconfigured } = useServerStatus();
+  const { state, requestQuote, pay, cancel, resume, retry } = useGeneration();
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -186,12 +186,7 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
 
           {aiDown && (
             <p role="status" className="mt-5 border border-kapow/60 bg-kapow/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
-              {AI_DOWN_NOTE}
-            </p>
-          )}
-          {!aiDown && aiMock && (
-            <p role="status" className="mt-5 border border-bam/60 bg-bam/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
-              {AI_MOCK_NOTE}
+              {aiUnconfigured ? AI_UNCONFIGURED_NOTE : AI_DOWN_NOTE}
             </p>
           )}
           {offline && (
@@ -285,7 +280,16 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
                         : "Paid. The artists are on it, and you'll see each panel the moment it's inked."}
                   </p>
                   <Steps state={state} className="mt-5" />
-                  {state.stage === "error" && <p className="mt-4 text-[13.5px] text-soft">{state.error}</p>}
+                  {state.stage === "error" && (
+                    <div className="mt-4">
+                      <p className="text-[13.5px] text-soft">{state.error}</p>
+                      {state.paymentTx || state.jobId ? (
+                        <button onClick={() => void retry()} className="mt-3 h-10 border border-paper/70 px-4 text-[13.5px] font-semibold text-paper hover:bg-paper hover:text-ink">
+                          Try again (you&rsquo;ve already paid; no second charge)
+                        </button>
+                      ) : null}
+                    </div>
+                  )}
                   {done && (
                     <div className="mt-6 flex flex-wrap gap-3">
                       <Link href={`/c/${state.jobId}/read`} className="slant h-12 px-7 text-[20px]">

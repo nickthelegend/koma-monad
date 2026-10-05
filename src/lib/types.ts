@@ -39,6 +39,9 @@ export type ChainRecord = {
   paidUsdc: string;
 };
 
+/** Which models made an issue: the writer (and the tools it called) and the art models. */
+export type Credits = { writer: string; toolCalls: string[]; art: string[] };
+
 export type Comic = {
   id: string;
   title: string;
@@ -61,6 +64,7 @@ export type Comic = {
   cast?: string[];
   /** Launchpad series this issue was proposed to as an episode. */
   series?: { id: number; name: string; symbol: string };
+  credits?: Credits;
 };
 
 export type CustomCharacter = { name: string; look: string };
@@ -108,6 +112,9 @@ export type Job = {
   work?: { script: unknown; seed: number; cover?: string };
   /** Canon proposal result for series episodes. */
   canon?: { seriesId: number; proposed: boolean; error?: string };
+  credits?: Credits;
+  /** Times a failed, already-paid job was restarted (POST /api/jobs/:id). */
+  retries?: number;
   createdAt: string;
   updatedAt: string;
 };

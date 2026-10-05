@@ -2,7 +2,8 @@ import type { BalloonKind, Genre } from "@/lib/types";
 import { estimate, recordSpend } from "./budget";
 import { config } from "./config";
 import { markFalDown } from "./fal-health";
-import { hunyuanImage, imageProvider, mockImage, openaiChat, textProvider, type ChatMsg, type TextRole, type Tool } from "./providers";
+import { soften } from "./soften";
+import { hunyuanImage, openaiChat, textRoute, type ChatMsg, type TextRole, type Tool } from "./providers";
 
 const GENRES: Genre[] = ["Manga", "Superhero", "Noir", "Sci-fi", "Horror", "Comedy", "Fantasy"];
 const KINDS: BalloonKind[] = ["speech", "thought", "caption", "sfx"];
@@ -17,6 +18,8 @@ export type Script = {
   genre: Genre;
   cover: string;
   pages: { panels: ScriptPanel[] }[];
+  /** The model that wrote it and the tools it called. */
+  credits?: { writer: string; toolCalls: string[] };
 };
 
 export async function fal<T>(endpoint: string, input: unknown, timeoutMs = 120_000): Promise<T> {
@@ -35,14 +38,13 @@ export async function fal<T>(endpoint: string, input: unknown, timeoutMs = 120_0
 }
 
 // ——— LLM ———
-// fal-ai/any-llm is deprecated; openrouter/router takes the same prompt/system_prompt
-// and answers { output, reasoning?, partial, error?, usage: { prompt_tokens, completion_tokens, total_tokens, cost } }.
-export const LLM_ENDPOINT = "openrouter/router";
-type LlmOut = { output: string; error?: string | null; usage?: { cost?: number | null } | null };
+/** Thrown when a role has no model configured; the studio shows "not configured" instead of quoting. */
+export class AiNotConfiguredError extends Error {}
 
 /**
- * One text-model call for a role (see providers.ts): Kimi or Hunyuan over their OpenAI-compatible APIs,
- * fal's router, or the labelled mock. Records real or estimated spend.
+ * One text-model call for a role (see providers.ts): Kimi or Hunyuan, directly or through fal's
+ * OpenAI-compatible OpenRouter endpoint, with an optional tool loop. Records the provider's reported cost
+ * when it gives one, else the estimate.
  */
 export async function llm(o: {
   prompt: string;
@@ -51,35 +53,31 @@ export async function llm(o: {
   maxTokens?: number;
   timeoutMs?: number;
   role?: TextRole;
-  /** Tools the model may call (Kimi/Hunyuan only); each is answered by `onTool` and fed back. */
   tools?: Tool[];
   onTool?: (name: string, args: Record<string, unknown>) => Promise<unknown>;
-  mock?: () => string;
+  /** Filled in with the model used and every tool it called. */
+  trace?: { model?: string; toolCalls: string[] };
 }) {
-  const provider = textProvider(o.role ?? "script");
-  if (provider === "mock") {
-    if (!o.mock) throw new Error("No text model configured (set MOONSHOT_API_KEY, HUNYUAN_API_KEY or FAL_KEY)");
-    return o.mock();
-  }
-  if (provider === "fal") {
-    const r = await fal<LlmOut>(
-      LLM_ENDPOINT,
-      { model: config.llmModel, prompt: o.prompt, ...(o.system ? { system_prompt: o.system } : {}), ...(o.maxTokens ? { max_tokens: o.maxTokens } : {}) },
-      o.timeoutMs,
-    );
-    recordSpend("llm", r.usage?.cost ?? o.estimateUsd);
-    if (r.error) throw new Error(r.error);
-    if (!r.output) throw new Error("empty LLM output");
-    return r.output;
-  }
+  const route = textRoute(o.role ?? "script");
+  if (!route) throw new AiNotConfiguredError(`No ${o.role ?? "script"} model configured (set MOONSHOT_API_KEY, HUNYUAN_API_KEY or FAL_KEY)`);
+  let spent = 0;
+  if (o.trace) o.trace.model = `${route.model}${route.via === "fal" ? " (via fal)" : ""}`;
   // Kimi / Hunyuan: a short tool loop, then the final JSON answer.
   const messages: ChatMsg[] = [...(o.system ? [{ role: "system" as const, content: o.system }] : []), { role: "user", content: o.prompt }];
   for (let turn = 0; turn < 4; turn++) {
     const useTools = Boolean(o.tools?.length && o.onTool) && turn < 3;
-    const msg = await openaiChat(provider, { messages, maxTokens: o.maxTokens, timeoutMs: o.timeoutMs, json: !useTools, tools: useTools ? o.tools : undefined });
+    const msg = await openaiChat(route, { messages, maxTokens: o.maxTokens, timeoutMs: o.timeoutMs, json: !useTools, tools: useTools ? o.tools : undefined });
+    spent += msg.usage?.cost ?? 0;
     if (msg.tool_calls?.length && o.onTool) {
       // Keep reasoning_content on the assistant turn (Kimi's thinking models require it).
-      messages.push({ role: "assistant", content: msg.content ?? "", tool_calls: msg.tool_calls, ...(msg.reasoning_content ? { reasoning_content: msg.reasoning_content } : {}) });
+      // Keep the reasoning on the assistant turn (Kimi's thinking models require it; OpenRouter calls it `reasoning`).
+      messages.push({
+        role: "assistant",
+        content: msg.content ?? "",
+        tool_calls: msg.tool_calls,
+        ...(msg.reasoning_content ? { reasoning_content: msg.reasoning_content } : {}),
+        ...(msg.reasoning ? { reasoning: msg.reasoning } : {}),
+      });
       for (const call of msg.tool_calls) {
         let args: Record<string, unknown> = {};
         try {
@@ -87,16 +85,17 @@ export async function llm(o: {
         } catch {
           /* model sent bad JSON; answer with what we have */
         }
+        o.trace?.toolCalls.push(call.function.name);
         const result = await o.onTool(call.function.name, args).catch((e) => ({ error: (e as Error).message }));
         messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result).slice(0, 8_000) });
       }
       continue;
     }
-    recordSpend("llm", o.estimateUsd);
-    if (!msg.content) throw new Error(`${provider} returned an empty answer`);
+    recordSpend("llm", spent || o.estimateUsd);
+    if (!msg.content) throw new Error(`${route.model} returned an empty answer`);
     return msg.content;
   }
-  throw new Error(`${provider} kept calling tools without answering`);
+  throw new Error(`${route.model} kept calling tools without answering`);
 }
 
 // ——— Script ———
@@ -182,43 +181,24 @@ export async function writeScript(
   let last: unknown;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
+      const trace = { model: undefined as string | undefined, toolCalls: [] as string[] };
       const output = await llm({
+        trace,
         role: "script",
         prompt,
         estimateUsd: estimate.llm("script", o.pages),
         maxTokens: 2_000 + 2_000 * o.pages,
         tools: series ? [CANON_TOOL] : undefined,
         onTool: series ? async (name) => (name === "get_series_canon" ? { series: series.name, canon: await series.canon() } : { error: "unknown tool" }) : undefined,
-        mock: () => JSON.stringify(mockScript(o)),
       });
       const script = parseScript(output, o.pages);
-      return { ...script, ...(o.genre ? { genre: o.genre } : {}), ...(o.title ? { title: o.title } : {}) };
+      return { ...script, ...(o.genre ? { genre: o.genre } : {}), ...(o.title ? { title: o.title } : {}), credits: { writer: trace.model ?? "unknown", toolCalls: trace.toolCalls } };
     } catch (e) {
+      if (e instanceof AiNotConfiguredError) throw e;
       last = e;
     }
   }
   throw new Error(`Couldn't write the script: ${(last as Error)?.message}`);
-}
-
-/** Mock mode: a deterministic, clearly-labelled script built from the prompt, so flows run without a model. */
-export function mockScript(o: { prompt: string; title?: string; pages: number; genre?: Genre; cast: { name: string }[] }) {
-  const words = o.prompt.replace(/[^\w\s'-]/g, "").split(/\s+/).filter(Boolean);
-  const hero = o.cast[0]?.name ?? "Our hero";
-  const beats = [
-    { shot: `wide establishing shot of the world of the story: ${o.prompt}`, alt: "The scene is set.", text: `[MOCK] ${words.slice(0, 7).join(" ")}…`, kind: "caption" },
-    { shot: `close-up of ${hero}, determined`, alt: `${hero} sizes things up.`, text: "Here we go.", kind: "speech" },
-    { shot: `${hero} in motion, the stakes rise`, alt: "Things get harder.", text: "WHOOSH", kind: "sfx" },
-    { shot: `wide reveal, the twist lands`, alt: "The twist.", text: "Mock script: set MOONSHOT_API_KEY for Kimi.", kind: "caption" },
-  ];
-  return {
-    title: o.title ?? (words.slice(0, 3).join(" ") || "Mock Issue"),
-    logline: `[MOCK] ${o.prompt}`.slice(0, 110),
-    genre: o.genre ?? "Manga",
-    cover: `comic cover: ${o.prompt}`,
-    pages: Array.from({ length: o.pages }, () => ({
-      panels: beats.map((b) => ({ shot: b.shot, alt: b.alt, balloons: [{ kind: b.kind, text: b.text, at: "top-left" }] })),
-    })),
-  };
 }
 
 // ——— Art ———
@@ -242,9 +222,6 @@ type FluxOut = { images: { url: string }[]; seed: number; has_nsfw_concepts?: bo
 
 /** One FLUX.2 generation: record its cost, reject flagged art, download the bytes. */
 async function render(endpoint: string, input: Record<string, unknown>, costUsd: number, kind: "sheet" | "panel" | "panel-ref" | "cover") {
-  if (imageProvider() === "mock") {
-    return { url: "", bytes: await mockImage(kind === "panel-ref" ? "panel" : kind, Number(input.seed ?? 0)), seed: Number(input.seed ?? 0) };
-  }
   const flux = endpoint.startsWith("fal-ai/flux");
   const r = await fal<FluxOut>(endpoint, {
     ...(flux ? { num_inference_steps: 28, guidance_scale: 2.5 } : {}),
@@ -261,13 +238,22 @@ async function render(endpoint: string, input: Record<string, unknown>, costUsd:
   return { url, bytes: new Uint8Array(await img.arrayBuffer()), seed: r.seed };
 }
 
-async function retry<T>(what: string, run: (attempt: number) => Promise<T>) {
+/** fal's input filter turned the prompt down (422 "content could not be processed"). */
+const contentRejected = (e: unknown) => /\b422\b/.test(String((e as Error)?.message)) && /could not be processed|content/i.test(String((e as Error)?.message));
+
+/**
+ * Retries a generation. `soft` is true once fal's content filter has refused the prompt, so the caller can send a
+ * softened one (a noir script's "gun" or "blood" is enough to trip it) instead of the same words again.
+ */
+async function retry<T>(what: string, run: (attempt: number, soft: boolean) => Promise<T>) {
   let last: unknown;
+  let soft = false;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      return await run(attempt);
+      return await run(attempt, soft);
     } catch (e) {
       last = e;
+      if (contentRejected(e)) soft = true;
     }
   }
   throw new Error(`Couldn't ${what}: ${(last as Error)?.message}`);
@@ -292,8 +278,8 @@ export async function characterSheet(o: { name: string; prompt: string; style?: 
     NO_TEXT,
   ].join(", ");
   const endpoint = hunyuanImage() ? HUNYUAN_T2I : T2I;
-  return retry("draw the character sheet", (attempt) =>
-    render(endpoint, { prompt, image_size: SHEET_SIZE, seed: seed + attempt }, estimate.sheet(SHEET_SIZE.width, SHEET_SIZE.height), "sheet"),
+  return retry("draw the character sheet", (attempt, soft) =>
+    render(endpoint, { prompt: soft ? soften(prompt) : prompt, image_size: SHEET_SIZE, seed: seed + attempt }, estimate.sheet(SHEET_SIZE.width, SHEET_SIZE.height), "sheet"),
   );
 }
 
@@ -304,20 +290,19 @@ export async function characterSheet(o: { name: string; prompt: string; style?: 
 export async function draw(prompt: string, size: ImageSize, seed: number, opts: { refs?: string[]; character?: string; cover?: boolean } = {}) {
   const image_size = SIZES[size];
   const refs = (opts.refs ?? []).filter(Boolean).slice(0, 4);
-  const r = await retry("draw a panel", (attempt) =>
-    opts.cover && !refs.length && hunyuanImage()
+  const r = await retry("draw a panel", (attempt, soft) => {
+    if (soft) prompt = soften(prompt);
+    return opts.cover && !refs.length && hunyuanImage()
       ? render(HUNYUAN_T2I, { prompt: `${prompt}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.panel(image_size.width, image_size.height), "cover")
-      : opts.cover && imageProvider() === "mock"
-        ? render(T2I, { seed: seed + attempt }, 0, "cover")
-        : refs.length
+      : refs.length
       ? render(
           EDIT,
           { prompt: withRefs(prompt, refs.length, opts.character), image_urls: refs, image_size, seed: seed + attempt },
           estimate.panel(image_size.width, image_size.height, refs.length),
           "panel-ref",
         )
-      : render(T2I, { prompt: `${prompt}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.panel(image_size.width, image_size.height), "panel"),
-  );
+      : render(T2I, { prompt: `${prompt}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.panel(image_size.width, image_size.height), "panel");
+  });
   return r.bytes;
 }
 

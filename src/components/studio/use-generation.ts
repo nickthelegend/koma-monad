@@ -167,5 +167,19 @@ export function useGeneration() {
     void follow(jobId);
   }, [follow]);
 
-  return { state: s, requestQuote, pay, cancel, resume };
+  /** A paid job that failed: restart it server-side (no second payment) and follow it again. */
+  const retry = useCallback(async () => {
+    const jobId = s.jobId;
+    if (!jobId) return;
+    const res = await fetch(`/api/jobs/${jobId}`, { method: "POST" });
+    if (!res.ok) {
+      const why = await errorText(res);
+      set((st) => ({ ...st, error: why }));
+      return;
+    }
+    set((st) => ({ ...st, stage: "settling", error: undefined }));
+    void follow(jobId);
+  }, [s.jobId, follow]);
+
+  return { state: s, requestQuote, pay, cancel, resume, retry };
 }

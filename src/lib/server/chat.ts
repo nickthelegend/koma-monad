@@ -1,7 +1,7 @@
 import { GENRES, cast as roster, styles } from "@/lib/studio-config";
 import { parseOrder, priceFor } from "@/lib/order";
 import type { Comic, Genre, Pitch } from "@/lib/types";
-import { llm } from "./ai";
+import { AiNotConfiguredError, llm } from "./ai";
 import { estimate } from "./budget";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -50,14 +50,17 @@ export async function editorTurn(messages: ChatMessage[], current: Pitch | null,
   for (let attempt = 0; attempt < 3; attempt++) {
     let output: string;
     try {
-      output = await llm({ role: "editor", system: SYSTEM, prompt, estimateUsd: estimate.llm("chat"), maxTokens: 1_500, timeoutMs: 60_000, mock: () => mockEditor(messages, current, genre) });
-    } catch {
+      output = await llm({ role: "editor", system: SYSTEM, prompt, estimateUsd: estimate.llm("chat"), maxTokens: 1_500, timeoutMs: 60_000 });
+    } catch (e) {
+      if (e instanceof AiNotConfiguredError) throw e;
       continue;
     }
     try {
       const json = JSON.parse(output.slice(output.indexOf("{"), output.lastIndexOf("}") + 1));
       const reply = String(json.reply ?? "").trim().slice(0, 600);
       if (!reply) throw new Error("empty reply");
+      // A reply that swallowed the pitch's JSON (quotes mixed up) isn't an answer: ask again.
+      if (/['"]pitch['"]\s*:|['"]synopsis['"]\s*:/.test(reply)) throw new Error("pitch leaked into the reply");
       if (!json.pitch) return { reply, pitch: null };
       const pitch = toPitch(json.pitch, remix?.id);
       if ("error" in pitch) {
@@ -70,22 +73,4 @@ export async function editorTurn(messages: ChatMessage[], current: Pitch | null,
     }
   }
   throw new Error("The editor lost their train of thought. Try that again.");
-}
-
-/** Mock mode: a labelled editor that pitches the last message as-is, so the chat studio runs without a model. */
-function mockEditor(messages: ChatMessage[], current: Pitch | null, genre?: Genre) {
-  const idea = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
-  const pages = /\b1 page\b/i.test(idea) ? 1 : (current?.pages ?? 2);
-  return JSON.stringify({
-    reply: "[Mock editor] No story model is configured (set HUNYUAN_API_KEY), so I'm pitching your idea as written.",
-    pitch: {
-      title: current?.title ?? (idea.split(/\s+/).slice(0, 3).join(" ").slice(0, 24) || "Mock Issue"),
-      synopsis: (current && !idea ? current.prompt : idea).padEnd(40, ".").slice(0, 450),
-      genre: genre ?? current?.genre ?? "Sci-fi",
-      style: current?.style ?? styles[0].id,
-      pages,
-      cast: current?.cast ?? [],
-      custom: current?.custom ?? [],
-    },
-  });
 }

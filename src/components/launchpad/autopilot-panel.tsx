@@ -7,7 +7,7 @@ import { useWallet, walletErrorMessage } from "../wallet";
 
 type Enrollment = { vote: boolean; buyUsd: number; policyId: string };
 type Action = { kind: "vote" | "buy"; episode: number; detail: string; tx: string | null; at: number; error: string | null };
-type Status = { mode: "privy" | "fixture" | "off"; signerId: string; maxBuyUsd: number; enrollment?: Enrollment | null; actions?: Action[] };
+type Status = { mode: "privy" | "off"; signerId: string; maxBuyUsd: number; enrollment?: Enrollment | null; actions?: Action[] };
 
 const BUY_OPTIONS = [0, GASLESS_MIN_USDC, 5, 10];
 
@@ -98,7 +98,7 @@ export function AutopilotPanel({ seriesId, symbol }: { seriesId: number; symbol:
           Backer autopilot
         </h2>
         <span className="font-mono text-[11px] text-mute">
-          {status?.mode === "privy" ? "Privy session signer + policy" : status?.mode === "fixture" ? "MOCK signer (local test keys)" : "not configured"}
+          {status?.mode === "privy" ? "Privy session signer + policy" : "not configured"}
         </span>
       </header>
       <p className="mt-2 text-[13px] leading-relaxed text-soft">
@@ -107,7 +107,7 @@ export function AutopilotPanel({ seriesId, symbol }: { seriesId: number; symbol:
       </p>
 
       {status?.mode === "off" ? (
-        <p className="mt-3 text-[12.5px] text-mute">This server has no session signer configured, so the autopilot is unavailable here.</p>
+        <p className="mt-3 text-[12.5px] text-mute">This server hasn&rsquo;t been given its Privy session signer yet, so the autopilot is off. Nothing is signed for anyone.</p>
       ) : !me ? (
         <button onClick={wallet.connect} className="mt-4 h-10 border border-paper/70 px-4 text-[13px] font-semibold text-paper hover:bg-paper hover:text-ink">
           Connect to set up the autopilot

@@ -11,7 +11,7 @@ import { Progress } from "./progress";
 import { useGeneration } from "./use-generation";
 import { MonadMark, IconBolt, IconCheck, IconPlus, IconRemix } from "../icons";
 import { EpisodeBanner, type EpisodeSeries } from "../launchpad/episode-banner";
-import { AI_DOWN_NOTE, AI_MOCK_NOTE, useServerStatus } from "../use-server-status";
+import { AI_DOWN_NOTE, AI_UNCONFIGURED_NOTE, useServerStatus } from "../use-server-status";
 
 const STARTERS = [
   { label: "Heist gone wrong", text: "Four broke crooks plan a vault job that goes sideways when the vault starts talking back." },
@@ -44,8 +44,8 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
   const [draft, setDraft] = useState<CustomCharacter>({ name: "", look: "" });
   const [genre, setGenre] = useState<Genre | undefined>(initialGenre ?? remix?.genre);
   const [pages, setPages] = useState(remix?.pageCount ?? 2);
-  const { state, requestQuote, pay, cancel, resume } = useGeneration();
-  const { offline, aiDown, aiMock } = useServerStatus();
+  const { state, requestQuote, pay, cancel, resume, retry } = useGeneration();
+  const { offline, aiDown, aiUnconfigured } = useServerStatus();
 
   useEffect(() => {
     if (job) resume(job);
@@ -61,7 +61,7 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
   const draftOk = draft.name.trim().length >= 2 && draft.name.trim().length <= 30 && draft.look.trim().length >= 10 && draft.look.trim().length <= 200;
 
   if (!["idle", "quoting", "quote", "signing"].includes(state.stage)) {
-    return <Progress state={state} onReset={cancel} />;
+    return <Progress state={state} onReset={cancel} onRetry={() => void retry()} />;
   }
 
   // Two leads at most, counting designed characters; picking a third drops the oldest ready-made one.
@@ -87,13 +87,8 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
           {series && <EpisodeBanner series={series} />}
 
           {aiDown && (
-            <p role="status" className="mt-6 border border-kapow/60 bg-kapow/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
-              {AI_DOWN_NOTE}
-            </p>
-          )}
-          {!aiDown && aiMock && (
-            <p role="status" className="mt-6 border border-bam/60 bg-bam/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
-              {AI_MOCK_NOTE}
+            <p role="status" className="mt-5 border border-kapow/60 bg-kapow/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
+              {aiUnconfigured ? AI_UNCONFIGURED_NOTE : AI_DOWN_NOTE}
             </p>
           )}
           {offline && (

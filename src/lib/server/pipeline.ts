@@ -6,6 +6,7 @@ import { findComic } from "@/lib/catalog";
 import { short } from "@/lib/format";
 import type { Balloon, Comic, Job, PanelShape } from "@/lib/types";
 import { draw, writeScript, type Corner, type Script, type ScriptBalloon } from "./ai";
+import { hunyuanImage } from "./providers";
 import { assertConfigured, config, publicClient, serverWallet } from "./config";
 import { artPath, bump, saveArt, saveIssue, saveJob, unfinishedJobs } from "./store";
 import { readFile } from "node:fs/promises";
@@ -97,6 +98,7 @@ export async function runJob(job: Job) {
       });
       job.work = { script, seed: randomInt(1, 2 ** 31) };
       job.script = { title: script.title, logline: script.logline };
+      job.credits = { writer: script.credits?.writer ?? "unknown", toolCalls: script.credits?.toolCalls ?? [], art: artCredits(series ? true : false) };
       job.pages = script.pages.map((p) => ({
         panels: p.panels.map((pn, i) => ({ img: "", alt: pn.alt, shape: SHAPES[i], balloons: [] })),
       }));
@@ -220,6 +222,7 @@ export async function runJob(job: Job) {
       remixOf: remix ? { id: remix.id, title: remix.title } : undefined,
       cast: cast.length ? cast.map((c) => c.name) : undefined,
       series: series ? { id: series.id, name: series.name, symbol: series.symbol } : undefined,
+      credits: job.credits,
       chain: {
         network: job.network,
         tokenId: job.tokenId,
@@ -296,4 +299,9 @@ export async function recoverJobs() {
       await saveJob(job);
     }
   }
+}
+
+/** The art models an issue uses: Hunyuan Image 3 for the cover when enabled, FLUX.2 for panels (edit mode with the character sheet for series episodes). */
+function artCredits(episode: boolean) {
+  return [...(hunyuanImage() ? ["Hunyuan Image 3 (cover)"] : []), episode ? "FLUX.2 edit (on-model panels)" : "FLUX.2 (panels)"];
 }

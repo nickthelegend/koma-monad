@@ -13,6 +13,7 @@ const NFT = getAddress("0x67d69f3b7034e997cf6299a08082e4e14460de00");
 const RECEIVER = getAddress("0x00000000000000000000000000000000000000aa");
 const CHAIN_ID = 10143;
 
+// Anvil's public default dev accounts #1–#4 (well-known test keys, never funded anywhere real).
 const alice = privateKeyToAccount("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d");
 const bob = privateKeyToAccount("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a");
 const carol = privateKeyToAccount("0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6");

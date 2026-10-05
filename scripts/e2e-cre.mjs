@@ -11,7 +11,7 @@ import { createPublicClient, createWalletClient, encodeAbiParameters, http, kecc
 import { privateKeyToAccount } from "viem/accounts";
 import { chromium } from "playwright";
 import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
-import { creSettles, settleViaCre } from "./lib/cre.mjs";
+import { creSettles, settleViaCre, waitForWindow } from "./lib/cre.mjs";
 
 const env = Object.fromEntries(readFileSync(".env.local", "utf8").split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
 const BASE = process.env.KOMA_URL ?? "http://localhost:4320";
@@ -104,9 +104,9 @@ const vote = async (acct, issueId) =>
 const [va, vb] = [await vote(small, A), await vote(creator, B)];
 check("C2", "two holders vote (signed, free) on two proposals", va.ok && vb.ok, `${va.status} ${vb.status}`);
 
-// Close the window. The keeper must leave it alone (CRE mode); /api/canon/due lists it with both signed votes.
-await chain.request({ method: "evm_increaseTime", params: ["0x41"] });
-await chain.request({ method: "evm_mine", params: [] });
+// Let the window close. The keeper must leave it alone (CRE mode); /api/canon/due lists it with both signed votes.
+console.log("     waiting for the 60 s voting window to close (real time)…");
+await waitForWindow(chain, LP.canonRegistry, S.seriesId);
 await sleep(6000);
 const [, , finalizedEarly] = await chain.readContract({ address: LP.canonRegistry, abi: canonAbi, functionName: "slot", args: [S.seriesId, 1n] });
 const due = await getJson("/api/canon/due");

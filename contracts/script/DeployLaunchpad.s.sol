@@ -17,7 +17,7 @@ import {CurveDeployer} from "../src/deployers/CurveDeployer.sol";
 import {CoinDeployer} from "../src/deployers/CoinDeployer.sol";
 
 /// @title Deploy the KOMA launchpad on Monad
-/// @notice Runbook: deploy/DEPLOY.md. Summary:
+/// @notice Runbook: docs/DEPLOY-LATER.md. Summary:
 ///
 ///   Monad testnet (10143):
 ///     DEPLOYER_KEY=0x.. ALLOW_EOA_ADMIN=true BASE_URI=https://<app>/api/characters/ KOMA_BASE_URI=https://<app>/api/tokens/ \

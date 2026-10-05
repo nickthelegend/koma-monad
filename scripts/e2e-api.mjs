@@ -180,6 +180,7 @@ if (run("B4") && !skipPaid("B4", "paid order, B4b genre/cast, B6 replay, B10 tok
   const [pb0, tb0] = [await bal(payer), await bal(PAY_TO)];
   const res = await post(order, header);
   const body = await res.json();
+  if (res.status !== 202) throw new Error(`paid order answered ${res.status}: ${JSON.stringify(body).slice(0, 300)} ${reason(res)}`);
   const settled = h.getPaymentSettleResponse((n) => res.headers.get(n));
   const [pb1, tb1] = [await bal(payer), await bal(PAY_TO)];
   const exact = pb0 - pb1 === 100000n && tb1 - tb0 === 100000n;
