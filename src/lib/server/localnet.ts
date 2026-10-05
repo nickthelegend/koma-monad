@@ -11,6 +11,6 @@ export async function prepareLocalnet() {
   const balance = await publicClient.getBalance({ address: config.account.address });
   if (balance < parseEther("1")) {
     await rpc("anvil_setBalance", [config.account.address, `0x${parseEther("10").toString(16)}`]);
-    console.log(`[koma] localnet: topped up server ${config.account.address} with 10 ETH for gas`);
+    console.log(`[koma] localnet: topped up server ${config.account.address} with 10 MON for gas`);
   }
 }

@@ -7,7 +7,7 @@ import { KOMA, USDC_DECIMALS } from "@/lib/network";
 import { short } from "@/lib/format";
 import { config, publicClient } from "@/lib/server/config";
 import { getIssueByTx } from "@/lib/server/store";
-import { ArbMark, IconCheck } from "@/components/icons";
+import { MonadMark, IconCheck } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -84,7 +84,7 @@ export default async function TxPage({ params }: PageProps<"/tx/[hash]">) {
   return (
     <div className="mx-auto max-w-[900px] px-4 pt-6 md:px-8 md:pt-10">
       <p className="flex items-center gap-2 text-[13px] text-soft">
-        <ArbMark /> {KOMA.label} · chain {KOMA.chain.id}
+        <MonadMark /> {KOMA.label} · chain {KOMA.chain.id}
       </p>
       <h1 className="masthead mt-2 text-[15vw] text-kapow md:text-[110px]">Transaction</h1>
       <p className="mt-3 break-all font-mono text-[13px] text-soft">{hash}</p>

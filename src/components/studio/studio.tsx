@@ -9,7 +9,7 @@ import { Receipt } from "./receipt";
 import { PaySheet } from "./pay-sheet";
 import { Progress } from "./progress";
 import { useGeneration } from "./use-generation";
-import { ArbMark, IconBolt, IconCheck, IconPlus, IconRemix } from "../icons";
+import { MonadMark, IconBolt, IconCheck, IconPlus, IconRemix } from "../icons";
 import { EpisodeBanner, type EpisodeSeries } from "../launchpad/episode-banner";
 import { AI_DOWN_NOTE, AI_MOCK_NOTE, useServerStatus } from "../use-server-status";
 
@@ -337,7 +337,7 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
           <div className="min-w-0 flex-1">
             <p className="font-display text-[24px] leading-none">{total} AUSD</p>
             <p className="mt-1 flex items-center gap-1 text-[11.5px] text-mute">
-              <ArbMark width={12} height={12} /> {pages} {pages === 1 ? "page" : "pages"} · {aiDown ? "artist offline" : "no gas"}
+              <MonadMark width={12} height={12} /> {pages} {pages === 1 ? "page" : "pages"} · {aiDown ? "artist offline" : "no gas"}
             </p>
           </div>
           <button onClick={() => requestQuote(order())} disabled={!ready} className="slant h-12 px-6 text-[19px]">

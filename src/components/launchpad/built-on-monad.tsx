@@ -1,6 +1,6 @@
 import type { Addr, LaunchpadAddresses } from "@/lib/launchpad/types";
 import { FEE_SPLIT, GASLESS_MIN_USDC, GRADUATION_FEE_PCT, KOMA, LAUNCH_PRICE, TRADE_FEE_PCT } from "@/lib/network";
-import { ArbMark } from "../icons";
+import { MonadMark } from "../icons";
 import { AddrChip } from "./addr-chip";
 
 type Row = { title: string; text: React.ReactNode; chips: { label: string; address?: Addr | null }[] };
@@ -101,7 +101,7 @@ export function BuiltOnMonad({
     <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-24 border border-arb/30 bg-[#06111a]">
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-arb/20 px-4 py-4 md:px-6">
         <h2 id={`${id}-h`} className="flex items-center gap-2.5 font-display text-[26px] uppercase leading-none text-arb md:text-[30px]">
-          <ArbMark width={22} height={22} /> Built on Monad
+          <MonadMark width={22} height={22} /> Built on Monad
         </h2>
         <p className="text-[12.5px] text-mute">
           {lp ? (

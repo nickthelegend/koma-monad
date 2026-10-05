@@ -19,7 +19,7 @@ import { CanonBoard } from "@/components/launchpad/canon-board";
 import { AutopilotPanel } from "@/components/launchpad/autopilot-panel";
 import { AddressList } from "@/components/launchpad/address-list";
 import { AutoRefresh } from "@/components/launchpad/auto-refresh";
-import { ArbMark, IconBack, IconRemix } from "@/components/icons";
+import { MonadMark, IconBack, IconRemix } from "@/components/icons";
 import { FEE_SPLIT, GRADUATION_FEE_PCT, TRADE_FEE_PCT } from "@/lib/network";
 
 export const dynamic = "force-dynamic";
@@ -81,7 +81,7 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
               {s.graduated ? <GraduatedBadge /> : s.demo && !MAINNET && <DemoBadge target={s.targetUsdc} />}
               {s.genre && <span className="bg-paper px-1.5 py-1 font-display text-[11px] uppercase leading-none text-paper-ink">{s.genre}</span>}
               <a href="#built-on-monad" className="flex items-center gap-1.5 border border-arb/40 px-1.5 py-0.5 text-[11.5px] text-arb hover:border-arb">
-                <ArbMark width={12} height={12} />
+                <MonadMark width={12} height={12} />
                 Built on Monad
               </a>
             </div>

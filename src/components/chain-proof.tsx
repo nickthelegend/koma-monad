@@ -6,7 +6,7 @@ import { short } from "@/lib/format";
 import { addressUrl, isExternal, txUrl } from "@/lib/explorer";
 import { NETWORKS } from "@/lib/network";
 import { copyText } from "@/lib/clipboard";
-import { ArbMark, IconCheck, IconCopy, IconExternal } from "./icons";
+import { MonadMark, IconCheck, IconCopy, IconExternal } from "./icons";
 
 function Row({ label, value, href, mono = true }: { label: string; value: string; href?: string; mono?: boolean }) {
   const [copied, setCopied] = useState(false);
@@ -44,7 +44,7 @@ export function ChainProof({ chain }: { chain: ChainRecord }) {
     <section aria-labelledby="onchain" className="border border-arb/30 bg-[#06111a]">
       <header className="flex items-center justify-between gap-3 border-b border-arb/20 px-4 py-3">
         <h2 id="onchain" className="flex items-center gap-2 font-display text-[17px] uppercase tracking-wide text-arb">
-          <ArbMark /> On Monad
+          <MonadMark /> On Monad
         </h2>
         <a href={`/api/tokens/${chain.tokenId}`} className="text-[12px] text-soft hover:text-arb">Token #{chain.tokenId}</a>
       </header>

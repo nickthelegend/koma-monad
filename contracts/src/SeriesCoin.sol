@@ -10,8 +10,8 @@ import {IBondingCurveView, IGraduatorView} from "./interfaces/ILaunchpad.sol";
 
 /// @title KOMA series coin
 /// @notice Fixed 1B supply: 95% to the bonding curve, 5% to the creator's vesting wallet. Holding is voting:
-///         every recipient is self-delegated on first receipt, and the clock is `block.timestamp` because
-///         Arbitrum's `block.number` is the L1 block number.
+///         every recipient is self-delegated on first receipt, and the clock is `block.timestamp` so voting
+///         windows are wall-clock durations on any chain.
 /// @dev Until the curve graduates, the coin cannot be sent to the Uniswap v4 PoolManager, so no v4 pool (any
 ///      fee tier or hook) can trade it before the curve completes. The graduation pool itself is protected by
 ///      the Graduator's initialize-gating hook (AUDIT.md H-1); this lock keeps price discovery on the curve.

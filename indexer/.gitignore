@@ -1,0 +1,8 @@
+node_modules
+generated
+.envio
+build
+*.log
+.env
+src/deployment.ts
+config.yaml

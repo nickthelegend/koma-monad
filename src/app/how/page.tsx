@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArbMark } from "@/components/icons";
+import { MonadMark } from "@/components/icons";
 import { FEE_SPLIT, GASLESS_MIN_USDC, GRADUATION_FEE_PCT, KOMA, LAUNCH_PRICE, TRADE_FEE_PCT } from "@/lib/network";
 import { compact } from "@/lib/format";
 import { CANON_THRESHOLD, DEMO_TARGET_USDC, GRADUATION_TARGET_USDC, TOTAL_SUPPLY } from "@/lib/launchpad/abi";
@@ -129,7 +129,7 @@ export default function How() {
       <section className="mt-14 grid gap-4 md:grid-cols-2">
         <div id="facilitator" className="scroll-mt-24 border border-arb/30 bg-[#06111a] p-5">
           <h2 className="flex items-center gap-2 font-display text-[22px] uppercase tracking-wide text-arb">
-            <ArbMark /> Facilitator
+            <MonadMark /> Facilitator
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-soft">
             KOMA runs its own x402 facilitator for Monad. It exposes the standard /api/facilitator/verify, /settle and
@@ -138,7 +138,7 @@ export default function How() {
         </div>
         <div id="contract" className="scroll-mt-24 border border-arb/30 bg-[#06111a] p-5">
           <h2 className="flex items-center gap-2 font-display text-[22px] uppercase tracking-wide text-arb">
-            <ArbMark /> Comic contract
+            <MonadMark /> Comic contract
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-soft">
             Each issue is an ERC-721 token that stores the hash of its pages and the payment that bought it. The metadata points

@@ -3,9 +3,11 @@ import Link from "next/link";
 import type { SeriesSummary } from "@/lib/launchpad/types";
 import { launchpad } from "@/lib/server/launchpad/addresses";
 import { listSeries, recentActivity, sparklines } from "@/lib/server/launchpad/queries";
+import { board } from "@/lib/server/launchpad/board";
 import { chainNow } from "@/lib/server/launchpad/chain-time";
 import { SeriesCard } from "@/components/launchpad/series-card";
 import { LiveTape } from "@/components/launchpad/live-tape";
+import { Leaderboard } from "@/components/launchpad/leaderboard";
 import { AutoRefresh } from "@/components/launchpad/auto-refresh";
 import { DemoBadge, GraduatedBadge, RaisedBar, RemixBadge, Sheet } from "@/components/launchpad/sheet";
 import { COIN_DISCLAIMER, MAINNET } from "@/components/launchpad/network-note";
@@ -73,6 +75,7 @@ export default async function SeriesBoard({ searchParams }: PageProps<"/series">
   const now = await clock(lp !== null);
   const events = lp ? recentActivity(30) : [];
   const sparks = lp && all.length ? sparklines() : {};
+  const leaders = lp && all.length ? await board() : null;
   const names = new Map(all.map((s) => [s.id, s.name]));
   const needle = q.toLowerCase();
   const matches = (s: SeriesSummary) => !needle || [s.name, s.symbol, s.characterName].some((x) => x.toLowerCase().includes(needle));
@@ -172,8 +175,9 @@ export default async function SeriesBoard({ searchParams }: PageProps<"/series">
                 ))}
               </ul>
             )}
-            <p className="mt-10 text-[12px] text-mute">{COIN_DISCLAIMER}</p>
           </section>
+          {leaders && <Leaderboard b={leaders} />}
+          <p className="mx-auto max-w-[1320px] px-4 pt-10 text-[12px] text-mute md:px-8">{COIN_DISCLAIMER}</p>
         </>
       )}
     </>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { GenState, Stage } from "./use-generation";
 import { ComicPage } from "../comic-page";
 import { ShareButton } from "../share-button";
-import { ArbMark, IconBook, IconCheck, IconPen } from "../icons";
+import { MonadMark, IconBook, IconCheck, IconPen } from "../icons";
 import { short } from "@/lib/format";
 import { txUrl } from "@/lib/explorer";
 
@@ -112,7 +112,7 @@ export function Progress({ state, onReset }: { state: GenState; onReset: () => v
           </div>
         ) : (
           <p className="mt-8 flex items-center gap-2 text-[12.5px] text-mute">
-            <ArbMark width={14} height={14} /> You can leave this page. The issue finishes and lands on your shelf.
+            <MonadMark width={14} height={14} /> You can leave this page. The issue finishes and lands on your shelf.
           </p>
         )}
       </aside>

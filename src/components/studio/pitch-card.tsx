@@ -4,7 +4,7 @@ import { cast as roster, styles } from "@/lib/studio-config";
 import { PAGE_OPTIONS } from "@/lib/network";
 import { priceFor } from "@/lib/order";
 import type { Pitch } from "@/lib/types";
-import { ArbMark } from "../icons";
+import { MonadMark } from "../icons";
 
 /** The deal on the table: what will be drawn and what it costs. */
 export function PitchCard({
@@ -75,7 +75,7 @@ export function PitchCard({
               {busy ? "Getting quote…" : `Pay ${pitch.price} AUSD & draw`}
             </button>
             <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[12px] text-mute">
-              <ArbMark width={12} height={12} /> One signature in your wallet · no gas
+              <MonadMark width={12} height={12} /> One signature in your wallet · no gas
             </p>
           </>
         )}

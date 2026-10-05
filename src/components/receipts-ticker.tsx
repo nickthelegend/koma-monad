@@ -1,6 +1,6 @@
 import { allComics } from "@/lib/catalog";
 import { short } from "@/lib/format";
-import { ArbMark } from "./icons";
+import { MonadMark } from "./icons";
 
 /** The one ambient motion on the site: settled payments rolling past like a stock tape. */
 export async function ReceiptsTicker() {
@@ -14,7 +14,7 @@ export async function ReceiptsTicker() {
     <ul className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
       {items.map((i) => (
         <li key={i.tx} className="flex items-center gap-2 whitespace-nowrap px-5 text-[12.5px]">
-          <ArbMark width={13} height={13} />
+          <MonadMark width={13} height={13} />
           <span className="text-paper">{i.who}</span>
           <span className="text-mute">paid</span>
           <span className="font-mono text-arb">{i.usdc} AUSD</span>

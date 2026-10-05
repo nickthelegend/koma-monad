@@ -170,7 +170,7 @@ export async function signGaslessSwapBuy(
   };
 }
 
-/** Wallet-sent swap through the pool (needs ETH for gas); the only way to sell after graduation. */
+/** Wallet-sent swap through the pool (needs MON for gas, or a Privy-sponsored wallet); the only way to sell after graduation. */
 export async function directSwap(wallet: Signer, o: { swapper: Address; seriesId: number; coin: Address; buyCoin: boolean; amountIn: bigint; minOut: bigint }): Promise<Hex> {
   if (o.buyCoin) await ensureAllowance(wallet, KOMA.usdc, usdcAbi, o.swapper, o.amountIn);
   else await ensureAllowance(wallet, o.coin, coinAbi, o.swapper, o.amountIn);

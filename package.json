@@ -20,7 +20,8 @@
     "fake-llm": "node scripts/fixtures/fake-llm.mjs",
     "chain:setup": "sh scripts/local-setup.sh",
     "test:unit": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/*.test.mts",
-    "test:autopilot": "node scripts/e2e-autopilot.mjs"
+    "test:autopilot": "node scripts/e2e-autopilot.mjs",
+    "test:envio": "node scripts/e2e-envio.mjs"
   },
   "dependencies": {
     "@privy-io/node": "^0.35.0",

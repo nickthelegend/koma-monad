@@ -27,6 +27,5 @@ export async function GET() {
     budget: budgetStatus(),
     ai: { ...(await falHealth()), ...aiSummary() },
     launchpad: lp ? { engine: lp.engine, addresses: lp } : null,
-    paymaster: Boolean(process.env.PIMLICO_API_KEY),
   });
 }

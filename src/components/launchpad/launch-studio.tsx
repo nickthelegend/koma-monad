@@ -11,7 +11,7 @@ import { CANON_THRESHOLD, DEMO_TARGET_USDC, GRADUATION_TARGET_USDC, START_PRICE_
 import type { SeriesSummary } from "@/lib/launchpad/types";
 import type { Genre } from "@/lib/types";
 import { PaySheet } from "../studio/pay-sheet";
-import { ArbMark, IconCheck, IconPlus, IconRemix } from "../icons";
+import { MonadMark, IconCheck, IconPlus, IconRemix } from "../icons";
 import { SeriesCard } from "./series-card";
 import { COIN_DISCLAIMER, MAINNET } from "./network-note";
 import { useLaunch, type LaunchRequest, type LaunchState } from "./use-launch";
@@ -247,7 +247,7 @@ export function LaunchStudio({ deployed, parent, job, chainPanel }: { deployed: 
             {/* ——— What gets minted ——— */}
             <section id={`${ids}-note`} aria-label="What gets launched" className="border border-arb/30 bg-[#06111a] p-4 text-[13.5px] leading-relaxed text-soft">
               <h2 className="flex items-center gap-2 font-display text-[18px] uppercase tracking-wide text-arb">
-                <ArbMark /> What you get, in one transaction
+                <MonadMark /> What you get, in one transaction
               </h2>
               <ul className="mt-3 flex flex-col gap-2">
                 {[
@@ -278,7 +278,7 @@ export function LaunchStudio({ deployed, parent, job, chainPanel }: { deployed: 
                 </p>
               ) : (
                 <p className="mt-3 flex items-center gap-1.5 text-[12px] text-mute">
-                  <ArbMark width={12} height={12} /> One signature in your wallet · no gas · about a minute to launch
+                  <MonadMark width={12} height={12} /> One signature in your wallet · no gas · about a minute to launch
                 </p>
               )}
               {tried && !valid && <p role="alert" className="mt-2 text-[13px] text-kapow">Fix the fields marked above first.</p>}
@@ -408,7 +408,7 @@ function LaunchProgress({ state, onReset }: { state: LaunchState; onReset: () =>
           </div>
         ) : (
           <p className="mt-8 flex items-center gap-2 text-[12.5px] text-mute">
-            <ArbMark width={14} height={14} /> You can leave this page. The Character NFT lands in your wallet either way.
+            <MonadMark width={14} height={14} /> You can leave this page. The Character NFT lands in your wallet either way.
           </p>
         )}
       </aside>

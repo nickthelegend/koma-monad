@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { allComics } from "@/lib/catalog";
-import { ArbMark } from "@/components/icons";
+import { MonadMark } from "@/components/icons";
 import { ago, short } from "@/lib/format";
 import { txUrl } from "@/lib/explorer";
 
@@ -55,7 +55,7 @@ export default async function Receipts() {
               {c.creator.name} · {ago(c.createdAt)} · token #{c.chain.tokenId}
             </p>
             <a href={txUrl(c.chain.paymentTx)} className="mt-1 flex items-center gap-1.5 font-mono text-[11.5px] text-arb">
-              <ArbMark width={12} height={12} /> {short(c.chain.paymentTx, 10, 8)}
+              <MonadMark width={12} height={12} /> {short(c.chain.paymentTx, 10, 8)}
             </a>
           </li>
         ))}

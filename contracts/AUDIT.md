@@ -118,7 +118,7 @@ Each `BondingCurve` holds an immutable `math`. Stylus programs expire 365 days a
 (`stylusVersion() = 3` today). Until then, calls into the program revert, so every buy and sell reverts.
 Re-activation and keepalive are permissionless and cheap (`cargo stylus activate`, `cargo stylus codehash-keepalive`),
 so this is a liveness risk, not a loss of funds. The router side no longer blocks trades (M-1).
-**Mitigation:** `deploy/MAINNET.md` §7 adds monitoring of `programTimeLeft` with a keepalive at least every
+**Mitigation:** `docs/base-arbitrum/MAINNET.md` (Arbitrum base) §7 adds monitoring of `programTimeLeft` with a keepalive at least every
 6 months, and re-activation right after ArbOS upgrades. Making `math` upgradeable would add an admin key over every
 curve's pricing, so I did not do it.
 

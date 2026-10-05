@@ -11,7 +11,7 @@ import type { Addr } from "@/lib/launchpad/types";
 import { txUrl } from "@/lib/explorer";
 import { coinAmount, countdown, short, usdAmount } from "@/lib/format";
 import { GASLESS_MIN_USDC, KOMA, TRADE_FEE_PCT } from "@/lib/network";
-import { ArbMark } from "../icons";
+import { MonadMark } from "../icons";
 import { useWallet, walletErrorMessage } from "../wallet";
 import { FaucetHint } from "./faucet-hint";
 
@@ -130,7 +130,9 @@ export function TradeWidget({ s }: { s: TradeSeries }) {
   const shortCoins = side === "sell" && input !== null && (me ? coinBal.data !== undefined && input > coins : true);
   const overCap = sniping && side === "buy" && q !== null && coins + q.out > SNIPE_CAP;
   const minOut = q ? withSlippage(q.out, SLIPPAGE_BPS) : BigInt(0);
-  const hasGas = (eth.data?.value ?? BigInt(0)) > BigInt(0);
+  // A Privy embedded wallet's own transactions are gas-sponsored, so it never needs MON.
+  const sponsored = Boolean(wallet.privy?.sponsored);
+  const hasGas = sponsored || (eth.data?.value ?? BigInt(0)) > BigInt(0);
   // Selling into the pool is a wallet transaction (no gasless sell after graduation).
   const needsGas = pool && side === "sell";
   // KOMA relays trades for free from $3; smaller ones would cost more gas than their fee.
@@ -337,7 +339,7 @@ export function TradeWidget({ s }: { s: TradeSeries }) {
                         : needsGas
                           ? hasGas
                             ? "Sell into the pool"
-                            : "Needs ETH for gas"
+                            : "Needs MON for gas"
                           : !gaslessOk
                             ? `Gasless from $${GASLESS_MIN_USDC}`
                             : side === "buy"
@@ -345,9 +347,11 @@ export function TradeWidget({ s }: { s: TradeSeries }) {
                             : "Sign & sell — no gas"}
               </button>
               <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[12px] text-mute">
-                <ArbMark width={12} height={12} />{" "}
+                <MonadMark width={12} height={12} />{" "}
                 {needsGas
-                  ? "Selling into the v4 pool is a wallet transaction; your wallet pays the gas"
+                  ? sponsored
+                    ? "Selling into the v4 pool is a wallet transaction; Privy sponsors the gas"
+                    : "Selling into the v4 pool is a wallet transaction; your wallet pays the gas"
                   : !gaslessOk
                     ? `KOMA pays the gas on trades of $${GASLESS_MIN_USDC} or more. Smaller ones go through your own wallet.`
                     : `${side === "buy" ? "One AUSD signature" : "Two signatures (permit + sell)"} · KOMA’s relayer pays the gas`}
@@ -358,7 +362,7 @@ export function TradeWidget({ s }: { s: TradeSeries }) {
                   disabled={!canSendDirect}
                   className="mx-auto mt-2 block text-[12.5px] text-soft underline decoration-rule underline-offset-4 hover:text-paper disabled:opacity-40"
                 >
-                  Send it yourself (your wallet pays the gas)
+                  {sponsored ? "Send it from your wallet (gas sponsored by Privy)" : "Send it yourself (your wallet pays the gas)"}
                 </button>
               )}
             </>
@@ -413,7 +417,7 @@ function Graduation({ s }: { s: TradeSeries }) {
   return (
     <section aria-label="Graduation" className="border border-arb/30 bg-[#06111a] p-4">
       <p className="flex items-center gap-2 font-display text-[20px] uppercase tracking-wide text-arb">
-        <ArbMark /> {s.graduated ? "Graduated to Uniswap v4" : "Curve complete"}
+        <MonadMark /> {s.graduated ? "Graduated to Uniswap v4" : "Curve complete"}
       </p>
       {s.graduated ? (
         <>

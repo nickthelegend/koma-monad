@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { GenState, Quote } from "./use-generation";
-import { ArbMark, IconClose } from "../icons";
+import { MonadMark, IconClose } from "../icons";
 import { short } from "@/lib/format";
 import { KOMA } from "@/lib/network";
 import { useWallet } from "../wallet";
@@ -73,7 +73,7 @@ export function PaySheet({ state, onPay, onCancel, copy = ISSUE }: { state: PayS
           <>
             <dl className="mx-5 mt-5 border border-rule bg-ink text-[13px]">
               {[
-                ["Network", <span key="n" className="flex items-center gap-1.5"><ArbMark /> {KOMA.label}</span>],
+                ["Network", <span key="n" className="flex items-center gap-1.5"><MonadMark /> {KOMA.label}</span>],
                 ["Token", <span key="t">AUSD <span className="font-mono text-[11.5px] text-mute">{short(q.asset)}</span></span>],
                 ["Pay to", <span key="p" className="font-mono text-[12px]">{short(q.payTo)}</span>],
                 ["Settled by", "KOMA facilitator"],

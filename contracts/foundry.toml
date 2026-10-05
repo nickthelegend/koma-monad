@@ -36,8 +36,7 @@ ignore = ["test/**/*.sol", "script/**/*.sol"]
 runs = 512
 
 [rpc_endpoints]
-# Alchemy (set ARBITRUM_SEPOLIA_RPC_URL=https://arb-sepolia.g.alchemy.com/v2/<key>); it also allows Stylus activation.
-arbitrum_sepolia = "${ARBITRUM_SEPOLIA_RPC_URL}"
-arbitrum_sepolia_public = "https://sepolia-rollup.arbitrum.io/rpc"
-arbitrum_sepolia_archive = "https://arbitrum-sepolia.gateway.tenderly.co"
-arbitrum = "https://arb1.arbitrum.io/rpc"
+# Public Monad RPCs (the testnet one caps eth_getLogs at 100 blocks).
+monad_testnet = "https://testnet-rpc.monad.xyz"
+monad = "https://rpc.monad.xyz"
+koma_local = "http://127.0.0.1:18643"
