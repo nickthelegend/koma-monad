@@ -7,7 +7,7 @@
 // Local fork only: it funds test wallets with real AUSD from Agora's faucet contract (scripts/lib/ausd.mjs).
 import { readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
-import { createPublicClient, createWalletClient, encodeAbiParameters, http, keccak256, pad, parseAbi, parseEventLogs, stringToBytes, toHex } from "viem";
+import { createPublicClient, createWalletClient, encodeAbiParameters, http, keccak256, parseAbi, parseEventLogs, stringToBytes, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 const env = Object.fromEntries(readFileSync(".env.local", "utf8").split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));

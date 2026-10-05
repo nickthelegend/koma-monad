@@ -18,9 +18,15 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test:ai": "node scripts/e2e-ai.mjs",
     "fake-llm": "node scripts/fixtures/fake-llm.mjs",
-    "chain:setup": "sh scripts/local-setup.sh"
+    "chain:setup": "sh scripts/local-setup.sh",
+    "test:unit": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/*.test.mts",
+    "test:autopilot": "node scripts/e2e-autopilot.mjs"
   },
   "dependencies": {
+    "@privy-io/node": "^0.35.0",
+    "@privy-io/react-auth": "^3.47.0",
+    "@privy-io/wagmi": "^4.0.18",
+    "@stripe/stripe-js": "^10.0.0",
     "@tanstack/react-query": "^5.104.0",
     "@x402/core": "^2.27.0",
     "@x402/evm": "^2.27.0",

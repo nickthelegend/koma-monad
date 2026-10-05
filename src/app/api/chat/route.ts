@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { findComic } from "@/lib/catalog";
-import { config } from "@/lib/server/config";
 import { clientIp } from "@/lib/server/client-ip";
 import { editorTurn, type ChatMessage } from "@/lib/server/chat";
 import { GENRES } from "@/lib/studio-config";

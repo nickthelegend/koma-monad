@@ -6,7 +6,6 @@ import { x402Client } from "@x402/core/client";
 import { x402HTTPClient } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { privateKeyToAccount } from "viem/accounts";
-import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 
 const base = process.env.KOMA_URL ?? "http://localhost:4320";
 const key = process.env.BUYER_KEY;

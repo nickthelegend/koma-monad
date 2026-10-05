@@ -4,7 +4,6 @@ import { ArbMark } from "@/components/icons";
 import { FEE_SPLIT, GASLESS_MIN_USDC, GRADUATION_FEE_PCT, KOMA, LAUNCH_PRICE, TRADE_FEE_PCT } from "@/lib/network";
 import { compact } from "@/lib/format";
 import { CANON_THRESHOLD, DEMO_TARGET_USDC, GRADUATION_TARGET_USDC, TOTAL_SUPPLY } from "@/lib/launchpad/abi";
-import { launchpad } from "@/lib/server/launchpad/addresses";
 import { COIN_NOTE, MAINNET } from "@/components/launchpad/network-note";
 
 const BASE = process.env.KOMA_PUBLIC_URL || "http://localhost:4310";

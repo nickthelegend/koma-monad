@@ -9,7 +9,12 @@ export async function register() {
     const { startIndexer } = await import("./lib/server/launchpad/indexer");
     const { keeper } = await import("./lib/server/launchpad/relay");
     const { recoverLaunches } = await import("./lib/server/launchpad/launch");
-    startIndexer(keeper);
+    const { runAutopilot } = await import("./lib/server/autopilot");
+    // After each index pass: graduations and canon finalization, then backers' autopilot votes and buys.
+    startIndexer(async () => {
+      await keeper();
+      await runAutopilot().catch((e) => console.error("[koma] autopilot pass failed", e));
+    });
     await recoverLaunches().catch((e) => console.error("[koma] launch recovery failed", e));
   }
 }

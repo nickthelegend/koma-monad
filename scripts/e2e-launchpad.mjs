@@ -7,7 +7,7 @@
 // network the TEST_* wallets must already hold USDC.
 import { readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
-import { createPublicClient, encodeAbiParameters, formatUnits, http, keccak256, pad, parseAbi, parseUnits, stringToBytes, toHex } from "viem";
+import { createPublicClient, encodeAbiParameters, formatUnits, http, keccak256, parseAbi, parseUnits, stringToBytes, toHex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { x402HTTPClient, decodePaymentRequiredHeader } from "@x402/core/http";

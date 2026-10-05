@@ -9,7 +9,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { x402HTTPClient, decodePaymentRequiredHeader } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
-import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
+import { AUSD_DOMAIN } from "./lib/ausd.mjs";
 
 const BASE = process.env.KOMA_URL ?? "http://localhost:4320";
 const envFile = process.env.KOMA_ENV_FILE ?? ".env.local";

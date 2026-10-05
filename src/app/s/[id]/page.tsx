@@ -16,6 +16,7 @@ import { TOTAL_SUPPLY } from "@/lib/launchpad/abi";
 import { PriceChart } from "@/components/launchpad/price-chart";
 import { TradeWidget } from "@/components/launchpad/trade-widget";
 import { CanonBoard } from "@/components/launchpad/canon-board";
+import { AutopilotPanel } from "@/components/launchpad/autopilot-panel";
 import { AddressList } from "@/components/launchpad/address-list";
 import { AutoRefresh } from "@/components/launchpad/auto-refresh";
 import { ArbMark, IconBack, IconRemix } from "@/components/icons";
@@ -186,6 +187,8 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
               characterOwner={s.characterOwner}
             />
           </div>
+
+          {!s.graduated && <AutopilotPanel seriesId={s.id} symbol={symbol} />}
 
           <CharacterEarnings
             account={s.characterAccount}
