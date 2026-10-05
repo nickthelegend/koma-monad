@@ -15,7 +15,10 @@
     "test:api": "node scripts/e2e-api.mjs",
     "test:launchpad": "node scripts/e2e-launchpad.mjs",
     "check:economics": "node scripts/check-economics.mjs",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:ai": "node scripts/e2e-ai.mjs",
+    "fake-llm": "node scripts/fixtures/fake-llm.mjs",
+    "chain:setup": "sh scripts/local-setup.sh"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.0",
