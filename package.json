@@ -22,9 +22,12 @@
     "test:unit": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/*.test.mts",
     "test:autopilot": "node scripts/e2e-autopilot.mjs",
     "test:envio": "node scripts/e2e-envio.mjs",
-    "test:cre": "node scripts/e2e-cre.mjs"
+    "test:cre": "node scripts/e2e-cre.mjs",
+    "test:room": "node scripts/e2e-room.mjs"
   },
   "dependencies": {
+    "@category-labs/mera": "^0.2.0",
+    "@noble/curves": "^1.9.1",
     "@privy-io/node": "^0.35.0",
     "@privy-io/react-auth": "^3.47.0",
     "@privy-io/wagmi": "^4.0.18",

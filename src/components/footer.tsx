@@ -21,6 +21,7 @@ const cols = [
       { href: "/create", label: "New comic" },
       { href: "/launch", label: "Launch a series" },
       { href: "/shelf", label: "Your shelf" },
+      { href: "/room", label: "Writers\u2019 Room" },
       { href: "/how", label: "How payment works" },
     ],
   },

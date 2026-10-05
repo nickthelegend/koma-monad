@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { HANDOFF_KEY } from "@/lib/room/protocol";
 import type { Comic, Genre, Pitch } from "@/lib/types";
 import { ComicPage } from "../comic-page";
 import { ShareButton } from "../share-button";
@@ -93,6 +94,21 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
   useEffect(() => {
     if (job) resume(job);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // A pitch handed over from the Writers' Room (this tab only, never in the URL): fill the input once.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        const handed = sessionStorage.getItem(HANDOFF_KEY);
+        if (!handed) return;
+        sessionStorage.removeItem(HANDOFF_KEY);
+        setDraft(handed.slice(0, 600));
+      } catch {
+        // Storage blocked: nothing to pick up.
+      }
+    }, 0);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
