@@ -23,7 +23,8 @@
     "test:autopilot": "node scripts/e2e-autopilot.mjs",
     "test:envio": "node scripts/e2e-envio.mjs",
     "test:cre": "node scripts/e2e-cre.mjs",
-    "test:room": "node scripts/e2e-room.mjs"
+    "test:room": "node scripts/e2e-room.mjs",
+    "test:walk": "node scripts/e2e-walk.mjs"
   },
   "dependencies": {
     "@category-labs/mera": "^0.2.0",
