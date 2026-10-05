@@ -84,10 +84,13 @@ export function WritersRoom() {
     try {
       const r = kind === "create" ? await createRoom() : await openRoom();
       roomRef.current = r;
+      // Load (and decrypt) the drafts before showing the editor, so nothing typed is overwritten by the load.
+      await load(r);
       setRoom(r);
       setLeft(r.expiresAt - Date.now());
-      await load(r);
     } catch (e) {
+      roomRef.current?.lock();
+      roomRef.current = null;
       setError(roomError(e));
     } finally {
       setBusy(null);

@@ -18,8 +18,9 @@ const getJson = async (p) => (await fetch(`${BASE}${p}`)).json();
 const comics = (await getJson("/api/comics")).comics ?? [];
 const series = (await getJson("/api/series")).series ?? [];
 const comic = comics[0];
-const graduated = series.find((s) => s.graduated);
-const open = series.find((s) => !s.graduated && !s.complete);
+const graduated = series.find((s) => s.graduated && s.sheetUrl) ?? series.find((s) => s.graduated);
+// Prefer series with real character art (the e2e suites also launch bare series straight on chain).
+const open = series.find((s) => !s.graduated && !s.complete && s.sheetUrl) ?? series.find((s) => !s.graduated && !s.complete);
 const pages = [
   ["home", "/"],
   ["series", "/series"],

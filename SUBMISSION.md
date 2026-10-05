@@ -65,7 +65,7 @@ Nansen.
 
 ## Evidence
 
-Full run on 6 Oct 2026, local Monad testnet fork, real models (fill-in for live tx hashes after the deploy):
+Full run on 6 Oct 2026 on a **clean** local deployment (`npm run demo` from an empty `.data`), Monad testnet fork, real models. Live tx hashes get added after the deploy:
 
 | Suite | Result |
 |---|---|
@@ -76,13 +76,13 @@ Full run on 6 Oct 2026, local Monad testnet fork, real models (fill-in for live 
 | `test:api` (x402 + issues, real models) | 13/13 |
 | `test:launchpad` (launch → trade → canon → graduate) | 18/18 |
 | `check-economics` (fees, royalties, pool on chain) | 9/9 |
-| `test:ai` (real Kimi / Hunyuan, credits) | see run log |
+| `test:ai` (real Kimi / Hunyuan, credits, episode tool call) | 4/4 |
 | `test:cre` (CRE settlement) | 7/7 |
 | `test:envio` (indexer) | 7/7 |
 | `test:room` (Mera) | 7/7 (+1 skipped: cross-device) |
 | `test:browser` (UI flows, real signatures) | 8/8 |
 | `test:walk` (16 pages at 375 px) | 16/16 |
-| `test:autopilot` | P0 pass; P1–P6 untested (Privy keys) |
+| `test:autopilot` | P0 pass (honestly off); P1–P6 untested (Privy keys) |
 | lint, typecheck (`next build`), slither | clean; slither 8 low/medium findings triaged (see `docs/TEST-PLAN-ZERO-MOCK.md`) |
 | secret scan (13 real secrets checked against the whole history and tree) | none found |
 
