@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { createPublicClient, createWalletClient, encodeAbiParameters, http, keccak256, parseAbi, parseEventLogs, stringToBytes, toHex } from "viem";
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
+import { creSettles, settleViaCre } from "./lib/cre.mjs";
 import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 
 const env = Object.fromEntries(readFileSync(".env.local", "utf8").split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
@@ -99,6 +100,7 @@ check("P4", "the keeper votes for the backer when the round opens (signed under 
 // Close the window (chain time) and let the keeper finalize; the episode becomes canon → autopilot buys $3.
 await chain.request({ method: "evm_increaseTime", params: ["0x41"] });
 await chain.request({ method: "evm_mine", params: [] });
+if (await creSettles(BASE)) settleViaCre(env.TEST_PAYTO_KEY); // Chainlink CRE settles in cre mode (scripts/lib/cre.mjs)
 let buyAction;
 for (let i = 0; i < 60; i++) {
   const ap = await getJson(`/api/autopilot?address=${backer.address}&seriesId=${S.seriesId}`);

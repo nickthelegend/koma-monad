@@ -241,3 +241,10 @@ export const tokenboundAbi = parseAbi([
 
 /** ERC-20 transfer, encoded as the call the character's wallet makes. */
 export const erc20TransferAbi = parseAbi(["function transfer(address to, uint256 amount) returns (bool)"]);
+
+/** Chainlink CRE receiver that finalizes canon slots from DON reports (contracts/src/cre/CanonSettler.sol). */
+export const settlerAbi = parseAbi([
+  "event Settled(uint256 indexed seriesId, uint256 indexed episode, uint256 winnerIssueId, bytes32 votesRoot)",
+  "event SettlementSkipped(uint256 indexed seriesId, uint256 indexed episode, bytes reason)",
+  "function settledCount() view returns (uint256)",
+]);

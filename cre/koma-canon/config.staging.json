@@ -1,0 +1,12 @@
+{
+  "schedule": "0 */1 * * * *",
+  "chainSelectorName": "monad-testnet",
+  "isTestnet": true,
+  "chainId": 10143,
+  "komaUrl": "https://REPLACE-with-KOMA-public-origin",
+  "canonRegistry": "0xREPLACE_with_canonRegistry_from_deploy/addresses.10143.json",
+  "receiver": "0xREPLACE_with_canonSettler_from_deploy/addresses.10143.json",
+  "gasLimit": "1500000",
+  "readFinalized": true,
+  "maxSlots": 20
+}

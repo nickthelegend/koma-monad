@@ -59,6 +59,17 @@ ISSUES=$(node -e 'console.log(require("./.data/addresses.local.json").komaIssues
 sed -i '' "s#^KOMA_CONTRACT=.*#KOMA_CONTRACT=$ISSUES#; s#^KOMA_PAY_TO=.*#KOMA_PAY_TO=$TREASURY#" .env.local
 echo "launchpad deployed (.data/addresses.local.json); KomaIssues $ISSUES"
 
+# Chainlink CRE receiver for canon settlement, on Monad testnet's MockKeystoneForwarder (what `cre workflow
+# simulate --broadcast` and cre/koma-canon/fork-settle.ts deliver through); adds canonSettler to the book.
+(cd contracts && ADDRESSES=../.data/addresses.local.json DEPLOYER_KEY=$SERVER_KEY \
+  forge script script/DeployCanonSettler.s.sol --rpc-url $RPC --broadcast --slow >> ../.data/deploy.log 2>&1) || { tail -30 .data/deploy.log; exit 1; }
+node -e '
+const fs = require("fs"), a = require("./.data/addresses.local.json"), p = "cre/koma-canon/config.local-fork.json";
+const c = JSON.parse(fs.readFileSync(p, "utf8"));
+Object.assign(c, { canonRegistry: a.canonRegistry, receiver: a.canonSettler });
+fs.writeFileSync(p, JSON.stringify(c, null, 2) + "\n");
+console.log("CanonSettler " + a.canonSettler + " (cre/koma-canon/config.local-fork.json updated)");'
+
 # Real AUSD, moved out of Agora's faucet contract (it holds ~1B test AUSD) — local fork only.
 cast rpc anvil_setBalance $AGORA_FAUCET 0x56BC75E2D63100000 --rpc-url $RPC > /dev/null
 cast rpc anvil_impersonateAccount $AGORA_FAUCET --rpc-url $RPC > /dev/null

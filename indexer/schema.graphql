@@ -98,6 +98,8 @@ type CanonEpisode {
   winnerVotes: BigInt
   totalVotes: BigInt
   finalizedAt: Int
+  # "cre" when KOMA's Chainlink CRE workflow settled it (CanonSettler.Settled), else "keeper"
+  settledBy: String
 }
 
 type Comic {

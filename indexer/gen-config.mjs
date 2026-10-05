@@ -41,6 +41,9 @@ contracts:
   - name: KomaSwapper
     events:
       - event: Swapped(uint256 indexed seriesId, address indexed payer, address indexed recipient, bool buyCoin, uint256 amountIn, uint256 amountOut)
+  - name: CanonSettler
+    events:
+      - event: Settled(uint256 indexed seriesId, uint256 indexed episode, uint256 winnerIssueId, bytes32 votesRoot)
   - name: KomaIssues
     events:
       - event: IssueMinted(uint256 indexed tokenId, address indexed to, bytes32 indexed paymentTx, bytes32 contentHash, uint256 remixOf, uint16 pages)
@@ -62,7 +65,7 @@ ${rpc ? `    rpc:\n      - url: ${rpc}\n        for: sync\n` : ""}    contracts:
         address: [${a.komaIssues}]
       - name: BondingCurve
       - name: SeriesCoin
-`;
+${a.canonSettler ? `      - name: CanonSettler\n        address: [${a.canonSettler}]\n` : ""}`;
 writeFileSync("config.yaml", yaml);
 
 // Contract-held balances aren't holders (same rule as the app's own index): the burn address and the v4 side.

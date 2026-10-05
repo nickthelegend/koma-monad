@@ -154,7 +154,7 @@ export function votesFor(seriesId: number, episode: number): SignedVote[] {
 export async function canonView(seriesId: number): Promise<CanonView> {
   const d = db();
   const slots = d.prepare("SELECT * FROM lp_slots WHERE series_id = ? ORDER BY episode").all(seriesId) as {
-    episode: number; snapshot: number; ends_at: number; finalized: number; winner: number | null; winner_votes: string | null; total_votes: string | null; votes_root: string | null;
+    episode: number; snapshot: number; ends_at: number; finalized: number; winner: number | null; winner_votes: string | null; total_votes: string | null; votes_root: string | null; settled_by: string | null;
   }[];
   const open = slots.find((s) => !s.finalized) ?? null;
   const episode = open?.episode ?? (slots.at(-1)?.episode ?? 0) + 1;
@@ -185,6 +185,7 @@ export async function canonView(seriesId: number): Promise<CanonView> {
       winnerVotes: coins(s.winner_votes ?? "0"),
       totalVotes: coins(s.total_votes ?? "0"),
       votesRoot: s.votes_root ?? "",
+      settledBy: s.settled_by === "cre" ? "cre" : "keeper",
     });
     const losers = d.prepare("SELECT issue_id FROM lp_proposals WHERE series_id = ? AND episode = ? AND issue_id != ?").all(seriesId, s.episode, s.winner) as { issue_id: number }[];
     for (const l of losers) alternates.push({ episode: s.episode, issueId: l.issue_id, issue: await issueCard(l.issue_id) });

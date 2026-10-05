@@ -1,0 +1,12 @@
+{
+  "schedule": "*/30 * * * * *",
+  "chainSelectorName": "monad-testnet",
+  "isTestnet": true,
+  "chainId": 10143,
+  "komaUrl": "http://localhost:4320",
+  "canonRegistry": "0x98A9eA7b55bb0BaC87d44a42A83c860507D97301",
+  "receiver": "0xadF584365c2a19a93C3209634fA1784f15100f5e",
+  "gasLimit": "1500000",
+  "readFinalized": false,
+  "maxSlots": 20
+}

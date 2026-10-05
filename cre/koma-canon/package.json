@@ -1,0 +1,23 @@
+{
+  "name": "koma-canon",
+  "version": "1.0.0",
+  "main": "dist/main.js",
+  "private": true,
+  "scripts": {
+    "postinstall": "bunx cre-setup",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "compile": "bunx cre-compile main.ts dist/koma-canon.wasm"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@chainlink/cre-sdk": "^1.6.0",
+    "@noble/curves": "1.9.6",
+    "viem": "2.34.0",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/bun": "latest"
+  }
+}

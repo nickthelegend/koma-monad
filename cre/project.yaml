@@ -1,0 +1,16 @@
+# ==========================================================================
+# CRE project settings for KOMA's workflows (cre/koma-canon).
+#
+# local-fork:       the anvil fork of Monad testnet from scripts/chain.sh (port 18643). `--broadcast` writes
+#                   there through the MockKeystoneForwarder, not to testnet.
+# staging-settings: Monad testnet.
+# ==========================================================================
+local-fork:
+  rpcs:
+    - chain-name: monad-testnet
+      url: http://127.0.0.1:18643
+
+staging-settings:
+  rpcs:
+    - chain-name: monad-testnet
+      url: https://testnet-rpc.monad.xyz

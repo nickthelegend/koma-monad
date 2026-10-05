@@ -12,6 +12,7 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { x402HTTPClient, decodePaymentRequiredHeader } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { creSettles, settleViaCre } from "./lib/cre.mjs";
 import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 
 const BASE = process.env.KOMA_URL ?? "http://localhost:4320";
@@ -362,12 +363,14 @@ if (S && proposal && run("L9")) {
   const end = Date.now() + wait + 60_000;
   let winner = BigInt(0);
   await sleep(wait);
+  // With KOMA_CANON_FINALIZER=cre the Chainlink CRE workflow settles instead of the keeper (scripts/lib/cre.mjs).
+  if (await creSettles(BASE)) settleViaCre(env.TEST_PAYTO_KEY);
   while (Date.now() < end && winner === BigInt(0)) {
     winner = await chain.readContract({ address: LP.canonRegistry, abi: canonAbi, functionName: "canonOf", args: [BigInt(S.id), BigInt(1)] });
     if (winner === BigInt(0)) await sleep(3000);
   }
   const after = await getJson(`/api/canon/${S.id}`);
-  check("L9", "keeper finalized episode 1 on chain with the published votes root", winner === BigInt(proposal.issueId) && after.canon[0]?.issueId === proposal.issueId && /^0x[0-9a-f]{64}$/.test(after.canon[0]?.votesRoot ?? ""), `canonOf=${winner}`);
+  check("L9", "episode 1 finalized on chain (keeper, or Chainlink CRE in cre mode) on chain with the published votes root", winner === BigInt(proposal.issueId) && after.canon[0]?.issueId === proposal.issueId && /^0x[0-9a-f]{64}$/.test(after.canon[0]?.votesRoot ?? ""), `canonOf=${winner}`);
 }
 
 // ——— L10 remix royalties ———

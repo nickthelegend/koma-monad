@@ -226,6 +226,7 @@ indexer.onEvent({ contract: "CanonRegistry", event: "SlotOpened" }, async ({ eve
     winnerVotes: prev?.winnerVotes,
     totalVotes: prev?.totalVotes,
     finalizedAt: prev?.finalizedAt,
+    settledBy: prev?.settledBy,
   });
 });
 
@@ -244,11 +245,19 @@ indexer.onEvent({ contract: "CanonRegistry", event: "CanonFinalized" }, async ({
     winnerVotes: event.params.winnerVotes,
     totalVotes: event.params.totalVotes,
     finalizedAt: event.block.timestamp,
+    settledBy: "keeper",
   });
   const s = await context.Series.get(sid);
   if (s) context.Series.set({ ...s, canonEpisodes: s.canonEpisodes + 1 });
   const g = await global(context);
   context.Stats.set({ ...g, canonEpisodes: g.canonEpisodes + 1 });
+});
+
+// ——— Chainlink CRE: CanonSettler emits Settled right after CanonFinalized, in the same transaction ———
+indexer.onEvent({ contract: "CanonSettler", event: "Settled" }, async ({ event, context }) => {
+  const id = `${event.params.seriesId}-${event.params.episode}`;
+  const ep = await context.CanonEpisode.get(id);
+  if (ep) context.CanonEpisode.set({ ...ep, settledBy: "cre" });
 });
 
 // ——— Comics ———

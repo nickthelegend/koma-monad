@@ -1,5 +1,5 @@
 import { parseEventLogs, type Log } from "viem";
-import { canonAbi, coinAbi, curveAbi, factoryAbi, graduatorAbi, routerAbi, swapperAbi } from "@/lib/launchpad/abi";
+import { canonAbi, coinAbi, curveAbi, factoryAbi, graduatorAbi, routerAbi, settlerAbi, swapperAbi } from "@/lib/launchpad/abi";
 import type { Addr } from "@/lib/launchpad/types";
 import { logsClient, publicClient } from "../config";
 import { launchpad } from "./addresses";
@@ -8,7 +8,7 @@ import { db, meta, setMeta } from "./db";
 // Follows the launchpad's events into SQLite so pages load without a dozen RPC
 // reads each. Everything here can be rebuilt by clearing lp_* and re-indexing.
 
-const allAbi = [...factoryAbi, ...curveAbi, ...coinAbi, ...canonAbi, ...routerAbi, ...graduatorAbi, ...swapperAbi];
+const allAbi = [...factoryAbi, ...curveAbi, ...coinAbi, ...canonAbi, ...routerAbi, ...graduatorAbi, ...swapperAbi, ...settlerAbi];
 const CHUNK = BigInt(Number(process.env.KOMA_INDEX_CHUNK ?? 20_000));
 const DEAD = "0x000000000000000000000000000000000000dead";
 
@@ -32,7 +32,7 @@ async function timeOf(block: bigint) {
 function watched(): Addr[] {
   const a = launchpad()!;
   const rows = db().prepare("SELECT coin, curve FROM lp_series").all() as { coin: Addr; curve: Addr }[];
-  return [a.canonRegistry, a.royaltyRouter, a.graduator, a.swapper, ...rows.flatMap((r) => [r.coin, r.curve])];
+  return [a.canonRegistry, a.royaltyRouter, a.graduator, a.swapper, ...(a.canonSettler ? [a.canonSettler] : []), ...rows.flatMap((r) => [r.coin, r.curve])];
 }
 
 function seriesByAddress(addr: string): { id: number; coin: string; curve: string } | null {
@@ -188,6 +188,11 @@ async function apply(logs: Log[]) {
             Number(e.args.seriesId),
             Number(e.args.episode),
           );
+        break;
+      case "Settled":
+        // Emitted right after CanonFinalized in the same transaction when Chainlink CRE settled the slot.
+        if (a.canonSettler && addr === a.canonSettler.toLowerCase())
+          d.prepare("UPDATE lp_slots SET settled_by = 'cre' WHERE series_id = ? AND episode = ?").run(Number(e.args.seriesId), Number(e.args.episode));
         break;
     }
   }

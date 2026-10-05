@@ -100,5 +100,10 @@ check("V5", "/api/board is served from Envio and matches it", board.source === "
 const html = await (await fetch(`${BASE}/series`)).text();
 check("V6", "/series renders the leaderboard with its Envio source", html.includes('data-board-source="envio"') && html.includes("Indexed by Envio HyperIndex"));
 
+// Chainlink CRE settlements: the same slots marked settled by CRE in both indexes.
+const creLocal = db.prepare("SELECT series_id || '-' || episode AS id FROM lp_slots WHERE settled_by = 'cre' ORDER BY id").all().map((r) => r.id);
+const creEnvio = (await gql(`{ CanonEpisode(where: { settledBy: { _eq: "cre" } }, order_by: { id: asc }) { id } }`)).CanonEpisode.map((r) => r.id);
+check("V7", "canon episodes settled by Chainlink CRE match the app's index", JSON.stringify(creLocal.sort()) === JSON.stringify(creEnvio.sort()), `${creEnvio.length} CRE-settled (${creEnvio.join(", ") || "none yet"})`);
+
 console.log(`\n${results.filter(Boolean).length}/${results.length} passed`);
 process.exit(results.every(Boolean) ? 0 : 1);
