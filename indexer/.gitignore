@@ -4,5 +4,3 @@ generated
 build
 *.log
 .env
-src/deployment.ts
-config.yaml

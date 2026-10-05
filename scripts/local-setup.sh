@@ -39,6 +39,7 @@ TEST_PAYTO_ADDRESS=$PA
 ENV
   echo "wrote .env.local with fresh local keys (restart scripts/chain.sh so it pins KOMA_FORK_BLOCK)"
 fi
+[ "$KOMA_SETUP_ENV_ONLY" = "1" ] && exit 0
 val() { grep "^$1=" .env.local | cut -d= -f2-; }
 SERVER=$(val SERVER_ADDRESS)
 SERVER_KEY=$(val SERVER_PRIVATE_KEY)

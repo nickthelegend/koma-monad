@@ -6,7 +6,7 @@ import { findComic } from "@/lib/catalog";
 import { short } from "@/lib/format";
 import type { Balloon, Comic, Job, PanelShape } from "@/lib/types";
 import { draw, writeScript, type Corner, type Script, type ScriptBalloon } from "./ai";
-import { hunyuanImage } from "./providers";
+import { hunyuanCovers } from "./providers";
 import { assertConfigured, config, publicClient, serverWallet } from "./config";
 import { artPath, bump, saveArt, saveIssue, saveJob, unfinishedJobs } from "./store";
 import { readFile } from "node:fs/promises";
@@ -303,5 +303,5 @@ export async function recoverJobs() {
 
 /** The art models an issue uses: Hunyuan Image 3 for the cover when enabled, FLUX.2 for panels (edit mode with the character sheet for series episodes). */
 function artCredits(episode: boolean) {
-  return [...(hunyuanImage() ? ["Hunyuan Image 3 (cover)"] : []), episode ? "FLUX.2 edit (on-model panels)" : "FLUX.2 (panels)"];
+  return [...(hunyuanCovers() ? ["Hunyuan Image 3 (cover)"] : []), episode ? "FLUX.2 edit (on-model panels)" : "FLUX.2 (panels)"];
 }

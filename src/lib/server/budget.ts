@@ -23,6 +23,9 @@ export type SpendKind = "llm" | "sheet" | "panel" | "panel-ref";
 /** Megapixels as fal bills them (1024x1024 = 1), rounded up. */
 export const megapixels = (w: number, h: number) => Math.max(1, Math.ceil((w * h) / (1024 * 1024)));
 
+/** fal's price for fal-ai/hunyuan-image/v3/text-to-image (api.fal.ai/v1/models/pricing). */
+const HUNYUAN_MP_USD = 0.1;
+
 export const estimate = {
   /**
    * One LLM call. Script: ~1.5k prompt tokens, ~1.1k output tokens per page
@@ -39,6 +42,10 @@ export const estimate = {
   /** One panel: FLUX.2 t2i without refs; FLUX.2 edit adds 1 MP per reference image. */
   panel(width = 1024, height = 1024, refs = 0) {
     return round((megapixels(width, height) + Math.min(refs, 4)) * MP_USD);
+  },
+  /** Tencent HunyuanImage 3.0 on fal (sheets and covers when HUNYUAN_IMAGE=1): $0.10 per megapixel. */
+  hunyuan(width: number, height: number) {
+    return round(megapixels(width, height) * HUNYUAN_MP_USD);
   },
   /** A whole comic: script + cover + 4 panels per page (+ optional sheets, refs per panel). */
   comic(pages: number, o: { sheets?: number; refs?: number } = {}) {

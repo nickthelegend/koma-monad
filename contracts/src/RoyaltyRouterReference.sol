@@ -96,7 +96,7 @@ contract RoyaltyRouterReference is IRoyaltyRouter {
         uint256 toTreasury = amount * TREASURY_BPS / BPS;
         uint256 pool = amount - toCharacter - toTreasury;
 
-        uint256 paidAncestors;
+        uint256 paidAncestors = 0;
         uint256 ancestor = s.parent;
         for (uint256 i = 1; i <= MAX_DEPTH && ancestor != 0; ++i) {
             SeriesInfo storage a = _series[ancestor];

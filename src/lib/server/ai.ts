@@ -3,7 +3,7 @@ import { estimate, recordSpend } from "./budget";
 import { config } from "./config";
 import { markFalDown } from "./fal-health";
 import { soften } from "./soften";
-import { hunyuanImage, openaiChat, textRoute, type ChatMsg, type TextRole, type Tool } from "./providers";
+import { hunyuanCovers, hunyuanImage, openaiChat, textRoute, type ChatMsg, type TextRole, type Tool } from "./providers";
 
 const GENRES: Genre[] = ["Manga", "Superhero", "Noir", "Sci-fi", "Horror", "Comedy", "Fantasy"];
 const KINDS: BalloonKind[] = ["speech", "thought", "caption", "sfx"];
@@ -279,7 +279,12 @@ export async function characterSheet(o: { name: string; prompt: string; style?: 
   ].join(", ");
   const endpoint = hunyuanImage() ? HUNYUAN_T2I : T2I;
   return retry("draw the character sheet", (attempt, soft) =>
-    render(endpoint, { prompt: soft ? soften(prompt) : prompt, image_size: SHEET_SIZE, seed: seed + attempt }, estimate.sheet(SHEET_SIZE.width, SHEET_SIZE.height), "sheet"),
+    render(
+      endpoint,
+      { prompt: soft ? soften(prompt) : prompt, image_size: SHEET_SIZE, seed: seed + attempt },
+      endpoint === HUNYUAN_T2I ? estimate.hunyuan(SHEET_SIZE.width, SHEET_SIZE.height) : estimate.sheet(SHEET_SIZE.width, SHEET_SIZE.height),
+      "sheet",
+    ),
   );
 }
 
@@ -292,8 +297,8 @@ export async function draw(prompt: string, size: ImageSize, seed: number, opts: 
   const refs = (opts.refs ?? []).filter(Boolean).slice(0, 4);
   const r = await retry("draw a panel", (attempt, soft) => {
     if (soft) prompt = soften(prompt);
-    return opts.cover && !refs.length && hunyuanImage()
-      ? render(HUNYUAN_T2I, { prompt: `${prompt}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.panel(image_size.width, image_size.height), "cover")
+    return opts.cover && !refs.length && hunyuanCovers()
+      ? render(HUNYUAN_T2I, { prompt: `${prompt}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.hunyuan(image_size.width, image_size.height), "cover")
       : refs.length
       ? render(
           EDIT,

@@ -54,8 +54,13 @@ export function imageProvider(): ImageProvider {
   return env("FAL_KEY") ? "fal" : "off";
 }
 
-/** Hunyuan Image 3 (on fal) draws character sheets and covers when HUNYUAN_IMAGE=1. */
+/** Hunyuan Image 3 (on fal) draws character sheets when HUNYUAN_IMAGE=1. */
 export const hunyuanImage = () => imageProvider() === "fal" && env("HUNYUAN_IMAGE") === "1";
+/**
+ * …and issue covers too, unless HUNYUAN_COVERS=0. A Hunyuan cover is $0.10 (fal bills at least 1 MP), which puts a
+ * 1-page issue (sold at $0.10) at about $0.15 to make; FLUX.2 covers bring it back to ~$0.06.
+ */
+export const hunyuanCovers = () => hunyuanImage() && env("HUNYUAN_COVERS") !== "0";
 
 /** Whether a model reasons before answering on the fal route (see openaiChat). */
 const thinks = (f: TextFamily) => (f === "kimi" ? env("KIMI_REASONING") === "on" : env("HUNYUAN_REASONING") !== "off");
@@ -70,7 +75,7 @@ export function aiSummary() {
   const missing = [!script && "a script model (MOONSHOT_API_KEY or FAL_KEY)", !editor && "an editor model (HUNYUAN_API_KEY or FAL_KEY)", image === "off" && "FAL_KEY for art"].filter(
     Boolean,
   ) as string[];
-  return { configured: missing.length === 0, missing, script: describe(script), editor: describe(editor), image, hunyuanImage: hunyuanImage() };
+  return { configured: missing.length === 0, missing, script: describe(script), editor: describe(editor), image, hunyuanImage: hunyuanImage(), hunyuanCovers: hunyuanCovers() };
 }
 
 // ——— OpenAI-compatible chat (Moonshot, Tencent TokenHub, or fal's OpenRouter endpoint) ———
