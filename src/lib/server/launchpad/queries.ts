@@ -17,7 +17,7 @@ type Row = {
 
 const usd = (raw: string | bigint) => Number(formatUnits(BigInt(raw), 6));
 const coins = (raw: string | bigint) => Number(formatUnits(BigInt(raw), 18));
-/** USDC per whole coin from the virtual reserves. */
+/** AUSD per whole coin from the virtual reserves. */
 export const priceOf = (vu: string | bigint, vc: string | bigint) => (Number(BigInt(vu)) / 1e6) / (Number(BigInt(vc)) / 1e18);
 
 const SELECT = "SELECT s.*, m.character_name, m.character_prompt, m.pitch, m.genre, m.sheet, m.demo FROM lp_series s LEFT JOIN lp_series_meta m ON m.id = s.id";
@@ -204,7 +204,7 @@ export async function canonView(seriesId: number): Promise<CanonView> {
 
 // ——— The board: what happened lately across every series, and each one's recent prices.
 
-/** Price of a fresh curve: the 1,000 virtual USDC against 1B virtual coins it opens with. */
+/** Price of a fresh curve: the 1,000 virtual AUSD against 1B virtual coins it opens with. */
 const LAUNCH_PRICE_PER_COIN = priceOf(BigInt(1_000e6), BigInt(1_000_000_000) * BigInt(1e18));
 
 /**

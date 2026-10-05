@@ -37,7 +37,7 @@ contract CharacterNFTForkTest is ForkBase {
         assertEq(account, IRegistry(ERC6551_REGISTRY).account(ACCOUNT_PROXY, bytes32(0), block.chainid, address(nft), id));
         assertGt(account.code.length, 0);
         (uint256 chainId, address tokenContract, uint256 tokenId) = IAccountV3(account).token();
-        assertEq(chainId, 421614);
+        assertEq(chainId, 10143);
         assertEq(tokenContract, address(nft));
         assertEq(tokenId, id);
         assertEq(IAccountV3(account).owner(), alice);

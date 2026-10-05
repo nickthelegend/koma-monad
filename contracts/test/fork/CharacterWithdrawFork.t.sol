@@ -41,8 +41,6 @@ contract CharacterWithdrawForkTest is ForkBase {
         vm.setEnv("DEPLOYER_KEY", vm.toString(bytes32(deployerPk)));
         vm.setEnv("RELAYER", vm.toString(relayer));
         vm.setEnv("TREASURY", vm.toString(treasury));
-        vm.setEnv("MATH", vm.toString(address(0)));
-        vm.setEnv("ROUTER", vm.toString(address(0)));
         vm.setEnv("KOMA_ISSUES", vm.toString(address(0)));
         vm.setEnv("ADDRESSES_OUT", "none");
         DeployLaunchpad.Deployment memory d = new DeployLaunchpad().run();

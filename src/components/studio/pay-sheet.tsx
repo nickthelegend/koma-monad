@@ -60,7 +60,7 @@ export function PaySheet({ state, onPay, onCancel, copy = ISSUE }: { state: PayS
         <div className="flex items-start justify-between gap-3 px-5 pt-5">
           <div>
             <p className="font-mono text-[11.5px] text-kapow">{q ? "HTTP 402 · Payment required" : `Can't quote this ${copy.noun}`}</p>
-            <p className="mt-1 font-display text-[34px] uppercase leading-none">{q ? `Pay ${q.amount} USDC` : "Not yet"}</p>
+            <p className="mt-1 font-display text-[34px] uppercase leading-none">{q ? `Pay ${q.amount} AUSD` : "Not yet"}</p>
           </div>
           {state.stage === "quote" && (
             <button onClick={onCancel} aria-label="Cancel" className="-mr-1 p-1 text-mute hover:text-paper">
@@ -74,7 +74,7 @@ export function PaySheet({ state, onPay, onCancel, copy = ISSUE }: { state: PayS
             <dl className="mx-5 mt-5 border border-rule bg-ink text-[13px]">
               {[
                 ["Network", <span key="n" className="flex items-center gap-1.5"><ArbMark /> {KOMA.label}</span>],
-                ["Token", <span key="t">USDC <span className="font-mono text-[11.5px] text-mute">{short(q.asset)}</span></span>],
+                ["Token", <span key="t">AUSD <span className="font-mono text-[11.5px] text-mute">{short(q.asset)}</span></span>],
                 ["Pay to", <span key="p" className="font-mono text-[12px]">{short(q.payTo)}</span>],
                 ["Settled by", "KOMA facilitator"],
                 ["Gas", "None for you"],
@@ -86,8 +86,8 @@ export function PaySheet({ state, onPay, onCancel, copy = ISSUE }: { state: PayS
               ))}
             </dl>
             <p className="mx-5 mt-4 text-[12.5px] leading-relaxed text-mute">
-              Your wallet signs a one-time USDC transfer authorization for exactly this amount. The facilitator submits it on
-              Arbitrum, and {copy.after}. The signature can&rsquo;t be reused.
+              Your wallet signs a one-time AUSD transfer authorization for exactly this amount. The facilitator submits it on
+              Monad, and {copy.after}. The signature can&rsquo;t be reused.
             </p>
           </>
         )}
@@ -109,31 +109,25 @@ export function PaySheet({ state, onPay, onCancel, copy = ISSUE }: { state: PayS
             </button>
           ) : tooLow ? (
             <p className="border border-kapow/50 px-3 py-3 text-[13px] leading-relaxed text-soft">
-              Your wallet has {usdc.toFixed(2)} USDC on {KOMA.label}. Add at least {(Number(q.amount) - usdc).toFixed(2)} more to pay
+              Your wallet has {usdc.toFixed(2)} AUSD on {KOMA.label}. Add at least {(Number(q.amount) - usdc).toFixed(2)} more to pay
               for this {copy.noun}.
               {KOMA.faucet && (
                 <>
                   <button onClick={claim} disabled={faucet.busy} className="mt-3 block h-10 w-full bg-arb font-display text-[16px] uppercase text-ink disabled:opacity-60">
-                    {faucet.busy ? "Sending test USDC…" : "Get 1 test USDC"}
+                    {faucet.busy ? "Asking Agora's faucet…" : "Get 10,000 test AUSD"}
                   </button>
                   {faucet.error && <span role="alert" className="mt-2 block text-kapow">{faucet.error}</span>}
-                </>
-              )}
-              {KOMA.key === "arbitrum-sepolia" && (
-                <>
-                  {" "}Test USDC is free at{" "}
-                  <a href="https://faucet.circle.com" target="_blank" rel="noreferrer" className="text-arb underline">faucet.circle.com</a>.
                 </>
               )}
             </p>
           ) : (
             <button onClick={onPay} disabled={state.stage === "signing"} className="slant w-full py-3.5 text-[20px]">
-              {state.stage === "signing" ? "Confirm in your wallet…" : `Sign & pay ${q.amount} USDC`}
+              {state.stage === "signing" ? "Confirm in your wallet…" : `Sign & pay ${q.amount} AUSD`}
             </button>
           )}
           {address && q && (
             <p className="mt-3 text-center text-[12px] text-mute">
-              Paying from <span className="font-mono">{short(address)}</span> · {usdcLoaded ? usdc.toFixed(2) : "…"} USDC available
+              Paying from <span className="font-mono">{short(address)}</span> · {usdcLoaded ? usdc.toFixed(2) : "…"} AUSD available
             </p>
           )}
         </div>

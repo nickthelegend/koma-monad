@@ -33,7 +33,7 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
       className="group flex h-9 items-center gap-2 border border-rule bg-stock pl-2 pr-3 text-[13px] hover:border-arb"
     >
       <ArbMark />
-      {!compact && <span className="font-mono text-[12px] text-arb">{usdcLoaded ? usdc.toFixed(2) : "…"} USDC</span>}
+      {!compact && <span className="font-mono text-[12px] text-arb">{usdcLoaded ? usdc.toFixed(2) : "…"} AUSD</span>}
       <span className="font-mono text-[12px] text-soft group-hover:text-paper">{short(address, 5, 3)}</span>
     </button>
   );

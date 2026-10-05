@@ -10,38 +10,30 @@ type Row = { title: string; text: React.ReactNode; chips: { label: string; addre
  * addresses to check them against. `character` narrows the wallet row to one
  * series' character.
  */
-export function BuiltOnArbitrum({
+export function BuiltOnMonad({
   lp,
   facilitator,
   character,
-  id = "built-on-arbitrum",
+  id = "built-on-monad",
 }: {
   lp: LaunchpadAddresses | null;
   facilitator: Addr | null;
   character?: { name: string; account: Addr };
   id?: string;
 }) {
-  const stylus = lp?.engine === "stylus";
   const rows: Row[] = [
     {
-      title: stylus ? "Curve math and fee split: Stylus" : "Curve math and fee split",
-      text: stylus ? (
+      title: "Curve math and fee split",
+      text: (
         <>
-          Every quote and trade prices through a Rust contract compiled to WebAssembly and run by Arbitrum Stylus. A second Stylus
-          contract splits each {TRADE_FEE_PCT}% fee in the same transaction: {FEE_SPLIT.character}% to the character, {FEE_SPLIT.remix}% up the
-          remix tree, {FEE_SPLIT.treasury}% to KOMA.
-        </>
-      ) : (
-        <>
-          This deployment runs the Solidity reference versions of the curve math and the royalty router. KOMA&rsquo;s public
-          deployments run the same logic as Rust compiled to WebAssembly on Stylus, behind the same interfaces and checked against the
-          same test vectors. The router splits each {TRADE_FEE_PCT}% fee as it&rsquo;s paid: {FEE_SPLIT.character}% to the character,{" "}
-          {FEE_SPLIT.remix}% up the remix tree, {FEE_SPLIT.treasury}% to KOMA.
+          Every quote and trade prices through KOMA&rsquo;s curve-math contract, and a royalty router splits each {TRADE_FEE_PCT}% fee in the same
+          transaction: {FEE_SPLIT.character}% to the character, {FEE_SPLIT.remix}% up the remix tree, {FEE_SPLIT.treasury}% to KOMA. On Monad a
+          trade lands in a ~400 ms block and is final in about a second.
         </>
       ),
       chips: [
-        { label: stylus ? "Curve math (Stylus)" : "Curve math", address: lp?.curveMath },
-        { label: stylus ? "Royalty router (Stylus)" : "Royalty router", address: lp?.royaltyRouter },
+        { label: "Curve math", address: lp?.curveMath },
+        { label: "Royalty router", address: lp?.royaltyRouter },
       ],
     },
     {
@@ -49,7 +41,7 @@ export function BuiltOnArbitrum({
       text: (
         <>
           Each Character NFT owns a Tokenbound account, a wallet controlled by whoever holds the NFT. Its share of trading fees lands
-          there in USDC, and the owner can move it out.
+          there in AUSD, and the owner can move it out.
         </>
       ),
       chips: character
@@ -63,15 +55,15 @@ export function BuiltOnArbitrum({
           ],
     },
     {
-      title: "Payments: USDC over x402",
+      title: "Payments: AUSD over x402",
       text: (
         <>
-          Launching (${LAUNCH_PRICE}) and drawing pages are paid in USDC with x402. You sign a transfer authorization (EIP-3009); KOMA&rsquo;s
+          Launching (${LAUNCH_PRICE}) and drawing pages are paid in AUSD with x402. You sign a transfer authorization (EIP-3009); KOMA&rsquo;s
           facilitator settles it on-chain and pays that gas.
         </>
       ),
       chips: [
-        { label: "USDC", address: KOMA.usdc },
+        { label: "AUSD", address: KOMA.usdc },
         { label: "Facilitator", address: facilitator },
       ],
     },
@@ -79,7 +71,7 @@ export function BuiltOnArbitrum({
       title: "Gasless trades",
       text: (
         <>
-          Trades of ${GASLESS_MIN_USDC} or more are signatures, not transactions: a USDC authorization to buy, a permit plus a sell intent to
+          Trades of ${GASLESS_MIN_USDC} or more are signatures, not transactions: an AUSD authorization to buy, a permit plus a sell intent to
           sell. KOMA&rsquo;s relayer submits them and pays the gas. Smaller trades go through your own wallet.
         </>
       ),
@@ -89,7 +81,7 @@ export function BuiltOnArbitrum({
       title: "Graduation: Uniswap v4",
       text: (
         <>
-          When a curve reaches its target, {GRADUATION_FEE_PCT}% of the USDC raised goes to KOMA and the rest, with the unsold coins, seeds a
+          When a curve reaches its target, {GRADUATION_FEE_PCT}% of the AUSD raised goes to KOMA and the rest, with the unsold coins, seeds a
           full-range Uniswap v4 pool. The liquidity position goes to a dead address, so it can&rsquo;t be pulled.
         </>
       ),
@@ -109,12 +101,12 @@ export function BuiltOnArbitrum({
     <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-24 border border-arb/30 bg-[#06111a]">
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-arb/20 px-4 py-4 md:px-6">
         <h2 id={`${id}-h`} className="flex items-center gap-2.5 font-display text-[26px] uppercase leading-none text-arb md:text-[30px]">
-          <ArbMark width={22} height={22} /> Built on Arbitrum
+          <ArbMark width={22} height={22} /> Built on Monad
         </h2>
         <p className="text-[12.5px] text-mute">
           {lp ? (
             <>
-              What runs where on {KOMA.label}. {stylus ? "Engine: Stylus (Rust/WASM)." : "Engine: Solidity reference."}
+              What runs where on {KOMA.label}.
             </>
           ) : (
             <>The launchpad contracts aren&rsquo;t deployed on {KOMA.label} yet.</>

@@ -15,7 +15,7 @@ import { runLaunch } from "./launchpad/launch";
 const network = config.network.caip as Network;
 
 /**
- * KOMA's own x402 facilitator for Arbitrum: verifies EIP-3009 USDC
+ * KOMA's own x402 facilitator for Monad: verifies EIP-3009 AUSD
  * authorizations and submits them on-chain, paying the gas itself.
  * Also exposed over HTTP at /api/facilitator/* for other apps.
  */
@@ -53,7 +53,7 @@ export { network };
 
 // ——— Payment → work ———
 // The paid handler parks a job under the authorization nonce; it only starts
-// once the facilitator has actually moved the USDC on Arbitrum.
+// once the facilitator has actually moved the AUSD on Monad.
 type Pending = { job: Job; launch?: undefined } | { launch: LaunchJob; job?: undefined };
 const g = globalThis as unknown as { __komaPending?: Map<string, Pending> };
 export const pendingByNonce = (g.__komaPending ??= new Map());

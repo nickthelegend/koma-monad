@@ -15,7 +15,7 @@ import { chainNow } from "./chain-time";
 export function reason(e: unknown): string {
   if (e instanceof BaseError) {
     const revert = e.walk((x) => x instanceof ContractFunctionRevertedError) as ContractFunctionRevertedError | null;
-    // Custom errors by name; plain `revert("…")` strings (e.g. USDC's) by their text.
+    // Custom errors by name; plain `revert("…")` strings (e.g. AUSD's) by their text.
     if (revert?.data?.errorName && revert.data.errorName !== "Error") return revert.data.errorName;
     if (revert?.reason) return revert.reason;
     return e.shortMessage;

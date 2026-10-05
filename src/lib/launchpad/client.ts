@@ -29,7 +29,7 @@ export type SellRelay = {
 };
 
 /**
- * One USDC signature (EIP-3009 ReceiveWithAuthorization) whose nonce commits
+ * One AUSD signature (EIP-3009 ReceiveWithAuthorization) whose nonce commits
  * to the curve, amount, minimum out and deadline. Only the curve can redeem it.
  */
 export async function signGaslessBuy(
@@ -63,7 +63,7 @@ export async function signGaslessBuy(
 
 /**
  * Two signatures: an ERC-2612 permit letting the curve take the coins, and a
- * Sell intent binding the minimum USDC out, deadline and the seller's nonce.
+ * Sell intent binding the minimum AUSD out, deadline and the seller's nonce.
  */
 export async function signGaslessSell(
   wallet: Signer,
@@ -122,10 +122,10 @@ export type SwapBuyRelay = {
   salt: Hex; validAfter: string; validBefore: string; signature: Hex;
 };
 
-/** Exact-input quote from the v4 Quoter. `buyCoin`: USDC in, coins out. */
+/** Exact-input quote from the v4 Quoter. `buyCoin`: AUSD in, coins out. */
 export async function quotePool(o: { quoter: Address; graduator: Address; seriesId: number; buyCoin: boolean; amountIn: bigint }) {
   const key = await lpClient.readContract({ address: o.graduator, abi: graduatorAbi, functionName: "poolKeyOf", args: [BigInt(o.seriesId)] });
-  // USDC → coin is zeroForOne exactly when USDC is currency0.
+  // AUSD → coin is zeroForOne exactly when AUSD is currency0.
   const usdcIs0 = key.currency0.toLowerCase() === KOMA.usdc.toLowerCase();
   const { result } = await lpClient.simulateContract({
     address: o.quoter,
@@ -136,7 +136,7 @@ export async function quotePool(o: { quoter: Address; graduator: Address; series
   return result[0];
 }
 
-/** One USDC signature, redeemable only by KomaSwapper for this series, amount, minimum and deadline. */
+/** One AUSD signature, redeemable only by KomaSwapper for this series, amount, minimum and deadline. */
 export async function signGaslessSwapBuy(
   wallet: Signer,
   o: { swapper: Address; seriesId: number; buyer: Address; usdcIn: bigint; minCoinOut: bigint },
@@ -199,7 +199,7 @@ const ERRORS: [string, string][] = [
   ["Slippage(uint256,uint256)", "The price moved more than 1% before your trade landed. Nothing was spent; try again."],
   ["Expired(uint256)", "The signature expired before it was sent. Nothing was spent; try again."],
   ["CurveComplete()", "The curve just reached its target, so trading on it has stopped."],
-  ["InsufficientReserve(uint256,uint256)", "The curve doesn't hold enough USDC for that sale. Try a smaller amount."],
+  ["InsufficientReserve(uint256,uint256)", "The curve doesn't hold enough AUSD for that sale. Try a smaller amount."],
   ["InvalidIntentSignature()", "The sell signature didn't check out. Try again."],
   ["ZeroAmount()", "Enter an amount above zero."],
   ["NotGraduated(uint256)", "This series still trades on its curve."],
@@ -262,9 +262,9 @@ export async function landed(hash: Hex) {
 // ——— The character's wallet (ERC-6551, Tokenbound AccountV3).
 
 /**
- * Moves USDC out of a character's wallet to the Character NFT's owner. The
+ * Moves AUSD out of a character's wallet to the Character NFT's owner. The
  * owner's wallet calls execute() on the account, which makes the account call
- * USDC.transfer. A normal wallet transaction: the owner pays the gas.
+ * AUSD.transfer. A normal wallet transaction: the owner pays the gas.
  */
 export async function withdrawCharacterUsdc(wallet: Signer, o: { account: Address; amount: bigint }): Promise<Hex> {
   const data = encodeFunctionData({ abi: erc20TransferAbi, functionName: "transfer", args: [wallet.account.address, o.amount] });

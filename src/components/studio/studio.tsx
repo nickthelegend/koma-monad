@@ -311,7 +311,7 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
               disabled={!ready}
               className="slant mt-8 w-full py-4 text-[22px]"
             >
-              {state.stage === "quoting" ? "Getting quote…" : <>Pay {total} USDC &amp; draw</>}
+              {state.stage === "quoting" ? "Getting quote…" : <>Pay {total} AUSD &amp; draw</>}
             </button>
             <p className="mt-3 text-center text-[12px] text-mute">
               {aiDown
@@ -330,7 +330,7 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-ink/95 px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-3 backdrop-blur-md md:hidden">
         <div className="flex items-center gap-4">
           <div className="min-w-0 flex-1">
-            <p className="font-display text-[24px] leading-none">{total} USDC</p>
+            <p className="font-display text-[24px] leading-none">{total} AUSD</p>
             <p className="mt-1 flex items-center gap-1 text-[11.5px] text-mute">
               <ArbMark width={12} height={12} /> {pages} {pages === 1 ? "page" : "pages"} · {aiDown ? "artist offline" : "no gas"}
             </p>

@@ -9,7 +9,7 @@ import { short } from "@/lib/format";
 import { txUrl } from "@/lib/explorer";
 
 const STEPS: { key: Stage; label: string }[] = [
-  { key: "settling", label: "Payment settled on Arbitrum" },
+  { key: "settling", label: "Payment settled on Monad" },
   { key: "writing", label: "Script written" },
   { key: "drawing", label: "Panels drawn" },
   { key: "lettering", label: "Balloons lettered" },
@@ -34,7 +34,7 @@ const txLink = (hash: string, label: string) => (
 function detail(step: Stage, s: GenState) {
   switch (step) {
     case "settling":
-      return s.paymentTx ? txLink(s.paymentTx, short(s.paymentTx, 8, 6)) : "Facilitator submitting the USDC transfer…";
+      return s.paymentTx ? txLink(s.paymentTx, short(s.paymentTx, 8, 6)) : "Facilitator submitting the AUSD transfer…";
     case "writing":
       return s.script ? `“${s.script.title}”` : "Planning beats and dialogue…";
     case "drawing":

@@ -21,5 +21,5 @@ if [ -s "$STATE" ]; then
 fi
 # Fork through Alchemy when KOMA_FORK_RPC is set (an archive node), else the public Tenderly gateway.
 FORK_RPC=$(grep '^KOMA_FORK_RPC=' .env.local | cut -d= -f2-)
-exec anvil --fork-url "${FORK_RPC:-https://arbitrum-sepolia.gateway.tenderly.co}" --fork-block-number "$BLOCK" \
+exec anvil --fork-url "${FORK_RPC:-https://monad-testnet.gateway.tenderly.co}" --fork-block-number "$BLOCK" \
   --port 18611 --block-time 1 --state "$STATE" --state-interval 5 --silent

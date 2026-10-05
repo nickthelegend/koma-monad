@@ -15,7 +15,7 @@ const envFile = process.env.KOMA_ENV_FILE ?? ".env.local";
 const env = Object.fromEntries(readFileSync(envFile, "utf8").split("\n").filter((l) => l.includes("=") && !l.startsWith("#")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
 const status = await (await fetch(`${BASE}/api/status`)).json();
 // Against a deployed server, chain reads go through its public RPC proxy.
-const RPC = process.env.KOMA_RPC ?? env.NEXT_PUBLIC_ARBITRUM_RPC_URL;
+const RPC = process.env.KOMA_RPC ?? env.NEXT_PUBLIC_MONAD_RPC_URL;
 const USDC = status.usdc;
 const CONTRACT = status.contract;
 const PAY_TO = status.payTo;

@@ -51,7 +51,7 @@ function Field({ id, label, hint, error, children }: { id: string; label: string
 }
 
 /** Launch a series: a character, a pitch and a ticker; KOMA draws the sheet and launches everything in one transaction. */
-export function LaunchStudio({ deployed, parent, job, arbitrum }: { deployed: boolean; parent: ParentSeries | null; job?: string; arbitrum?: React.ReactNode }) {
+export function LaunchStudio({ deployed, parent, job, chainPanel }: { deployed: boolean; parent: ParentSeries | null; job?: string; chainPanel?: React.ReactNode }) {
   const ids = useId();
   const [d, setD] = useState<Draft>({ name: "", symbol: "", characterName: "", characterPrompt: "", pitch: "", genre: "", demo: !MAINNET });
   const [tried, setTried] = useState(false);
@@ -129,7 +129,7 @@ export function LaunchStudio({ deployed, parent, job, arbitrum }: { deployed: bo
         <div className="min-w-0">
           <h1 className="masthead text-[23vw] text-kapow md:text-[clamp(120px,12vw,172px)]">Launch</h1>
           <p className="mt-4 max-w-[56ch] text-[15px] leading-relaxed text-soft">
-            Start a series: a character people can follow from episode to episode. For ${LAUNCH_PRICE} in USDC, KOMA draws the character sheet
+            Start a series: a character people can follow from episode to episode. For ${LAUNCH_PRICE} in AUSD, KOMA draws the character sheet
             and launches everything on {KOMA.label} in one transaction.
           </p>
 
@@ -235,10 +235,10 @@ export function LaunchStudio({ deployed, parent, job, arbitrum }: { deployed: bo
               <label htmlFor={`${ids}-demo`} className="flex cursor-pointer items-start gap-3 border border-rule bg-stock p-3.5">
                 <input id={`${ids}-demo`} type="checkbox" checked={d.demo} onChange={(e) => set("demo", e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--kapow)]" />
                 <span className="text-[13.5px] leading-snug">
-                  <span className="font-semibold text-paper">Demo series (graduates at {DEMO_TARGET_USDC} USDC, 5-minute canon votes)</span>
+                  <span className="font-semibold text-paper">Demo series (graduates at {DEMO_TARGET_USDC} AUSD, 5-minute canon votes)</span>
                   <span className="mt-1 block text-[12.5px] text-mute">
-                    So a whole run, from launch to canon to a Uniswap v4 pool, fits in an afternoon with test USDC. A normal series graduates at{" "}
-                    {GRADUATION_TARGET_USDC.toLocaleString("en-US")} USDC and votes run for 24 hours. Only on {KOMA.label}; Arbitrum One has no demo series.
+                    So a whole run, from launch to canon to a Uniswap v4 pool, fits in an afternoon with test AUSD. A normal series graduates at{" "}
+                    {GRADUATION_TARGET_USDC.toLocaleString("en-US")} AUSD and votes run for 24 hours. Only on {KOMA.label}; Monad has no demo series.
                   </span>
                 </span>
               </label>
@@ -252,10 +252,10 @@ export function LaunchStudio({ deployed, parent, job, arbitrum }: { deployed: bo
               <ul className="mt-3 flex flex-col gap-2">
                 {[
                   ["Character NFT, minted to you", `with its own wallet (ERC-6551). The character earns: ${FEE_SPLIT.character}% of every trading fee lands in that wallet.`],
-                  [`${TOTAL_SUPPLY.toLocaleString("en-US")} $${d.symbol || "COIN"}`, "95% on a USDC bonding curve (the price rises as people buy), 5% to you, vesting over 30 days."],
+                  [`${TOTAL_SUPPLY.toLocaleString("en-US")} $${d.symbol || "COIN"}`, "95% on an AUSD bonding curve (the price rises as people buy), 5% to you, vesting over 30 days."],
                   [`A ${TRADE_FEE_PCT}% fee on each trade`, `split ${FEE_SPLIT.character}% to the character's wallet, ${FEE_SPLIT.remix}% up the remix tree${parent ? ` (starting with ${parent.name})` : ""}, ${FEE_SPLIT.treasury}% to KOMA's treasury.`],
                   ["Canon by vote", `anyone holding ${CANON_THRESHOLD.toLocaleString("en-US")} coins (or you, as the character's owner) can propose episodes; holders vote for free.`],
-                  ["Graduation", `at ${target.toLocaleString("en-US")} USDC raised the curve closes; KOMA takes ${GRADUATION_FEE_PCT}% of the USDC and the rest becomes a Uniswap v4 pool.`],
+                  ["Graduation", `at ${target.toLocaleString("en-US")} AUSD raised the curve closes; KOMA takes ${GRADUATION_FEE_PCT}% of the AUSD and the rest becomes a Uniswap v4 pool.`],
                 ].map(([t, x]) => (
                   <li key={t} className="flex gap-2.5">
                     <IconCheck width={14} height={14} className="mt-1 shrink-0 text-arb" />
@@ -270,7 +270,7 @@ export function LaunchStudio({ deployed, parent, job, arbitrum }: { deployed: bo
 
             <div>
               <button type="submit" disabled={down || Boolean(offline) || aiDown || state.stage === "quoting"} className="slant w-full py-4 text-[22px] sm:w-auto sm:px-10">
-                {state.stage === "quoting" ? "Getting quote…" : `Pay ${LAUNCH_PRICE.toFixed(2)} USDC & launch`}
+                {state.stage === "quoting" ? "Getting quote…" : `Pay ${LAUNCH_PRICE.toFixed(2)} AUSD & launch`}
               </button>
               {down || offline || aiDown ? (
                 <p className="mt-3 text-[12px] text-kapow">
@@ -296,7 +296,7 @@ export function LaunchStudio({ deployed, parent, job, arbitrum }: { deployed: bo
         </aside>
       </div>
 
-      {arbitrum && <div className="mx-auto max-w-[1320px] px-4 pb-16 md:px-8">{arbitrum}</div>}
+      {chainPanel && <div className="mx-auto max-w-[1320px] px-4 pb-16 md:px-8">{chainPanel}</div>}
 
       <PaySheet state={state} onPay={pay} onCancel={cancel} copy={LAUNCH_COPY} />
     </>
@@ -304,9 +304,9 @@ export function LaunchStudio({ deployed, parent, job, arbitrum }: { deployed: bo
 }
 
 const STEPS: { key: LaunchState["stage"]; label: string }[] = [
-  { key: "settling", label: "Payment settled on Arbitrum" },
+  { key: "settling", label: "Payment settled on Monad" },
   { key: "sheet", label: "Drawing your character sheet" },
-  { key: "launching", label: "Launching on Arbitrum" },
+  { key: "launching", label: "Launching on Monad" },
 ];
 const ORDER: LaunchState["stage"][] = ["signing", "settling", "sheet", "launching", "done"];
 
@@ -346,7 +346,7 @@ function LaunchProgress({ state, onReset }: { state: LaunchState; onReset: () =>
   }, [done, state.seriesId]);
 
   const detail = (k: LaunchState["stage"]) => {
-    if (k === "settling") return state.paymentTx ? txLink(state.paymentTx, short(state.paymentTx, 8, 6)) : "Facilitator submitting the USDC transfer…";
+    if (k === "settling") return state.paymentTx ? txLink(state.paymentTx, short(state.paymentTx, 8, 6)) : "Facilitator submitting the AUSD transfer…";
     if (k === "sheet") return state.sheet ? "Drawn" : `${r?.characterName ?? "Your character"}, front, side and back…`;
     if (k === "launching")
       return state.launchTx ? txLink(state.launchTx, short(state.launchTx, 8, 6)) : "Character NFT and its wallet, coin, curve and vesting, in one transaction…";

@@ -8,19 +8,22 @@ contract GuardHarness is DeployLaunchpad {
     function preflight(Config memory c) external view {
         _preflight(c);
     }
+
+    function config(address deployer) external view returns (Config memory) {
+        return _config(deployer);
+    }
 }
 
-/// The Arbitrum One guards of script/DeployLaunchpad.s.sol (AUDIT.md M-3), exercised offline: the chain id is
-/// set to 42161 and the book addresses get placeholder code.
+/// The Monad mainnet guards of script/DeployLaunchpad.s.sol (AUDIT.md M-3), exercised offline: the chain id is
+/// set to 143 and the book addresses get placeholder code.
 contract DeployGuardsTest is Test {
     GuardHarness h;
     DeployLaunchpad.Config c;
-    bytes constant STYLUS_CODE = hex"eff00000"; // Stylus prefix + payload; EVM code can never start with 0xEF
 
     function setUp() public {
         h = new GuardHarness();
-        vm.chainId(42161);
-        DeployLaunchpad.Book memory b = h.book(42161);
+        vm.chainId(143);
+        DeployLaunchpad.Book memory b = h.book(143);
         c.mainnet = true;
         c.deployer = makeAddr("deployer");
         c.admin = makeAddr("safe");
@@ -34,8 +37,6 @@ contract DeployGuardsTest is Test {
         c.erc6551Registry = b.erc6551Registry;
         c.accountProxy = b.accountProxy;
         c.accountImpl = b.accountImpl;
-        c.math = makeAddr("stylus-math");
-        c.router = makeAddr("stylus-router");
         c.baseURI = "https://koma.example/api/characters/";
         c.issuesBaseURI = "https://koma.example/api/tokens/";
         address[9] memory withCode = [
@@ -46,38 +47,43 @@ contract DeployGuardsTest is Test {
             vm.etch(withCode[i], hex"00");
         }
         vm.etch(CREATE2_FACTORY, hex"00");
-        vm.etch(c.math, STYLUS_CODE);
-        vm.etch(c.router, STYLUS_CODE);
     }
 
     function test_MainnetBook() public view {
-        DeployLaunchpad.Book memory b = h.book(42161);
-        assertEq(b.usdc, 0xaf88d065e77c8cC2239327C5EDb3A432268e5831);
-        assertEq(b.poolManager, 0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32);
-        assertEq(b.positionManager, 0xd88F38F930b7952f2DB2432Cb002E7abbF3dD869);
+        DeployLaunchpad.Book memory b = h.book(143);
+        assertEq(b.usdc, 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a, "AUSD");
+        assertEq(b.poolManager, 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e);
+        assertEq(b.positionManager, 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016);
+        assertEq(b.v4Quoter, 0xa222Dd357A9076d1091Ed6Aa2e16C9742dD26891);
         assertEq(b.permit2, 0x000000000022D473030F116dDEE9F6B43aC78BA3);
-        assertEq(b.v4Quoter, 0x3972C00f7ed4885e145823eb7C655375d275A1C5);
         assertEq(b.erc6551Registry, 0x000000006551c19487814612e58FE06813775758);
-        DeployLaunchpad.Book memory s = h.book(421614);
-        assertEq(s.v4Quoter, 0x7dE51022d70A725b508085468052E25e22b5c4c9);
-        assertTrue(s.usdc != b.usdc && s.poolManager != b.poolManager, "no Sepolia address on mainnet");
+        DeployLaunchpad.Book memory t = h.book(10143);
+        assertEq(t.usdc, 0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC, "testnet AUSD");
+        assertEq(t.poolManager, address(0), "no Uniswap v4 on Monad testnet: the script deploys it");
         assertEq(h.book(1).usdc, address(0), "unknown chains get no defaults");
     }
 
+    function test_TestnetDeploysItsOwnUniswapV4() public {
+        vm.chainId(10143);
+        vm.etch(0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC, hex"00");
+        DeployLaunchpad.Config memory t = h.config(makeAddr("deployer"));
+        assertTrue(t.deployV4);
+        assertFalse(t.mainnet);
+        h.preflight(t); // passes without a PoolManager: the deploy creates one
+    }
+
+    function test_MainnetNeverDeploysUniswapV4() public {
+        vm.setEnv("ADMIN", vm.toString(c.admin));
+        vm.setEnv("TREASURY", vm.toString(c.treasury));
+        vm.setEnv("RELAYER", vm.toString(c.relayer));
+        vm.setEnv("BASE_URI", c.baseURI);
+        vm.setEnv("KOMA_BASE_URI", c.issuesBaseURI);
+        DeployLaunchpad.Config memory m = h.config(makeAddr("deployer"));
+        assertFalse(m.deployV4);
+        assertEq(m.poolManager, 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e);
+    }
+
     function test_ValidMainnetConfigPasses() public view {
-        h.preflight(c);
-    }
-
-    function test_RevertWhen_MainnetWithoutStylus() public {
-        c.math = address(0);
-        c.router = address(0);
-        vm.expectRevert(abi.encodeWithSelector(DeployLaunchpad.MainnetRequires.selector, "MATH and ROUTER (Stylus programs)"));
-        h.preflight(c);
-    }
-
-    function test_RevertWhen_MainnetEngineIsSolidity() public {
-        vm.etch(c.router, hex"6080604052"); // any EVM contract, e.g. RoyaltyRouterReference
-        vm.expectRevert(abi.encodeWithSelector(DeployLaunchpad.NotStylusProgram.selector, "ROUTER", c.router));
         h.preflight(c);
     }
 

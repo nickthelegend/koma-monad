@@ -227,7 +227,7 @@ export const CANON_THRESHOLD = 1_000_000;
 /** Graduation targets the factory uses (LaunchpadConstants): a normal series, and a testnet demo series. */
 export const GRADUATION_TARGET_USDC = 5_000;
 export const DEMO_TARGET_USDC = 25;
-/** The curve opens with 1,000 virtual USDC against 1B virtual coins. */
+/** The curve opens with 1,000 virtual AUSD against 1B virtual coins. */
 export const START_PRICE_USDC = 1_000 / TOTAL_SUPPLY;
 
 /** Tokenbound AccountV3 (ERC-6551): the character's wallet. Only the Character NFT's owner can call execute. */

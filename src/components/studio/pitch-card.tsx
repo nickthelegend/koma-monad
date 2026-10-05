@@ -72,7 +72,7 @@ export function PitchCard({
         {!locked && (
           <>
             <button onClick={onPay} disabled={busy} className="slant mt-5 w-full py-3.5 text-[20px]">
-              {busy ? "Getting quote…" : `Pay ${pitch.price} USDC & draw`}
+              {busy ? "Getting quote…" : `Pay ${pitch.price} AUSD & draw`}
             </button>
             <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[12px] text-mute">
               <ArbMark width={12} height={12} /> One signature in your wallet · no gas

@@ -11,20 +11,20 @@ const BASE = process.env.KOMA_PUBLIC_URL || "http://localhost:4310";
 
 export const metadata: Metadata = {
   title: "How payment works",
-  description: "KOMA sells comics over HTTP 402. One USDC signature on Arbitrum, settled by a facilitator, minted to you.",
+  description: "KOMA sells comics over HTTP 402. One AUSD signature on Monad, settled by a facilitator, minted to you.",
 };
 
 const STEPS = [
   { t: "You ask for a comic", d: "The studio (or any script or AI agent) sends your story to POST /api/comics." },
-  { t: "The server quotes a price", d: "It answers 402 Payment Required with the amount, USDC on Arbitrum, and where it goes." },
-  { t: "Your wallet signs once", d: "A USDC transfer authorization (EIP-3009) for exactly that amount. Signing costs no gas." },
+  { t: "The server quotes a price", d: "It answers 402 Payment Required with the amount, AUSD on Monad, and where it goes." },
+  { t: "Your wallet signs once", d: "An AUSD transfer authorization (EIP-3009) for exactly that amount. Signing costs no gas." },
   { t: "The request is sent again, signed", d: "The same call, now carrying the signature in its PAYMENT-SIGNATURE header." },
-  { t: "The facilitator settles it", d: "It checks the signature and submits the transfer on Arbitrum, paying the gas itself." },
+  { t: "The facilitator settles it", d: "It checks the signature and submits the transfer on Monad, paying the gas itself." },
   { t: "Your issue is drawn and minted", d: "Script, panels and lettering are generated; a hash of the finished issue is minted to your wallet." },
 ];
 
 /** The launchpad, step by step. Numbers come from the shared constants; the engine line says what this network runs. */
-function launchpadSteps(stylus: boolean) {
+function launchpadSteps() {
   return [
     {
       t: "A series starts with a character",
@@ -35,16 +35,12 @@ function launchpadSteps(stylus: boolean) {
       d: "It's minted to you as a Character NFT, and the NFT owns a wallet of its own (ERC-6551). Owning the character means owning that wallet.",
     },
     {
-      t: "Its coin sits on a USDC curve",
-      d: `${compact(TOTAL_SUPPLY)} coins: 95% are sold by a bonding curve that raises the price as people buy and lowers it as they sell; 5% go to the creator, released over 30 days. ${
-        stylus
-          ? "The curve's math runs in an Arbitrum Stylus contract written in Rust."
-          : "This deployment runs the curve's math as the Solidity reference; KOMA's public deployments run it in an Arbitrum Stylus contract written in Rust."
-      }`,
+      t: "Its coin sits on an AUSD curve",
+      d: `${compact(TOTAL_SUPPLY)} coins: 95% are sold by a bonding curve that raises the price as people buy and lowers it as they sell; 5% go to the creator, released over 30 days. The curve runs on Monad, so a trade settles in a ~400 ms block.`,
     },
     {
       t: "Trading costs no gas",
-      d: `You sign a USDC authorization (to buy) or a permit (to sell) and KOMA's relayer sends it, for trades of $${GASLESS_MIN_USDC} or more. The signature fixes the amount, the minimum you'll accept and a deadline, so the relayer can't change any of them.`,
+      d: `You sign an AUSD authorization (to buy) or a permit (to sell) and KOMA's relayer sends it, for trades of $${GASLESS_MIN_USDC} or more. The signature fixes the amount, the minimum you'll accept and a deadline, so the relayer can't change any of them.`,
     },
     {
       t: "Holders decide what's canon",
@@ -56,7 +52,7 @@ function launchpadSteps(stylus: boolean) {
     },
     {
       t: "Graduation into Uniswap v4",
-      d: `When a curve raises its target (${GRADUATION_TARGET_USDC.toLocaleString("en-US")} USDC${MAINNET ? "" : `, or ${DEMO_TARGET_USDC} for a demo series`}) it closes, and KOMA takes ${GRADUATION_FEE_PCT}% of the USDC raised, and the rest plus the remaining coins become a Uniswap v4 pool at the final price. The liquidity is locked for good.`,
+      d: `When a curve raises its target (${GRADUATION_TARGET_USDC.toLocaleString("en-US")} AUSD${MAINNET ? "" : `, or ${DEMO_TARGET_USDC} for a demo series`}) it closes, and KOMA takes ${GRADUATION_FEE_PCT}% of the AUSD raised, and the rest plus the remaining coins become a Uniswap v4 pool at the final price. The liquidity is locked for good.`,
     },
   ];
 }
@@ -95,13 +91,13 @@ const res = await pay("${BASE}/api/comics", {
 const { jobId } = await res.json();   // then poll /api/jobs/{jobId}`;
 
 export default function How() {
-  const LAUNCHPAD = launchpadSteps(launchpad()?.engine === "stylus");
+  const LAUNCHPAD = launchpadSteps();
   return (
     <div className="mx-auto max-w-[1100px] px-4 pt-6 md:px-8 md:pt-10">
       <h1 className="masthead text-[19vw] text-kapow md:text-[clamp(110px,12vw,176px)]">Pay per issue</h1>
       <p className="mt-5 max-w-[58ch] text-[17px] leading-relaxed text-soft">
         No accounts, no credits, no subscription. KOMA uses x402, the HTTP status code the web reserved for payments decades ago, to
-        charge a few cents of USDC on Arbitrum for each comic, from a person or an AI agent alike.
+        charge a few cents of AUSD on Monad for each comic, from a person or an AI agent alike.
       </p>
 
       <section id="x402" className="mt-14 scroll-mt-24">
@@ -125,7 +121,7 @@ export default function How() {
         <pre className="mt-5 overflow-x-auto border border-rule bg-stock p-4 font-mono text-[12.5px] leading-relaxed text-soft">
           <code>{CURL}</code>
         </pre>
-        <p className="mt-6 text-[14.5px] text-mute">From an agent, with any viem account holding USDC:</p>
+        <p className="mt-6 text-[14.5px] text-mute">From an agent, with any viem account holding AUSD:</p>
         <pre className="mt-3 overflow-x-auto border border-rule bg-stock p-4 font-mono text-[12.5px] leading-relaxed text-soft">
           <code>{AGENT}</code>
         </pre>
@@ -137,8 +133,8 @@ export default function How() {
             <ArbMark /> Facilitator
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-soft">
-            KOMA runs its own x402 facilitator for Arbitrum. It exposes the standard /api/facilitator/verify, /settle and
-            /supported endpoints, so other apps on Arbitrum can use it to take USDC payments too.
+            KOMA runs its own x402 facilitator for Monad. It exposes the standard /api/facilitator/verify, /settle and
+            /supported endpoints, so other apps on Monad can use it to take AUSD payments too.
           </p>
         </div>
         <div id="contract" className="scroll-mt-24 border border-arb/30 bg-[#06111a] p-5">

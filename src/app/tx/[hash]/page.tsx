@@ -24,18 +24,18 @@ function decode(log: Log): Decoded | null {
       const e = decodeEventLog({ abi: erc20Abi, ...log });
       if (e.eventName === "Transfer") {
         return {
-          label: "USDC transfer",
+          label: "AUSD transfer",
           lines: [
             ["From", e.args.from],
             ["To", e.args.to],
-            ["Amount", `${Number(formatUnits(e.args.value, USDC_DECIMALS)).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} USDC`],
+            ["Amount", `${Number(formatUnits(e.args.value, USDC_DECIMALS)).toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} AUSD`],
           ],
         };
       }
     } catch {
-      /* AuthorizationUsed and other USDC events */
+      /* AuthorizationUsed and other AUSD events */
     }
-    return { label: "USDC authorization used", lines: [["Nonce", (log.topics[2] ?? "") as string]] };
+    return { label: "AUSD authorization used", lines: [["Nonce", (log.topics[2] ?? "") as string]] };
   }
   if (config.contract && addr === config.contract.toLowerCase()) {
     try {
@@ -106,7 +106,7 @@ export default async function TxPage({ params }: PageProps<"/tx/[hash]">) {
 
       <h2 className="mt-10 font-display text-[22px] uppercase tracking-wide text-paper">Events</h2>
       {events.length === 0 ? (
-        <p className="mt-3 text-[14px] text-mute">No USDC or KOMA events in this transaction.</p>
+        <p className="mt-3 text-[14px] text-mute">No AUSD or KOMA events in this transaction.</p>
       ) : (
         <ul className="mt-4 flex flex-col gap-3">
           {events.map((e, i) => (

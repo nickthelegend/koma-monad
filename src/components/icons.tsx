@@ -24,7 +24,7 @@ export const IconChevron = (p: P) => (<svg {...base} {...p}><path d="m9 6 6 6-6 
 export const IconEye = (p: P) => (<svg {...base} {...p}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>);
 export const IconX = (p: P) => (<svg width={18} height={18} viewBox="0 0 24 24" fill="currentColor" aria-hidden {...p}><path d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.3L5.3 21H2.2l7.2-8.3L1.8 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z" /></svg>);
 
-/** Arbitrum's mark, simplified: the only place the chain's own shape appears. */
+/** Monad's mark, simplified: the only place the chain's own shape appears. */
 export const ArbMark = (p: P) => (
   <svg width={16} height={16} viewBox="0 0 24 24" aria-hidden {...p}>
     <path d="M12 1.5 21.5 7v10L12 22.5 2.5 17V7z" fill="#213147" />

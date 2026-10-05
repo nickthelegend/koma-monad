@@ -6,7 +6,7 @@ import {RoyaltyRouterReference} from "../src/RoyaltyRouterReference.sol";
 import {IRoyaltyRouter} from "../src/interfaces/IRoyaltyRouter.sol";
 import {CircleUSDC, IFiatToken} from "./utils/CircleUSDC.sol";
 
-/// Replays `stylus/test-vectors/router.json` (generated from the Stylus `split.rs`) against the Solidity
+/// Replays `test/vectors/router.json` (golden vectors generated from KOMA's original Rust `split.rs`) against the Solidity
 /// `RoyaltyRouterReference`, so both engines are pinned to the same 40/20/40 split on every vector.
 contract RouterVectorsTest is Test {
     // fields in alphabetical order so `abi.decode` maps the JSON objects straight in
@@ -46,8 +46,8 @@ contract RouterVectorsTest is Test {
         vm.stopPrank();
     }
 
-    function test_RouterVectorsMatchStylus() public {
-        string memory json = vm.readFile(string.concat(vm.projectRoot(), "/../stylus/test-vectors/router.json"));
+    function test_RouterMatchesGoldenVectors() public {
+        string memory json = vm.readFile(string.concat(vm.projectRoot(), "/test/vectors/router.json"));
         Case[] memory cases = abi.decode(vm.parseJsonTypeArray(json, ".cases", CASE_TYPE), (Case[]));
         assertEq(cases.length, vm.parseJsonUint(json, ".count"));
         assertGt(cases.length, 2000);

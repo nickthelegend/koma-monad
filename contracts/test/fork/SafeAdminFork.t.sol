@@ -68,7 +68,7 @@ contract SafeDeploy is DeployLaunchpad {
     }
 }
 
-/// AUDIT.md section 2: a Safe multisig (v1.4.1, the canonical deployment on Arbitrum One and Sepolia) as both
+/// AUDIT.md section 2: a Safe multisig (v1.4.1, the canonical deployment) as both
 /// TREASURY and ADMIN. Fees and the graduation fee arrive as plain USDC transfers, the deploy hands every admin
 /// role and the router to the Safe, and the Safe can exercise them with a 2-of-2 transaction.
 ///   FORK_TESTS=1 forge test --match-path "test/fork/*" -vv
@@ -105,8 +105,6 @@ contract SafeAdminForkTest is ForkBase {
         // subclass rather than ADMIN/TREASURY env vars; the remaining env values match the other fork suites.
         vm.setEnv("TREASURY", vm.toString(makeAddr("koma-fork-treasury")));
         vm.setEnv("RELAYER", vm.toString(relayer));
-        vm.setEnv("MATH", vm.toString(address(0)));
-        vm.setEnv("ROUTER", vm.toString(address(0)));
         vm.setEnv("KOMA_ISSUES", vm.toString(address(0)));
         vm.setEnv("ADDRESSES_OUT", "none");
         d = new SafeDeploy(address(safe)).run();

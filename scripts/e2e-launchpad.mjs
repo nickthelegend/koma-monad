@@ -17,7 +17,7 @@ const BASE = process.env.KOMA_URL ?? "http://localhost:4310";
 const envFile = process.env.KOMA_ENV_FILE ?? ".env.local";
 const env = Object.fromEntries(readFileSync(envFile, "utf8").split("\n").filter((l) => l.includes("=") && !l.startsWith("#")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
 const status = await (await fetch(`${BASE}/api/status`)).json();
-const RPC = process.env.KOMA_RPC ?? env.NEXT_PUBLIC_ARBITRUM_RPC_URL;
+const RPC = process.env.KOMA_RPC ?? env.NEXT_PUBLIC_MONAD_RPC_URL;
 const chain = createPublicClient({ transport: http(RPC) });
 const chainId = await chain.getChainId();
 const only = process.argv.find((a) => a.startsWith("only="))?.slice(5).split(",");

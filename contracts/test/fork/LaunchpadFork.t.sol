@@ -16,7 +16,7 @@ import {StateLibrary} from "@uniswap/v4-core/src/libraries/StateLibrary.sol";
 import {FullMath} from "@uniswap/v4-core/src/libraries/FullMath.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-/// Full lifecycle against real Arbitrum Sepolia contracts: Circle USDC (EIP-3009 signatures), the ERC-6551
+/// Full lifecycle against real Monad testnet contracts: Agora AUSD (EIP-3009 signatures), the ERC-6551
 /// registry + Tokenbound accounts, and the Uniswap v4 PoolManager / PositionManager / Permit2. The system is
 /// deployed by the real DeployLaunchpad script (Solidity reference engine).
 ///   FORK_TESTS=1 forge test --match-path "test/fork/*" -vv
@@ -35,8 +35,6 @@ contract LaunchpadForkTest is ForkBase {
         vm.setEnv("DEPLOYER_KEY", vm.toString(bytes32(deployerPk)));
         vm.setEnv("RELAYER", vm.toString(relayer));
         vm.setEnv("TREASURY", vm.toString(treasury));
-        vm.setEnv("MATH", vm.toString(address(0)));
-        vm.setEnv("ROUTER", vm.toString(address(0)));
         vm.setEnv("KOMA_ISSUES", vm.toString(address(0)));
         vm.setEnv("ADDRESSES_OUT", "none");
         d = new DeployLaunchpad().run();
@@ -44,14 +42,14 @@ contract LaunchpadForkTest is ForkBase {
     }
 
     function test_Fork_DeployWiring() public view {
-        assertFalse(d.stylus);
         assertTrue(factory.hasRole(factory.LAUNCHER_ROLE(), relayer));
         assertTrue(factory.hasRole(factory.DEFAULT_ADMIN_ROLE(), deployer));
         RoyaltyRouterReference router = RoyaltyRouterReference(d.royaltyRouter);
         assertEq(router.factory(), d.seriesFactory);
         assertEq(router.usdc(), USDC);
         assertEq(router.treasury(), treasury);
-        assertEq(address(Graduator(d.graduator).poolManager()), POOL_MANAGER);
+        assertEq(address(Graduator(d.graduator).poolManager()), d.poolManager);
+        assertGt(d.poolManager.code.length, 0, "Uniswap v4 PoolManager deployed on Monad testnet");
     }
 
     uint256 id;
@@ -142,13 +140,13 @@ contract LaunchpadForkTest is ForkBase {
         vm.expectEmit(true, false, false, true, d.graduator);
         emit Graduator.GraduationFee(id, 1.25e6); // 5% of 25 USDC
         bytes32 poolId = curve.graduate();
-        (uint160 sqrtP,,,) = StateLibrary.getSlot0(IPoolManager(POOL_MANAGER), PoolId.wrap(poolId));
+        (uint160 sqrtP,,,) = StateLibrary.getSlot0(IPoolManager(d.poolManager), PoolId.wrap(poolId));
         assertEq(sqrtP, want, "pool opens at the curve's final price");
         // coins are the abundant side at $25: the treasury gets the fee plus at most 1 unit of mint dust
         assertGe(usdc.balanceOf(treasury) - treasuryBefore, 1.25e6);
         assertLe(usdc.balanceOf(treasury) - treasuryBefore, 1.25e6 + 1);
-        assertGt(StateLibrary.getLiquidity(IPoolManager(POOL_MANAGER), PoolId.wrap(poolId)), 0);
-        assertEq(IERC721(POSITION_MANAGER).ownerOf(_lastPositionId()), 0x000000000000000000000000000000000000dEaD);
+        assertGt(StateLibrary.getLiquidity(IPoolManager(d.poolManager), PoolId.wrap(poolId)), 0);
+        assertEq(IERC721(d.positionManager).ownerOf(_lastPositionId()), 0x000000000000000000000000000000000000dEaD);
         assertEq(coin.balanceOf(address(curve)), 0);
         assertEq(usdc.balanceOf(address(curve)), 0);
     }
@@ -181,7 +179,7 @@ contract LaunchpadForkTest is ForkBase {
     }
 
     function _lastPositionId() internal view returns (uint256) {
-        (bool ok, bytes memory ret) = POSITION_MANAGER.staticcall(abi.encodeWithSignature("nextTokenId()"));
+        (bool ok, bytes memory ret) = d.positionManager.staticcall(abi.encodeWithSignature("nextTokenId()"));
         require(ok);
         return abi.decode(ret, (uint256)) - 1;
     }

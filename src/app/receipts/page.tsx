@@ -7,7 +7,7 @@ import { txUrl } from "@/lib/explorer";
 
 export const metadata: Metadata = {
   title: "Receipts",
-  description: "Every KOMA issue, the USDC paid for it over x402, and the Arbitrum transactions that settled and minted it.",
+  description: "Every KOMA issue, the AUSD paid for it over x402, and the Monad transactions that settled and minted it.",
 };
 
 export const dynamic = "force-dynamic";
@@ -21,13 +21,13 @@ export default async function Receipts() {
     <div className="mx-auto max-w-[1320px] px-4 pt-6 md:px-8 md:pt-10">
       <h1 className="masthead text-[25vw] text-kapow md:text-[clamp(140px,15vw,216px)]">Receipts</h1>
       <p className="mt-4 max-w-[56ch] text-[15px] leading-relaxed text-soft">
-        Each issue on KOMA is one HTTP 402 payment settled in USDC on Arbitrum, then one mint. This is the full ledger.
+        Each issue on KOMA is one HTTP 402 payment settled in AUSD on Monad, then one mint. This is the full ledger.
       </p>
 
       <dl className="mt-8 grid grid-cols-3 border-y border-rule">
         {[
           ["Issues minted", rows.length.toString()],
-          ["USDC settled", total.toFixed(2)],
+          ["AUSD settled", total.toFixed(2)],
           ["Pages drawn", pages.toString()],
         ].map(([k, v]) => (
           <div key={k} className="border-l border-rule py-4 pl-4 first:border-l-0 first:pl-0">
@@ -49,7 +49,7 @@ export default async function Receipts() {
           <li key={c.id} className="py-4">
             <div className="flex items-baseline justify-between gap-3">
               <Link href={`/c/${c.id}`} className="font-display text-[20px] uppercase leading-tight text-paper">{c.title}</Link>
-              <span className="font-mono text-[13px] text-arb">{c.chain.paidUsdc} USDC</span>
+              <span className="font-mono text-[13px] text-arb">{c.chain.paidUsdc} AUSD</span>
             </div>
             <p className="mt-1 text-[12.5px] text-mute">
               {c.creator.name} · {ago(c.createdAt)} · token #{c.chain.tokenId}
@@ -83,7 +83,7 @@ export default async function Receipts() {
               </td>
               <td className="py-3.5 text-soft">{c.creator.name}</td>
               <td className="py-3.5 text-soft">{c.pageCount}</td>
-              <td className="py-3.5 text-right font-mono text-arb">{c.chain.paidUsdc} USDC</td>
+              <td className="py-3.5 text-right font-mono text-arb">{c.chain.paidUsdc} AUSD</td>
               <td className="py-3.5 pl-8 font-mono text-[12.5px] text-soft">
                 <a href={txUrl(c.chain.paymentTx)} className="text-arb hover:underline">
                   {short(c.chain.paymentTx, 10, 8)}

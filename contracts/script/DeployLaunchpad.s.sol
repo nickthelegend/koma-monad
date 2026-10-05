@@ -16,34 +16,38 @@ import {KomaSwapper} from "../src/KomaSwapper.sol";
 import {CurveDeployer} from "../src/deployers/CurveDeployer.sol";
 import {CoinDeployer} from "../src/deployers/CoinDeployer.sol";
 
-/// @title Deploy the KOMA launchpad
-/// @notice Runbook for Arbitrum One: deploy/MAINNET.md. Summary:
+/// @title Deploy the KOMA launchpad on Monad
+/// @notice Runbook: deploy/DEPLOY.md. Summary:
 ///
-///   Arbitrum One (42161) — Stylus engine only, keystore signer only, admin handed to a Safe:
-///     MATH=0x.. ROUTER=0x.. ADMIN=<Safe> TREASURY=<Safe/treasury> RELAYER=<server key> \
-///     BASE_URI=https://.../api/characters/ KOMA_BASE_URI=https://.../api/tokens/ \
-///     forge script script/DeployLaunchpad.s.sol --rpc-url arbitrum --account <keystore> --sender <addr> --broadcast
-///   Arbitrum Sepolia (421614) / KOMA localnet (Sepolia fork): same, or leave MATH/ROUTER unset to deploy the
-///   Solidity reference engine (anvil cannot run Stylus). DEPLOYER_KEY works off-mainnet only.
+///   Monad testnet (10143):
+///     DEPLOYER_KEY=0x.. ALLOW_EOA_ADMIN=true BASE_URI=https://<app>/api/characters/ KOMA_BASE_URI=https://<app>/api/tokens/ \
+///     forge script script/DeployLaunchpad.s.sol --rpc-url monad_testnet --broadcast
+///     Uniswap v4 isn't deployed on Monad testnet, so this script deploys the canonical v4 PoolManager,
+///     PositionManager and V4Quoter from Uniswap's published artifacts (unless POOL_MANAGER etc. are given).
+///   Monad mainnet (143): canonical Uniswap v4 and AUSD from the book; keystore signer only, ADMIN a Safe:
+///     ADMIN=<Safe> TREASURY=<Safe> RELAYER=<server key> BASE_URI=.. KOMA_BASE_URI=.. \
+///     forge script script/DeployLaunchpad.s.sol --rpc-url monad --account <keystore> --sender <addr> --broadcast
 ///
-///   Addresses come from a per-chain book (42161 and 421614; the hosted localnet 4216141 is a Sepolia fork).
-///   On 42161 an env override that differs from the book is refused. Other chains need every address in env.
+///   The curve math and the royalty router are the Solidity contracts (CurveMathReference, RoyaltyRouterReference).
+///   The stablecoin everywhere ("usdc" in the code) is Agora's AUSD.
 ///
-///   Env: MATH + ROUTER (Stylus programs; both or neither), ADMIN (default: deployer, off-mainnet only), TREASURY,
-///   RELAYER, KOMA_ISSUES (existing issues contract; else a fresh one), BASE_URI, KOMA_BASE_URI,
-///   MIN_GRADUATION_TARGET / MIN_VOTING_WINDOW (launch floors; default 1,000 USDC / 1 h on 42161, 1 USDC / 60 s
-///   elsewhere), ALLOW_EOA_ADMIN (42161: accept an ADMIN without code), USDC, POOL_MANAGER, POSITION_MANAGER,
-///   PERMIT2, V4_QUOTER, ERC6551_REGISTRY, ACCOUNT_PROXY, ACCOUNT_IMPL, ADDRESSES_OUT (default
-///   ../deploy/addresses.<chainId>.json; "none" skips writing).
+///   Env: ADMIN (default: deployer, off-mainnet only), TREASURY, RELAYER, KOMA_ISSUES (existing issues contract;
+///   else a fresh one), BASE_URI, KOMA_BASE_URI, MIN_GRADUATION_TARGET / MIN_VOTING_WINDOW (launch floors;
+///   default 1,000 AUSD / 1 h on 143, 1 AUSD / 60 s elsewhere), ALLOW_EOA_ADMIN (143: accept an ADMIN without
+///   code), USDC, POOL_MANAGER, POSITION_MANAGER, PERMIT2, V4_QUOTER, ERC6551_REGISTRY, ACCOUNT_PROXY,
+///   ACCOUNT_IMPL, ADDRESSES_OUT (default ../deploy/addresses.<chainId>.json; "none" skips writing).
 ///
 ///   At the end the deployer holds no role anywhere (when ADMIN != deployer): ADMIN gets DEFAULT_ADMIN_ROLE on
 ///   every AccessControl contract and the router's ownership, RELAYER only the operational roles.
 contract DeployLaunchpad is Script {
-    uint256 internal constant ARBITRUM_ONE = 42161;
-    uint256 internal constant ARBITRUM_SEPOLIA = 421614;
-    uint256 internal constant KOMA_HOSTED_LOCALNET = 4216141; // anvil fork of Arbitrum Sepolia
-    // CREATE2_FACTORY (forge-std CommonBase): the Arachnid deterministic-deployment proxy, present on Arbitrum One,
-    // Arbitrum Sepolia and anvil.
+    uint256 internal constant MONAD = 143;
+    uint256 internal constant MONAD_TESTNET = 10143; // also the local anvil fork of Monad testnet
+    // CREATE2_FACTORY (forge-std CommonBase): the Arachnid deterministic-deployment proxy, present on Monad,
+    // Monad testnet and anvil.
+    string internal constant POOL_MANAGER_ARTIFACT = "../node_modules/@uniswap/v4-core/out/PoolManager.sol/PoolManager.json";
+    string internal constant POSITION_MANAGER_ARTIFACT =
+        "../node_modules/@uniswap/v4-periphery/foundry-out/PositionManager.sol/PositionManager.json";
+    string internal constant V4_QUOTER_ARTIFACT = "../node_modules/@uniswap/v4-periphery/foundry-out/V4Quoter.sol/V4Quoter.json";
     uint160 internal constant GRADUATOR_HOOK_FLAGS = Hooks.BEFORE_INITIALIZE_FLAG;
 
     struct Book {
@@ -65,8 +69,8 @@ contract DeployLaunchpad is Script {
         address treasury;
         address relayer;
         address komaIssues;
-        address math;
-        address router;
+        /// Uniswap v4 isn't on this chain (Monad testnet): deploy PoolManager, PositionManager and V4Quoter here.
+        bool deployV4;
         address poolManager;
         address positionManager;
         address permit2;
@@ -89,19 +93,19 @@ contract DeployLaunchpad is Script {
         address swapper;
         address curveMath;
         address royaltyRouter;
-        bool stylus;
+        address poolManager;
+        address positionManager;
+        address v4Quoter;
         /// router.factory() == seriesFactory and router.owner() == admin after this run
         bool routerWired;
         uint256 deployBlock;
     }
 
-    error HalfStylusConfig();
     error NoSigner();
     error MainnetRequires(string what);
     error MainnetOverride(string name, address book, address given);
     error MissingAddress(string name);
     error NoCode(string name, address at);
-    error NotStylusProgram(string name, address at);
     error RelayerIsAdmin();
     error LocalhostURI(string uri);
     error RouterMisconfigured(string what);
@@ -112,7 +116,7 @@ contract DeployLaunchpad is Script {
     function run() public virtual returns (Deployment memory d) {
         uint256 pk = vm.envOr("DEPLOYER_KEY", uint256(0));
         // Mainnet signs with a keystore / hardware wallet (`--account`, `--ledger`), never a raw env key.
-        if (pk != 0 && block.chainid == ARBITRUM_ONE) revert MainnetRequires("--account keystore signer, not DEPLOYER_KEY");
+        if (pk != 0 && block.chainid == MONAD) revert MainnetRequires("--account keystore signer, not DEPLOYER_KEY");
         address deployer = pk == 0 ? msg.sender : vm.addr(pk);
         if (deployer == DEFAULT_SENDER) revert NoSigner(); // forgot --account/--sender: never deploy as forge's default
         Config memory cfg = _config(deployer);
@@ -131,23 +135,20 @@ contract DeployLaunchpad is Script {
 
     // ------------------------------------------------------------------ configuration
 
-    /// @notice Canonical addresses per chain. Arbitrum One values are checked to have code in `_preflight`.
+    /// @notice Canonical addresses per chain. Monad mainnet values are checked to have code in `_preflight`.
     function book(uint256 chainId) public pure returns (Book memory b) {
-        if (chainId == ARBITRUM_ONE) {
-            b.usdc = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
-            b.poolManager = 0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32;
-            b.positionManager = 0xd88F38F930b7952f2DB2432Cb002E7abbF3dD869;
-            b.permit2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
-            b.v4Quoter = 0x3972C00f7ed4885e145823eb7C655375d275A1C5;
-        } else if (chainId == ARBITRUM_SEPOLIA || chainId == KOMA_HOSTED_LOCALNET) {
-            b.usdc = 0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d;
-            b.poolManager = 0xFB3e0C6F74eB1a21CC1Da29aeC80D2Dfe6C9a317;
-            b.positionManager = 0xAc631556d3d4019C95769033B5E719dD77124BAc;
-            b.permit2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
-            b.v4Quoter = 0x7dE51022d70A725b508085468052E25e22b5c4c9;
+        if (chainId == MONAD) {
+            b.usdc = 0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a; // AUSD
+            b.poolManager = 0x188d586Ddcf52439676Ca21A244753fA19F9Ea8e;
+            b.positionManager = 0x5b7eC4a94fF9beDb700fb82aB09d5846972F4016;
+            b.v4Quoter = 0xa222Dd357A9076d1091Ed6Aa2e16C9742dD26891;
+        } else if (chainId == MONAD_TESTNET) {
+            b.usdc = 0xa9012a055bd4e0eDfF8Ce09f960291C09D5322dC; // AUSD (Agora testnet)
+            // No Uniswap v4 on Monad testnet: left empty, deployed by this script.
         } else {
             return b; // unknown chain: everything must come from env
         }
+        b.permit2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
         // Tokenbound v0.3 (same addresses and code on both chains)
         b.erc6551Registry = 0x000000006551c19487814612e58FE06813775758;
         b.accountProxy = 0x55266d75D1a14E4572138116aF39863Ed6596E7F;
@@ -155,21 +156,22 @@ contract DeployLaunchpad is Script {
     }
 
     function _config(address deployer) internal view virtual returns (Config memory c) {
-        c.mainnet = block.chainid == ARBITRUM_ONE;
+        c.mainnet = block.chainid == MONAD;
         c.deployer = deployer;
         Book memory b = book(block.chainid);
         c.usdc = _addr("USDC", b.usdc, c.mainnet);
-        c.poolManager = _addr("POOL_MANAGER", b.poolManager, c.mainnet);
-        c.positionManager = _addr("POSITION_MANAGER", b.positionManager, c.mainnet);
         c.permit2 = _addr("PERMIT2", b.permit2, c.mainnet);
-        c.v4Quoter = _addr("V4_QUOTER", b.v4Quoter, c.mainnet);
+        c.poolManager = vm.envOr("POOL_MANAGER", b.poolManager);
+        c.deployV4 = !c.mainnet && c.poolManager == address(0);
+        if (!c.deployV4) {
+            c.poolManager = _addr("POOL_MANAGER", b.poolManager, c.mainnet);
+            c.positionManager = _addr("POSITION_MANAGER", b.positionManager, c.mainnet);
+            c.v4Quoter = _addr("V4_QUOTER", b.v4Quoter, c.mainnet);
+        }
         c.erc6551Registry = _addr("ERC6551_REGISTRY", b.erc6551Registry, c.mainnet);
         c.accountProxy = _addr("ACCOUNT_PROXY", b.accountProxy, c.mainnet);
         c.accountImpl = _addr("ACCOUNT_IMPL", b.accountImpl, c.mainnet);
 
-        c.math = vm.envOr("MATH", address(0));
-        c.router = vm.envOr("ROUTER", address(0));
-        if ((c.math == address(0)) != (c.router == address(0))) revert HalfStylusConfig();
         c.komaIssues = vm.envOr("KOMA_ISSUES", address(0));
 
         if (c.mainnet) {
@@ -194,24 +196,19 @@ contract DeployLaunchpad is Script {
 
     function _preflight(Config memory c) internal view {
         _requireCode("USDC", c.usdc);
-        _requireCode("POOL_MANAGER", c.poolManager);
-        _requireCode("POSITION_MANAGER", c.positionManager);
+        if (!c.deployV4) {
+            _requireCode("POOL_MANAGER", c.poolManager);
+            _requireCode("POSITION_MANAGER", c.positionManager);
+        }
         _requireCode("PERMIT2", c.permit2);
         _requireCode("ERC6551_REGISTRY", c.erc6551Registry);
         _requireCode("ACCOUNT_PROXY", c.accountProxy);
         _requireCode("ACCOUNT_IMPL", c.accountImpl);
         _requireCode("CREATE2_FACTORY", CREATE2_FACTORY);
-        if (c.math != address(0)) {
-            _requireCode("MATH", c.math);
-            _requireCode("ROUTER", c.router);
-        }
         if (c.komaIssues != address(0)) _requireCode("KOMA_ISSUES", c.komaIssues);
         if (!c.mainnet) return;
 
         _requireCode("V4_QUOTER", c.v4Quoter);
-        // Engine: the Stylus programs, never the Solidity reference.
-        if (c.math == address(0)) revert MainnetRequires("MATH and ROUTER (Stylus programs)");
-        _checkEngine(c);
         if (c.relayer == c.admin) revert RelayerIsAdmin();
         if (c.admin == c.deployer) revert MainnetRequires("ADMIN != deployer (the deployer renounces every role)");
         if (c.admin.code.length == 0 && !vm.envOr("ALLOW_EOA_ADMIN", false)) {
@@ -221,29 +218,23 @@ contract DeployLaunchpad is Script {
         _noLocalhost(c.issuesBaseURI);
     }
 
-    /// @dev Mainnet engine check: MATH/ROUTER must be Stylus programs (code starts with the 0xEFF000 Stylus
-    ///      prefix, which EVM bytecode can never carry under EIP-3541). Only the local measurement script
-    ///      (script/MeasureMainnetDeploy.s.sol, anvil-only) overrides this to use Solidity stand-ins.
-    function _checkEngine(Config memory c) internal view virtual {
-        if (!_isStylus(c.math)) revert NotStylusProgram("MATH", c.math);
-        if (!_isStylus(c.router)) revert NotStylusProgram("ROUTER", c.router);
-    }
-
     // ------------------------------------------------------------------ deployment
 
     function _deploy(Config memory c) internal returns (Deployment memory d) {
-        d.stylus = c.math != address(0);
-        if (d.stylus) {
-            // Foundry's EVM can't execute Stylus (WASM) programs, so this script never calls them: the
-            // router is initialized by scripts/stylus-deploy.sh and wired with the printed `cast` commands.
-            d.curveMath = c.math;
-            d.royaltyRouter = c.router;
-        } else {
-            d.curveMath = address(new CurveMathReference());
-            RoyaltyRouterReference router = new RoyaltyRouterReference();
-            router.initialize(c.usdc, c.treasury, c.deployer);
-            d.royaltyRouter = address(router);
+        if (c.deployV4) {
+            // Canonical Uniswap v4 bytecode from Uniswap's published artifacts (PoolManager owner = ADMIN).
+            c.poolManager = deployCode(POOL_MANAGER_ARTIFACT, abi.encode(c.admin));
+            c.positionManager =
+                deployCode(POSITION_MANAGER_ARTIFACT, abi.encode(c.poolManager, c.permit2, 300_000, address(0), address(0)));
+            c.v4Quoter = deployCode(V4_QUOTER_ARTIFACT, abi.encode(c.poolManager));
         }
+        d.poolManager = c.poolManager;
+        d.positionManager = c.positionManager;
+        d.v4Quoter = c.v4Quoter;
+        d.curveMath = address(new CurveMathReference());
+        RoyaltyRouterReference router = new RoyaltyRouterReference();
+        router.initialize(c.usdc, c.treasury, c.deployer);
+        d.royaltyRouter = address(router);
 
         d.komaIssues = c.komaIssues != address(0)
             ? c.komaIssues
@@ -267,8 +258,7 @@ contract DeployLaunchpad is Script {
         graduator.grantRole(graduator.FACTORY_ROLE(), address(factory));
         factory.grantRole(factory.LAUNCHER_ROLE(), c.relayer);
 
-        // Stylus router: wired afterwards with `cast` (see the checklist printed below).
-        d.routerWired = d.stylus ? false : _wireRouter(c, d.royaltyRouter, d.seriesFactory);
+        d.routerWired = _wireRouter(c, d.royaltyRouter, d.seriesFactory);
 
         // Hand every admin role to ADMIN and drop the deployer's.
         if (c.admin != c.deployer) {
@@ -364,15 +354,13 @@ contract DeployLaunchpad is Script {
         if (!canon.hasRole(canon.FACTORY_ROLE(), d.seriesFactory)) revert PostCheck("canon factory");
         Graduator g = Graduator(d.graduator);
         if (!g.hasRole(g.FACTORY_ROLE(), d.seriesFactory)) revert PostCheck("graduator factory");
-        if (g.treasury() != c.treasury || address(g.poolManager()) != c.poolManager) revert PostCheck("graduator config");
+        if (g.treasury() != c.treasury || address(g.poolManager()) != d.poolManager) revert PostCheck("graduator config");
         if (uint160(d.graduator) & Hooks.ALL_HOOK_MASK != GRADUATOR_HOOK_FLAGS) revert PostCheck("graduator hook flags");
         CharacterNFT nft = CharacterNFT(d.characterNft);
         if (!nft.hasRole(nft.MINTER_ROLE(), d.seriesFactory)) revert PostCheck("nft minter");
-        if (!d.stylus) {
-            IRoyaltyRouter r = IRoyaltyRouter(d.royaltyRouter);
-            if (r.usdc() != c.usdc || r.treasury() != c.treasury) revert PostCheck("router config");
-            if (d.routerWired && (r.factory() != d.seriesFactory || r.owner() != c.admin)) revert PostCheck("router wiring");
-        }
+        IRoyaltyRouter r = IRoyaltyRouter(d.royaltyRouter);
+        if (r.usdc() != c.usdc || r.treasury() != c.treasury) revert PostCheck("router config");
+        if (d.routerWired && (r.factory() != d.seriesFactory || r.owner() != c.admin)) revert PostCheck("router wiring");
     }
 
     // ------------------------------------------------------------------ helpers
@@ -397,11 +385,6 @@ contract DeployLaunchpad is Script {
         if (a.code.length == 0) revert NoCode(name, a);
     }
 
-    function _isStylus(address a) internal view returns (bool) {
-        bytes memory code = a.code;
-        return code.length > 3 && code[0] == 0xEF && code[1] == 0xF0 && code[2] == 0x00;
-    }
-
     function _noLocalhost(string memory uri) internal pure {
         bytes memory u = bytes(uri);
         if (_contains(u, "localhost") || _contains(u, "127.0.0.1") || _contains(u, ".test/")) revert LocalhostURI(uri);
@@ -419,8 +402,7 @@ contract DeployLaunchpad is Script {
         return false;
     }
 
-    /// @dev On Arbitrum `block.number` (and vm.getBlockNumber) is the L1 block number; indexers need the L2
-    ///      number the RPC reports, so ask the RPC and fall back to the EVM value when there is none.
+    /// @dev The block the RPC reports (what indexers start from); falls back to the EVM value with no RPC.
     function _chainBlockNumber() internal returns (uint256 n) {
         try vm.rpc("eth_blockNumber", "[]") returns (bytes memory raw) {
             for (uint256 i; i < raw.length; i++) {
@@ -433,7 +415,7 @@ contract DeployLaunchpad is Script {
 
     function _log(Config memory c, Deployment memory d) internal view {
         console.log("chain           ", block.chainid);
-        console.log("engine          ", d.stylus ? "stylus" : "solidity-reference");
+        console.log("PoolManager (v4)", d.poolManager);
         console.log("SeriesFactory   ", d.seriesFactory);
         console.log("CharacterNFT    ", d.characterNft);
         console.log("CanonRegistry   ", d.canonRegistry);
@@ -448,23 +430,15 @@ contract DeployLaunchpad is Script {
         if (c.relayer == c.deployer) console.log("WARNING: the relayer is the deployer key");
 
         console.log("");
-        console.log("POST-DEPLOY CHECKLIST (deploy/MAINNET.md has the full runbook)");
-        if (d.stylus) {
-            console.log("[ ] Stylus router - send now, as the deployer, in this order (launches revert until done):");
-            console.log(string.concat("    cast send ", vm.toString(d.royaltyRouter), " 'setFactory(address)' ", vm.toString(d.seriesFactory)));
-            if (c.admin != c.deployer) {
-                console.log(string.concat("    cast send ", vm.toString(d.royaltyRouter), " 'transferOwnership(address)' ", vm.toString(c.admin)));
-            }
-            console.log("    then check: cast call <router> 'factory()(address)' / 'owner()(address)' / 'usdc()(address)' / 'treasury()(address)'");
-        } else if (!d.routerWired) {
+        console.log("POST-DEPLOY CHECKLIST (deploy/DEPLOY.md has the full runbook)");
+        if (!d.routerWired) {
             console.log("[ ] ADMIN (Safe) must send on the router - launches revert until it does:");
             console.log(string.concat("    ", vm.toString(d.royaltyRouter), " setFactory(address) ", vm.toString(d.seriesFactory)));
         } else {
             console.log("[x] router: factory set, ownership transferred to ADMIN");
         }
-        console.log("[ ] verify sources on Arbiscan (forge verify-contract / cargo stylus verify)");
+        console.log("[ ] verify sources on Sourcify (forge verify-contract --verifier sourcify --chain <id>)");
         console.log("[ ] check roles with cast call hasRole (deployer must hold none)");
-        if (d.stylus) console.log("[ ] Stylus: CacheManager bids placed; programTimeLeft monitored (365-day expiry)");
         console.log("[ ] smoke test with the smallest amounts (MAINNET.md section 6)");
     }
 
@@ -484,11 +458,11 @@ contract DeployLaunchpad is Script {
         vm.serializeAddress(k, "swapper", d.swapper);
         vm.serializeAddress(k, "curveMath", d.curveMath);
         vm.serializeAddress(k, "royaltyRouter", d.royaltyRouter);
-        vm.serializeString(k, "engine", d.stylus ? "stylus" : "solidity-reference");
-        vm.serializeAddress(k, "poolManager", c.poolManager);
-        vm.serializeAddress(k, "positionManager", c.positionManager);
+        vm.serializeString(k, "engine", "solidity");
+        vm.serializeAddress(k, "poolManager", d.poolManager);
+        vm.serializeAddress(k, "positionManager", d.positionManager);
         vm.serializeAddress(k, "permit2", c.permit2);
-        vm.serializeAddress(k, "v4Quoter", c.v4Quoter);
+        vm.serializeAddress(k, "v4Quoter", d.v4Quoter);
         vm.serializeAddress(k, "erc6551Registry", c.erc6551Registry);
         vm.serializeAddress(k, "accountProxy", c.accountProxy);
         vm.serializeAddress(k, "accountImpl", c.accountImpl);

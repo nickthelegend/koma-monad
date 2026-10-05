@@ -113,7 +113,7 @@ async function apply(logs: Log[]) {
       }
       case "Swapped": {
         // Trades in the graduated v4 pool. Stored like curve trades, with the
-        // trade's own amounts as the "reserves", so price = USDC / coins.
+        // trade's own amounts as the "reserves", so price = AUSD / coins.
         if (addr !== a.swapper.toLowerCase()) break;
         const r = e.args;
         const id = Number(r.seriesId);
