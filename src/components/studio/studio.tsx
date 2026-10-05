@@ -11,7 +11,7 @@ import { Progress } from "./progress";
 import { useGeneration } from "./use-generation";
 import { ArbMark, IconBolt, IconCheck, IconPlus, IconRemix } from "../icons";
 import { EpisodeBanner, type EpisodeSeries } from "../launchpad/episode-banner";
-import { AI_DOWN_NOTE, useServerStatus } from "../use-server-status";
+import { AI_DOWN_NOTE, AI_MOCK_NOTE, useServerStatus } from "../use-server-status";
 
 const STARTERS = [
   { label: "Heist gone wrong", text: "Four broke crooks plan a vault job that goes sideways when the vault starts talking back." },
@@ -45,7 +45,7 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
   const [genre, setGenre] = useState<Genre | undefined>(initialGenre ?? remix?.genre);
   const [pages, setPages] = useState(remix?.pageCount ?? 2);
   const { state, requestQuote, pay, cancel, resume } = useGeneration();
-  const { offline, aiDown } = useServerStatus();
+  const { offline, aiDown, aiMock } = useServerStatus();
 
   useEffect(() => {
     if (job) resume(job);
@@ -89,6 +89,11 @@ export function Studio({ remix, job, genre: initialGenre, series }: { remix?: Co
           {aiDown && (
             <p role="status" className="mt-6 border border-kapow/60 bg-kapow/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
               {AI_DOWN_NOTE}
+            </p>
+          )}
+          {!aiDown && aiMock && (
+            <p role="status" className="mt-6 border border-bam/60 bg-bam/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
+              {AI_MOCK_NOTE}
             </p>
           )}
           {offline && (

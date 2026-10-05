@@ -9,7 +9,7 @@ import { draw, writeScript, type Corner, type Script, type ScriptBalloon } from 
 import { assertConfigured, config, publicClient, serverWallet } from "./config";
 import { artPath, bump, saveArt, saveIssue, saveJob, unfinishedJobs } from "./store";
 import { readFile } from "node:fs/promises";
-import { seriesRow } from "./launchpad/queries";
+import { canonView, seriesRow } from "./launchpad/queries";
 import { proposeOrQueue } from "./launchpad/canon";
 
 const SHAPES: PanelShape[] = ["wide", "square", "square", "wide"];
@@ -79,7 +79,22 @@ export async function runJob(job: Job) {
       job.drawn = 0;
       await saveJob(job);
       const prompt = series ? `Episode for the series "${series.name}" starring ${series.character_name}. Series pitch: ${series.pitch}. This episode: ${order.prompt}` : order.prompt;
-      script = await writeScript({ prompt, title: order.title, pages: order.pages, style: style.label, genre: order.genre, cast, remix: remix ?? undefined });
+      // Series episodes: the writer (Kimi, when configured) reads the voted canon through a tool call first.
+      const canonSoFar = async () => {
+        const view = await canonView(series!.id);
+        return view.canon.map((c) => ({ episode: c.episode, title: c.issue?.title ?? `Issue #${c.issueId}`, logline: c.issue?.logline ?? "" }));
+      };
+      const episode = series ? (await canonView(series.id)).canon.length + 1 : 0;
+      script = await writeScript({
+        prompt,
+        title: order.title,
+        pages: order.pages,
+        style: style.label,
+        genre: order.genre,
+        cast,
+        remix: remix ?? undefined,
+        series: series ? { name: series.name, episode, canon: canonSoFar } : undefined,
+      });
       job.work = { script, seed: randomInt(1, 2 ** 31) };
       job.script = { title: script.title, logline: script.logline };
       job.pages = script.pages.map((p) => ({
@@ -113,7 +128,7 @@ export async function runJob(job: Job) {
     const s = script;
     await pool(tasks, 5, async (t) => {
       if (t.kind === "cover") {
-        const bytes = await draw(`${style.prompt}, comic book cover illustration, bold dynamic composition, ${s.cover}`, "portrait_4_3", seed, lead);
+        const bytes = await draw(`${style.prompt}, comic book cover illustration, bold dynamic composition, ${s.cover}`, "portrait_4_3", seed, { ...lead, cover: true });
         cover = await saveArt(job.id, "cover.jpg", bytes);
         work.cover = cover;
         await saveJob(job);

@@ -9,8 +9,9 @@ import { privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { x402HTTPClient, decodePaymentRequiredHeader } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 
-const BASE = process.env.KOMA_URL ?? "http://localhost:4310";
+const BASE = process.env.KOMA_URL ?? "http://localhost:4320";
 const envFile = process.env.KOMA_ENV_FILE ?? ".env.local";
 const env = Object.fromEntries(readFileSync(envFile, "utf8").split("\n").filter((l) => l.includes("=") && !l.startsWith("#")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
 const status = await (await fetch(`${BASE}/api/status`)).json();
@@ -122,11 +123,11 @@ if (run("B3") && !skipPaid("B3", "402 quotes")) {
     const ok =
       res.status === 402 && required.x402Version === 2 && a.scheme === "exact" && a.network === status.caip &&
       a.asset.toLowerCase() === USDC.toLowerCase() && a.amount === String(pages * 100000) &&
-      a.payTo.toLowerCase() === PAY_TO.toLowerCase() && a.extra?.name === "USD Coin" && a.extra?.version === "2";
+      a.payTo.toLowerCase() === PAY_TO.toLowerCase() && a.extra?.name === AUSD_DOMAIN.name && a.extra?.version === AUSD_DOMAIN.version;
     if (!ok) console.log(`     ✗ pages ${pages}:`, res.status, JSON.stringify(a));
     all &&= ok;
   }
-  check("B3", "402 quotes: v2, exact, KOMA network, USDC, pages×100000, payTo, USD Coin/2", all);
+  check("B3", "402 quotes: v2, exact, KOMA network, AUSD, pages×100000, payTo, Agora Dollar/1", all);
 
   const order = { prompt: "A perfectly fine story idea here.", pages: 4 };
   const direct = decodePaymentRequiredHeader((await post(order)).headers.get("PAYMENT-REQUIRED"));
@@ -268,7 +269,7 @@ if (run("B12")) {
   const required = {
     x402Version: 2,
     resource: { url: `${BASE}/facilitator-test`, description: "facilitator check", mimeType: "application/json" },
-    accepts: [{ scheme: "exact", network: status.caip, amount: "100000", asset: USDC, payTo: PAY_TO, maxTimeoutSeconds: 300, extra: { name: "USD Coin", version: "2" } }],
+    accepts: [{ scheme: "exact", network: status.caip, amount: "100000", asset: USDC, payTo: PAY_TO, maxTimeoutSeconds: 300, extra: { ...AUSD_DOMAIN } }],
   };
   const h = httpClient(KEYS.agent);
   const payload = await h.createPaymentPayload(required);

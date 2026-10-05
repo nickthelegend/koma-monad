@@ -10,7 +10,6 @@ function read() {
   const missing = [
     !key && "SERVER_PRIVATE_KEY",
     !process.env.KOMA_CONTRACT && "KOMA_CONTRACT",
-    !process.env.FAL_KEY && "FAL_KEY",
   ].filter(Boolean) as string[];
 
   return {

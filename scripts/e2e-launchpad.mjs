@@ -2,8 +2,8 @@
 // All real: x402-paid launches, fal character sheets, gasless trades relayed on
 // chain, signed canon votes, the keeper's finalization, graduation into v4.
 //   node scripts/e2e-launchpad.mjs [only=L1,L2,...]
-// Env: KOMA_URL (default http://localhost:4310), KOMA_ENV_FILE (.env.local), KOMA_RPC.
-// On a local fork (anvil) test USDC is minted with anvil_setStorageAt; on a public
+// Env: KOMA_URL (default http://localhost:4320), KOMA_ENV_FILE (.env.local), KOMA_RPC.
+// On the local Monad testnet fork, test wallets get real AUSD from Agora's faucet contract; on a public
 // network the TEST_* wallets must already hold USDC.
 import { readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
@@ -12,8 +12,9 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { x402Client } from "@x402/core/client";
 import { x402HTTPClient, decodePaymentRequiredHeader } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
+import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 
-const BASE = process.env.KOMA_URL ?? "http://localhost:4310";
+const BASE = process.env.KOMA_URL ?? "http://localhost:4320";
 const envFile = process.env.KOMA_ENV_FILE ?? ".env.local";
 const env = Object.fromEntries(readFileSync(envFile, "utf8").split("\n").filter((l) => l.includes("=") && !l.startsWith("#")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
 const status = await (await fetch(`${BASE}/api/status`)).json();
@@ -71,21 +72,11 @@ const who = {
   fresh: privateKeyToAccount(generatePrivateKey()),
 };
 
-// ——— Test USDC on a local fork (FiatToken balances live at slot 9) ———
+// ——— Test AUSD on the local fork (moved from Agora's faucet contract; scripts/lib/ausd.mjs) ———
 const isFork = await chain.request({ method: "anvil_nodeInfo" }).then(() => true, () => false);
 async function fundUsdc(addr, amount) {
-  if (!isFork) {
-    // Hosted localnet: real faucet claims (1 USDC each) until the wallet holds `amount`.
-    if (!status.faucet) return;
-    for (let i = 0; i < 80 && (await usdc(addr)) < amount; i++) {
-      const res = await postJson("/api/faucet", { address: addr });
-      if (!res.ok) throw new Error(`faucet: ${res.status} ${(await res.json().catch(() => ({}))).error ?? ""}`);
-      await sleep(400);
-    }
-    return;
-  }
-  const slot = keccak256(encodeAbiParameters([{ type: "address" }, { type: "uint256" }], [addr, BigInt(9)]));
-  await chain.request({ method: "anvil_setStorageAt", params: [USDC, slot, pad(toHex(amount), { size: 32 })] });
+  if (!isFork) throw new Error("e2e-launchpad funds wallets on a local anvil fork only");
+  await setAusd(chain, addr, amount);
 }
 
 // ——— x402 payments ———
@@ -154,7 +145,7 @@ async function signBuy(acct, curve, usdcIn, minCoinOut) {
     ),
   );
   const signature = await acct.signTypedData({
-    domain: { name: "USD Coin", version: "2", chainId, verifyingContract: USDC },
+    domain: { ...AUSD_DOMAIN, chainId, verifyingContract: USDC },
     types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] },
     primaryType: "ReceiveWithAuthorization",
     message: { from: acct.address, to: curve, value: usdcIn, validAfter: BigInt(0), validBefore: deadline, nonce },
@@ -218,8 +209,8 @@ const launchBody = (o = {}) => ({
 
 // ——— L1 ———
 if (run("L1")) {
-  const ok = !!LP && LP.chainId === chainId && ["stylus", "solidity-reference"].includes(LP.engine) && typeof status.relayerEth === "number";
-  check("L1", "status reports the launchpad (addresses, engine, relayer balance)", ok, LP ? `engine=${LP.engine} relayer=${status.relayerEth?.toFixed(4)} ETH` : "launchpad null");
+  const ok = !!LP && LP.chainId === chainId && LP.engine === "solidity" && LP.poolManager && typeof status.relayerEth === "number";
+  check("L1", "status reports the launchpad (addresses, engine, relayer balance)", ok, LP ? `engine=${LP.engine} relayer=${status.relayerEth?.toFixed(4)} MON v4=${LP.poolManager}` : "launchpad null");
   if (!LP) process.exit(1);
 }
 
@@ -418,7 +409,7 @@ if (G && run("L12")) {
     const salt = toHex(randomBytes(32));
     const nonce = await chain.readContract({ address: LP.swapper, abi: swapAbi, functionName: "swapNonce", args: [who.payto.address, BigInt(G.id), U(3), BigInt(1), deadline, salt] });
     const signature = await who.payto.signTypedData({
-      domain: { name: "USD Coin", version: "2", chainId, verifyingContract: USDC },
+      domain: { ...AUSD_DOMAIN, chainId, verifyingContract: USDC },
       types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] },
       primaryType: "ReceiveWithAuthorization",
       message: { from: who.payto.address, to: LP.swapper, value: U(3), validAfter: BigInt(0), validBefore: deadline, nonce },

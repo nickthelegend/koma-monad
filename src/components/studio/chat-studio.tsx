@@ -13,7 +13,7 @@ import { Steps } from "./progress";
 import { useGeneration } from "./use-generation";
 import { EpisodeBanner, type EpisodeSeries } from "../launchpad/episode-banner";
 import { priceFor } from "@/lib/order";
-import { AI_DOWN_NOTE, useServerStatus } from "../use-server-status";
+import { AI_DOWN_NOTE, AI_MOCK_NOTE, useServerStatus } from "../use-server-status";
 
 type Msg = { role: "user" | "assistant"; content: string; pitched?: string };
 type Saved = { messages: Msg[]; pitch: Pitch | null; jobId?: string; genre?: Genre };
@@ -84,7 +84,7 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
-  const { offline, aiDown } = useServerStatus();
+  const { offline, aiDown, aiMock } = useServerStatus();
   const { state, requestQuote, pay, cancel, resume } = useGeneration();
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -171,6 +171,11 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
           {aiDown && (
             <p role="status" className="mt-5 border border-kapow/60 bg-kapow/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
               {AI_DOWN_NOTE}
+            </p>
+          )}
+          {!aiDown && aiMock && (
+            <p role="status" className="mt-5 border border-bam/60 bg-bam/10 px-4 py-3 text-[13.5px] leading-relaxed text-soft">
+              {AI_MOCK_NOTE}
             </p>
           )}
           {offline && (

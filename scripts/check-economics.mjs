@@ -4,13 +4,14 @@
 // proposal ready for a browser vote. Series are launched straight through SeriesFactory with the
 // relayer key, so this needs no fal credit (they have no character art).
 //   npm run chain & npm run dev, then: npm run check:economics
-// Local fork only: it funds test wallets with anvil_setStorageAt.
+// Local fork only: it funds test wallets with real AUSD from Agora's faucet contract (scripts/lib/ausd.mjs).
 import { readFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { createPublicClient, createWalletClient, encodeAbiParameters, http, keccak256, pad, parseAbi, parseEventLogs, stringToBytes, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { AUSD_DOMAIN, setAusd } from "./lib/ausd.mjs";
 const env = Object.fromEntries(readFileSync(".env.local", "utf8").split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
-const RPC = "http://127.0.0.1:18611", BASE = "http://localhost:4310";
+const RPC = env.NEXT_PUBLIC_MONAD_RPC_URL || "http://127.0.0.1:18643", BASE = "http://localhost:4320";
 const chain = createPublicClient({ transport: http(RPC) });
 const LP = JSON.parse(readFileSync(".data/addresses.local.json", "utf8"));
 const USDC = LP.usdc, chainId = await chain.getChainId();
@@ -18,7 +19,7 @@ const relayer = createWalletClient({ account: privateKeyToAccount(env.SERVER_PRI
 const agent = privateKeyToAccount(env.TEST_AGENT_KEY), payto = privateKeyToAccount(env.TEST_PAYTO_KEY), creator = privateKeyToAccount(env.TEST_BROWSER_KEY);
 const U = (n) => BigInt(Math.round(n * 1e6));
 const usdc = (a) => chain.readContract({ address: USDC, abi: parseAbi(["function balanceOf(address) view returns (uint256)"]), functionName: "balanceOf", args: [a] });
-const fund = async (a, n) => chain.request({ method: "anvil_setStorageAt", params: [USDC, keccak256(encodeAbiParameters([{ type: "address" }, { type: "uint256" }], [a, 9n])), pad(toHex(U(n)), { size: 32 })] });
+const fund = (a, n) => setAusd(chain, a, U(n));
 const factoryAbi = parseAbi([
   "struct LaunchParams { address creator; string name; string symbol; string characterName; bytes32 sheetHash; uint256 parentSeriesId; uint256 graduationTarget; uint64 votingWindow; }",
   "function launch(LaunchParams p) returns (uint256)",
@@ -40,7 +41,7 @@ async function buy(acct, curve, n) {
   const [out] = await chain.readContract({ address: curve, abi: curveAbi, functionName: "quoteBuy", args: [usdcIn] });
   const minCoinOut = (out * 99n) / 100n, deadline = BigInt(Math.floor(Date.now() / 1000) + 600), salt = toHex(randomBytes(32));
   const nonce = keccak256(encodeAbiParameters([{ type: "bytes32" }, { type: "address" }, { type: "address" }, { type: "uint256" }, { type: "uint256" }, { type: "uint256" }, { type: "bytes32" }], [keccak256(stringToBytes("KOMA_BUY_V1")), curve, acct.address, usdcIn, minCoinOut, deadline, salt]));
-  const signature = await acct.signTypedData({ domain: { name: "USD Coin", version: "2", chainId, verifyingContract: USDC }, types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] }, primaryType: "ReceiveWithAuthorization", message: { from: acct.address, to: curve, value: usdcIn, validAfter: 0n, validBefore: deadline, nonce } });
+  const signature = await acct.signTypedData({ domain: { ...AUSD_DOMAIN, chainId, verifyingContract: USDC }, types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] }, primaryType: "ReceiveWithAuthorization", message: { from: acct.address, to: curve, value: usdcIn, validAfter: 0n, validBefore: deadline, nonce } });
   const res = await fetch(`${BASE}/api/trade/relay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "buy", curve, buyer: acct.address, usdcIn: String(usdcIn), minCoinOut: String(minCoinOut), deadline: String(deadline), salt, validAfter: "0", validBefore: String(deadline), signature }) });
   const j = await res.json();
   if (!res.ok) return { error: j.error };
@@ -70,7 +71,7 @@ const G = await launch("Grad Check", 0);
 await buy(agent, G.curve, 12); await buy(payto, G.curve, 9); await buy(creator, G.curve, 8);
 let fee = null, pool = null;
 for (let i = 0; i < 60 && !pool; i++) {
-  const logs = await chain.getLogs({ address: LP.graduator, fromBlock: "earliest" });
+  const logs = await chain.getLogs({ address: LP.graduator, fromBlock: BigInt(LP.deployBlock) });
   const ev = parseEventLogs({ abi: gradAbi, logs }).filter((x) => x.args.seriesId === G.seriesId);
   fee = ev.find((x) => x.eventName === "GraduationFee"); pool = ev.find((x) => x.eventName === "PoolCreated");
   if (!pool) await new Promise((r2) => setTimeout(r2, 2000));
@@ -86,7 +87,7 @@ if (pool) {
   const { result } = await chain.simulateContract({ address: LP.v4Quoter, abi: quoterAbi, functionName: "quoteExactInputSingle", args: [{ poolKey: key, zeroForOne: key.currency0.toLowerCase() === USDC.toLowerCase(), exactAmount: U(3), hookData: "0x" }] });
   const deadline = BigInt(Math.floor(Date.now() / 1000) + 600), salt = toHex(randomBytes(32)), minOut = (result[0] * 99n) / 100n;
   const nonce = await chain.readContract({ address: LP.swapper, abi: swapAbi, functionName: "swapNonce", args: [payto.address, G.seriesId, U(3), minOut, deadline, salt] });
-  const signature = await payto.signTypedData({ domain: { name: "USD Coin", version: "2", chainId, verifyingContract: USDC }, types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] }, primaryType: "ReceiveWithAuthorization", message: { from: payto.address, to: LP.swapper, value: U(3), validAfter: 0n, validBefore: deadline, nonce } });
+  const signature = await payto.signTypedData({ domain: { ...AUSD_DOMAIN, chainId, verifyingContract: USDC }, types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] }, primaryType: "ReceiveWithAuthorization", message: { from: payto.address, to: LP.swapper, value: U(3), validAfter: 0n, validBefore: deadline, nonce } });
   const coin = parseAbi(["function balanceOf(address) view returns (uint256)"]);
   const before = await chain.readContract({ address: G.coin, abi: coin, functionName: "balanceOf", args: [payto.address] });
   const res = await fetch(`${BASE}/api/trade/relay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "swap-buy", seriesId: Number(G.seriesId), buyer: payto.address, usdcIn: String(U(3)), minCoinOut: String(minOut), deadline: String(deadline), salt, validAfter: "0", validBefore: String(deadline), signature }) });
@@ -99,7 +100,7 @@ if (pool) {
 async function signedBuy(acct, curve, usdcIn, minCoinOut) {
   const deadline = BigInt(Math.floor(Date.now() / 1000) + 600), salt = toHex(randomBytes(32));
   const nonce = keccak256(encodeAbiParameters([{ type: "bytes32" }, { type: "address" }, { type: "address" }, { type: "uint256" }, { type: "uint256" }, { type: "uint256" }, { type: "bytes32" }], [keccak256(stringToBytes("KOMA_BUY_V1")), curve, acct.address, usdcIn, minCoinOut, deadline, salt]));
-  const signature = await acct.signTypedData({ domain: { name: "USD Coin", version: "2", chainId, verifyingContract: USDC }, types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] }, primaryType: "ReceiveWithAuthorization", message: { from: acct.address, to: curve, value: usdcIn, validAfter: 0n, validBefore: deadline, nonce } });
+  const signature = await acct.signTypedData({ domain: { ...AUSD_DOMAIN, chainId, verifyingContract: USDC }, types: { ReceiveWithAuthorization: [{ name: "from", type: "address" }, { name: "to", type: "address" }, { name: "value", type: "uint256" }, { name: "validAfter", type: "uint256" }, { name: "validBefore", type: "uint256" }, { name: "nonce", type: "bytes32" }] }, primaryType: "ReceiveWithAuthorization", message: { from: acct.address, to: curve, value: usdcIn, validAfter: 0n, validBefore: deadline, nonce } });
   return { kind: "buy", curve, buyer: acct.address, usdcIn: String(usdcIn), minCoinOut: String(minCoinOut), deadline: String(deadline), salt, validAfter: "0", validBefore: String(deadline), signature };
 }
 const relayPost = async (body) => { const r = await fetch(`${BASE}/api/trade/relay`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); const j = await r.json(); if (!r.ok) return { error: j.error }; const rc = await chain.waitForTransactionReceipt({ hash: j.txHash }); return rc.status === "success" ? { rc } : { error: "reverted" }; };

@@ -25,7 +25,6 @@ function limited(key: string, windowMs: number, max: number) {
 
 /** POST /api/chat { messages: [{ role, content }], pitch?, remixOf? } → { reply, pitch } */
 export async function POST(req: NextRequest) {
-  if (!config.falKey) return NextResponse.json({ error: "The editor is offline: server missing FAL_KEY." }, { status: 503 });
   if (limited(`ip:${clientIp(req)}`, WINDOW_MS, MAX_TURNS)) {
     return NextResponse.json({ error: "That's a lot of notes. Give the editor a few minutes." }, { status: 429 });
   }

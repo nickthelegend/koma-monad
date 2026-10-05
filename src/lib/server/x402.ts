@@ -4,6 +4,7 @@ import type { Network } from "@x402/core/types";
 import { registerExactEvmScheme } from "@x402/evm/exact/facilitator";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { toFacilitatorEvmSigner } from "@x402/evm";
+import { erc20Abi } from "viem";
 import type { Job } from "@/lib/types";
 import type { LaunchJob } from "@/lib/launchpad/types";
 import { config, serverWallet } from "./config";
@@ -36,6 +37,17 @@ function makeFacilitator() {
   );
   const f = new x402Facilitator();
   registerExactEvmScheme(f, { signer, networks: network });
+  // AUSD's ERC-20 name() is "AUSD" but its EIP-712 domain name is "Agora Dollar". When a payment fails
+  // simulation, the x402 library compares name() with the domain name before it looks at the balance, so an
+  // underfunded payer is reported as a token-name mismatch. Re-diagnose that case from the chain.
+  const verify = f.verify.bind(f);
+  f.verify = async (payload, requirements) => {
+    const r = await verify(payload, requirements);
+    if (r.isValid || r.invalidReason !== "invalid_exact_evm_token_name_mismatch" || !r.payer) return r;
+    const auth = (payload.payload as { authorization?: { value?: string } }).authorization;
+    const balance = await w.readContract({ address: requirements.asset as `0x${string}`, abi: erc20Abi, functionName: "balanceOf", args: [r.payer as `0x${string}`] });
+    return BigInt(auth?.value ?? 0) > balance ? { ...r, invalidReason: "invalid_exact_evm_insufficient_balance" } : r;
+  };
   return f;
 }
 

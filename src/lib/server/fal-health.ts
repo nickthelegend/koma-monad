@@ -1,4 +1,5 @@
 import { config } from "./config";
+import { imageProvider } from "./providers";
 
 // Whether fal will actually run jobs right now. Checked before quoting, so a
 // locked or out-of-credit account never takes a payment it can't draw for.
@@ -8,6 +9,8 @@ const TTL_MS = 60_000;
 let cached: { at: number; ok: boolean; reason?: string } | null = null;
 
 export async function falHealth(): Promise<{ ok: true } | { ok: false; reason: string }> {
+  // No fal in the loop (mock mode, or text-only providers with mock art): nothing to probe.
+  if (imageProvider() !== "fal") return { ok: true };
   if (!config.falKey) return { ok: false, reason: "server missing FAL_KEY" };
   if (cached && Date.now() - cached.at < TTL_MS) return cached.ok ? { ok: true } : { ok: false, reason: cached.reason! };
   try {

@@ -3,6 +3,7 @@ import { config, publicClient } from "@/lib/server/config";
 import { launchpad } from "@/lib/server/launchpad/addresses";
 import { budgetStatus } from "@/lib/server/budget";
 import { falHealth } from "@/lib/server/fal-health";
+import { aiSummary } from "@/lib/server/providers";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export async function GET() {
     facilitator: config.account?.address ?? null,
     relayerEth,
     budget: budgetStatus(),
-    ai: await falHealth(),
+    ai: { ...(await falHealth()), ...aiSummary() },
     launchpad: lp ? { engine: lp.engine, addresses: lp } : null,
     paymaster: Boolean(process.env.PIMLICO_API_KEY),
   });
