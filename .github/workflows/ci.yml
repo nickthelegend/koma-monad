@@ -62,7 +62,8 @@ jobs:
       - run: npm install --no-audit --no-fund
       - uses: foundry-rs/foundry-toolchain@v1
       # Real AUSD (Agora faucet), Tokenbound, Safe; Uniswap v4 deployed by the deploy script.
-      - run: forge test --match-path "test/fork/*" -vv
+      # Newer Foundry instantiates the Monad EVM only when the run itself targets Monad.
+      - run: forge test --match-path "test/fork/*" -vv --rpc-url https://testnet-rpc.monad.xyz
         working-directory: contracts
         env:
           FORK_TESTS: "1"
