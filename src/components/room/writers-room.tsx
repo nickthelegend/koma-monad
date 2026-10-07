@@ -184,6 +184,11 @@ export function WritersRoom() {
             Room <span className="font-mono text-[13px] normal-case text-arb" title={room.id}>{short(room.id, 6, 4)}</span>
           </h2>
           <p className="mt-1 text-[12px] text-mute">Encrypted to your passkey · locks in {clock(left)}</p>
+          {room.onChain?.local && (
+            <p data-passkey-onchain className="mt-1 font-mono text-[11px] text-arb" title="This unlock's WebAuthn signature, verified by Monad's P256VERIFY precompile (0x0100) with eth_call">
+              Passkey verified on chain by Monad&rsquo;s P256 precompile (0x0100){room.onChain.testnet ? " · live on Monad testnet ✓" : ""}
+            </p>
+          )}
         </div>
         <button onClick={lock} className="border border-rule px-3 py-1.5 text-[12.5px] text-soft hover:text-paper">
           Lock now

@@ -77,6 +77,10 @@ await A.page.getByRole("button", { name: TITLE }).click();
 const notesBack = await A.page.getByLabel(/Notes/).inputValue();
 check("R4", "stateless: storage wiped, one passkey prompt rebuilds the same room and decrypts the draft", again === roomId && notesBack === SECRET, again === roomId ? "same room id" : `got ${again}`);
 
+// R4b: that unlock's passkey (WebAuthn ES256) signature was verified on chain by Monad's P256 precompile (0x0100).
+const onChain = await A.page.locator("[data-passkey-onchain]").innerText().catch(() => "");
+check("R4b", "the unlock's passkey signature is verified by Monad's P256 precompile (0x0100), here and live on Monad testnet", /P256 precompile/.test(onChain) && /live on Monad testnet/.test(onChain), onChain);
+
 // R5: cross-device: the same passkey (as a synced credential would be) in a brand-new browser profile.
 const { credentials } = await A.cdp.send("WebAuthn.getCredentials", { authenticatorId: A.authenticatorId });
 const B = await device();

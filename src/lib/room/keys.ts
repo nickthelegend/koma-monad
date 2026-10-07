@@ -3,6 +3,7 @@
 import { createEd25519SigningSession, createPasskeyWithPrfOutput, getPasskeyPrfOutput, isMeraError, type Ed25519SigningSession } from "@category-labs/mera";
 import { bytesToHex, sha256, stringToBytes } from "viem";
 import { roomMessage, type RoomAction } from "./protocol";
+import { capturingClient, type Captured } from "./webauthn";
 
 /**
  * The Writers' Room: one passkey, keys that are not a wallet (Mera "One Passkey, Many Keys").
@@ -31,6 +32,8 @@ export type Room = {
   encrypt: (draftId: string, plaintext: string) => Promise<{ nonce: string; ciphertext: string }>;
   decrypt: (draftId: string, nonce: string, ciphertext: string) => Promise<string>;
   lock: () => void;
+  /** This unlock's passkey signature, verified by Monad's P256 precompile (0x0100): here and on Monad testnet. */
+  onChain?: { local: boolean; testnet: boolean | null } | null;
 };
 
 const b64 = (b: Uint8Array) => btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -84,18 +87,43 @@ function open(prf: Uint8Array<ArrayBuffer>): Promise<Room> {
 
 /** First visit: a new passkey for the room (one ceremony; some authenticators add a second prompt for PRF). */
 export async function createRoom(): Promise<Room> {
+  const captured: Captured = {};
   const r = await createPasskeyWithPrfOutput({
     rp: { id: location.hostname, name: "KOMA Writers' Room" },
     user: { name: "KOMA Writers' Room", displayName: "KOMA Writers' Room" },
     prfSalt: ROOM_SALT,
+    webAuthnClient: capturingClient(captured),
   });
-  return open(r.prfOutput);
+  const room = await open(r.prfOutput);
+  // Register the passkey's P256 public key (signed by the room key) so later unlocks can be verified on chain.
+  const pk = captured.publicKey;
+  if (pk) {
+    const s = await room.sign("passkey", `${pk.credentialId}:${pk.x.toLowerCase()}:${pk.y.toLowerCase()}`);
+    await fetch("/api/room/passkey", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...s, ...pk }) }).catch(() => {});
+  }
+  return room;
 }
 
 /** Any later visit, on any device with the passkey: one prompt rebuilds the same room. */
 export async function openRoom(): Promise<Room> {
-  const r = await getPasskeyPrfOutput({ rpId: location.hostname, prfSalt: ROOM_SALT });
-  return open(r.prfOutput);
+  // A one-time challenge from the server, so it can verify this unlock's passkey signature and know it's fresh.
+  const challenge = await fetch("/api/room/passkey", { cache: "no-store" })
+    .then((x) => x.json() as Promise<{ challenge?: string }>)
+    .then((j) => j.challenge)
+    .catch(() => undefined);
+  const captured: Captured = {};
+  const r = await getPasskeyPrfOutput({ rpId: location.hostname, prfSalt: ROOM_SALT, webAuthnClient: capturingClient(captured, challenge) });
+  const room = await open(r.prfOutput);
+  if (challenge && captured.assertion) {
+    room.onChain = await fetch("/api/room/passkey", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ room: room.id, challenge, assertion: captured.assertion }),
+    })
+      .then((x) => (x.ok ? (x.json() as Promise<{ local: boolean; testnet: boolean | null }>) : null))
+      .catch(() => null);
+  }
+  return room;
 }
 
 export function roomError(e: unknown): string {

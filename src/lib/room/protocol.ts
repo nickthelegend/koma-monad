@@ -1,7 +1,7 @@
 import { sha256, stringToBytes } from "viem";
 
 /** What a room key signs, shared by the browser (src/lib/room/keys.ts) and the server (src/lib/server/room.ts). */
-export type RoomAction = "list" | "put" | "delete";
+export type RoomAction = "list" | "put" | "delete" | "passkey";
 
 /** `extra` binds the signature to the request body: the draft id and a hash of the ciphertext for `put`. */
 export const roomMessage = (action: RoomAction, room: string, ts: number, extra = "") => `KOMA writers-room v1\n${action}\n${room.toLowerCase()}\n${ts}\n${extra}`;
