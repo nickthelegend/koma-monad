@@ -77,6 +77,6 @@ See `docs/ROADMAP-WIN.md` for the judge's-eye review and the acceptance criteria
 | Monad speed receipt (ms, gas, block, Ethereum cost; live block ticker) | DONE (`test:speed` 4/4, browser W4) |
 | Guided reader (page turns, full screen, panel-by-panel) | DONE (`test:reader` 12/12) |
 | Canon timeline ("Story so far") | DONE (`test:timeline` 3/3) |
-| First 60 seconds (loop-first hero, live numbers, sponsor strip) | NOT STARTED |
-| Board curation + launch presets | NOT STARTED |
-
+| First 60 seconds (loop-first hero, live numbers, sponsor strip) | DONE (`test:home` 8/8) |
+| Board curation + launch presets | DONE (`test:home` H2/H3) |
+| Monad-native (items 1–8, see ROADMAP-WIN.md) | DONE where buildable now (`test:monad` 5/5, `test:room` R4b); sync-send + txpool await the testnet go |

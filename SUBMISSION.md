@@ -54,14 +54,22 @@ Status: built and verified on the local fork. What each still needs is in [docs/
 **Not claimed:** Mera UX (Privy is the account layer), Dynamic, Kuru, Perpl, MetaMask, Agora (T1/T2), Alchemy,
 Nansen.
 
-## Monad integration
+## Monad integration (Monad-native)
 
-- Every buy, sell, vote, payment and launch is a Monad transaction or an EIP-712 signature settled by one. KOMA
-  relays them gaslessly, which pays only because Monad's gas is cheap and blocks are fast.
-- Gas limits are sized from estimates (Monad bills the limit). Log scans respect the public RPC's 100-block cap.
-- Uniswap v4 isn't on Monad testnet, so the deploy script deploys the canonical PoolManager, PositionManager and
-  V4Quoter from Uniswap's artifacts, and graduation seeds a real v4 pool behind KOMA's hook.
-- AUSD is native: payments, curves and pools are in dollars with no bridge.
+Every vote, trade, payment and launch is a Monad transaction or an EIP-712 signature settled by one, relayed
+gaslessly. Beyond that, KOMA uses what only Monad has. Each item says where it runs; the full table is in
+`docs/ROADMAP-WIN.md` → "Monad-native coverage".
+
+| Monad-native | KOMA | Where it runs |
+|---|---|---|
+| `monadNewHeads` / `monadLogs` commit states | `/monad`: Monad testnet's block pipeline live (Proposed → Voted ~280 ms → Finalized ~560 ms → Verified ~1.4 s, measured in the browser) and a live AUSD tape with commit states | live testnet read |
+| P256VERIFY precompile `0x0100` | Every Writers' Room unlock's passkey signature, over a one-time server challenge, verified with `eth_call` on KOMA's chain and live on Monad testnet; `/monad` verifies a fresh signature each refresh and rejects a tampered one | built + live read |
+| Fast receipts and finality | Two-timer receipts on every KOMA transaction (executed / final), with block, gas and the Ethereum cost of that gas | built (fork: executed only, labelled) |
+| Gas billed on the limit; 10 MON reserve (`0x1001`) | Explicit rounded gas limits; the relayer refuses relays that would break the reserve rule | built |
+| Staking precompile `0x1000` | `getEpoch()` live | live read (no MON to delegate) |
+| x402 on Monad | AUSD settlement via KOMA's facilitator; switchable to Monad's hosted facilitator, which verified a signed AUSD authorization live | built; settlement through it awaits the testnet go |
+| Canonical contracts; Uniswap v4 | Permit2, Multicall3, ERC-6551, x402 proxy, CreateX, EntryPoint, WMON checked on KOMA's chain; v4 deployed by the deploy script on testnet, where it's missing | built |
+| 300 ms blocks (MIP-12) | KOMA's chain definitions and copy say 300 ms / ~600 ms finality (viem still says 400) | built |
 
 ## Evidence
 
@@ -79,9 +87,14 @@ Full run on 6 Oct 2026 on a **clean** local deployment (`npm run demo` from an e
 | `test:ai` (real Kimi / Hunyuan, credits, episode tool call) | 4/4 |
 | `test:cre` (CRE settlement) | 7/7 |
 | `test:envio` (indexer) | 7/7 |
-| `test:room` (Mera) | 7/7 (+1 skipped: cross-device) |
+| `test:room` (Mera + P256 on chain) | 8/8 (+1 skipped: cross-device) |
 | `test:browser` (UI flows, real signatures) | 8/8 |
 | `test:walk` (16 pages at 375 px) | 16/16 |
+| `test:monad` (Monad-native, live testnet reads) | 5/5 |
+| `test:speed` (two-timer receipts) | 4/4 |
+| `test:reader` (page turns, guided, full screen; desktop + 390 px) | 12/12 |
+| `test:timeline` (canon timeline) | 3/3 |
+| `test:home` (first 60 seconds, presets, board curation; desktop + 390 px) | 8/8 |
 | `test:autopilot` | P0 pass (honestly off); P1–P6 untested (Privy keys) |
 | lint, typecheck (`next build`), slither | clean; slither 8 low/medium findings triaged (see `docs/TEST-PLAN-ZERO-MOCK.md`) |
 | secret scan (13 real secrets checked against the whole history and tree) | none found |
@@ -90,14 +103,14 @@ Full run on 6 Oct 2026 on a **clean** local deployment (`npm run demo` from an e
 
 | Time | Shot | Say |
 |---|---|---|
-| 0:00 | Home → `/series` board, leaderboard ("Indexed by Envio HyperIndex") | "KOMA: comics you own, and characters whose stories their holders write. On Monad." |
-| 0:12 | `/create`: type an idea; Hunyuan's editor answers with a pitch | "Tencent's Hunyuan 3 is the editor. Talk it through and it pitches the issue." |
-| 0:30 | Pay 0.10 AUSD: one signature, no gas; progress → panels ink in | "One AUSD signature on Monad, x402, no gas. Kimi K2.6 writes the script; fal draws it." |
-| 0:55 | The minted issue; credits line "Written by Kimi K2.6 · Art by Hunyuan Image 3" | "Minted to me, and it says which models made it." |
-| 1:05 | `/launch`: name a character; the Hunyuan Image 3 sheet appears; launch | "A dollar launches the hero as a series: a character NFT with its own wallet, and a coin." |
-| 1:30 | Series page: buy $3 gaslessly; the character's earnings tick up | "Trades are one signature and no gas. Forty percent of every fee goes to the character's wallet." |
-| 1:45 | Propose an episode (Kimi read the canon first: credits show `get_series_canon`); vote | "Holders write the canon. Kimi reads what's been voted before it writes the next episode. Votes are free signatures." |
-| 2:05 | Terminal: `cre workflow simulate koma-canon … --broadcast`; MonadVision tx; the canon board shows "Settled by Chainlink CRE" | "When the window closes, a Chainlink CRE workflow re-checks every signature and weight on Monad and settles the winner on chain." |
-| 2:30 | Autopilot panel: turn on (Privy), the policy limits | "Backers can leave it on autopilot. A Privy session signer votes and buys for them, inside a policy Privy enforces." |
-| 2:42 | `/room` on a phone: passkey → a draft; open it on the laptop | "Next week's twist stays secret: encrypted to a passkey with Mera. KOMA only ever sees ciphertext." |
-| 2:55 | Back to the board | "KOMA. Fans write the canon." |
+| 0:00 | Home: "Fans write the canon.", the live numbers and who-makes-what strip | "KOMA: comics where fans own the character and vote its canon. On Monad." |
+| 0:10 | `/monad`: Monad testnet's block pipeline, blocks turning Voted → Finalized → Verified with live milliseconds | "That's Monad right now: 300 ms blocks, final in about 600 ms. Every KOMA vote and trade rides on this." |
+| 0:25 | `/create`: an idea → the editor (labelled Hunyuan 3) answers with a pitch | "Tencent's Hunyuan 3 is the editor. Talk it through and it pitches the issue." |
+| 0:40 | Pay 0.10 AUSD: one signature, no gas; panels ink in; the speed receipt | "One AUSD signature, settled on Monad by x402, no gas. Kimi K2.6 writes; fal draws." |
+| 1:00 | The reader in guided mode on a phone: panel by panel, swipe | "Read it panel by panel, like a real comic app." |
+| 1:15 | `/launch`: a preset, the Hunyuan Image 3 character sheet, launch | "A dollar launches the hero as a series: a character with its own wallet, and a coin." |
+| 1:35 | Series page: a $3 gasless buy → "Executed in 3xx ms · gas paid by KOMA · ≈ $X on Ethereum today" | "One signature, no gas. Forty percent of every fee goes to the character's wallet." |
+| 1:55 | Propose (Kimi read the canon: `get_series_canon` in the credits) → vote | "Holders write the canon. Kimi reads what's been voted before it writes the next episode." |
+| 2:10 | `cre workflow simulate … --broadcast`, MonadVision tx; the canon timeline: "Settled by Chainlink CRE" with its tx | "Chainlink CRE re-checks every signature and weight on Monad and settles the winner. Here's the story so far." |
+| 2:35 | `/room`: passkey → "verified on chain by Monad's P256 precompile · live on testnet ✓" | "Next week's twist stays secret, encrypted to a passkey, and Monad's P256 precompile verifies that passkey on chain." |
+| 2:50 | Leaderboard ("Indexed by Envio"), back to home | "KOMA. Fans write the canon." |

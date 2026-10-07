@@ -55,6 +55,12 @@ studio says it isn't configured; everything else works.
 - **Keep secrets in the Writers' Room** (`/room`). One passkey prompt derives keys that are not a wallet: drafts are
   encrypted in the browser, and the server stores ciphertext under an id that isn't linked to you.
 - **See who's winning.** The `/series` leaderboard (volume, top series, top backers) comes from the Envio indexer.
+- **Read it like a comic.** The reader turns pages (keys, swipes, buttons), goes full screen, and has a *guided*
+  mode that reads panel by panel, large, with the lettering, the way phone comic readers do.
+- **Follow the story so far.** Every series page has a canon timeline: each episode, how decisively it won, who
+  settled it on chain (Chainlink CRE, with its tx), the alternate universes that lost, and the round open now.
+- **See Monad's speed.** Every trade, payment and launch shows "Executed in N ms" with its block, the gas KOMA paid
+  and what that gas would cost on Ethereum today; `/monad` shows Monad testnet's block pipeline live.
 
 ## Why Monad
 
@@ -69,6 +75,22 @@ studio says it isn't configured; everything else works.
 - **Monad-specific engineering.** Gas limits are sized from estimates, because Monad bills the limit. Log scans
   respect the public RPC's 100-block `eth_getLogs` cap. Uniswap v4, which isn't on testnet, is deployed by the
   deploy script itself.
+
+## Monad-native
+
+What KOMA does because it runs on Monad, and where each part runs (live testnet read · built and verified on the
+local fork · awaiting the testnet go). Full table: [docs/ROADMAP-WIN.md](docs/ROADMAP-WIN.md#monad-native-coverage-items-18-of-monad-techmd).
+
+| | What | Where | Evidence |
+|---|---|---|---|
+| **Commit-state stream** | `/monad` subscribes to `monadNewHeads` and `monadLogs` over Monad testnet's WebSocket: each block goes Proposed → Voted (~280 ms) → Finalized (~560 ms) → Verified (~1.4 s), measured live; AUSD transfers on testnet appear with their commit states | live read | `src/components/monad-pipeline.tsx`, `npm run test:monad` |
+| **Passkeys on chain** | Each Writers' Room unlock's WebAuthn (ES256) signature, over a one-time server challenge, is verified by the **P256VERIFY precompile (`0x0100`)** with `eth_call`: on KOMA's chain and live on Monad testnet | built + live read | `src/lib/server/passkey.ts`, `src/lib/room/webauthn.ts`, `npm run test:room` |
+| **Two-timer receipts** | Every transaction KOMA sends records *executed* (receipt) and *final* (`finalized` tag reaches it) times, with block, gas, and the Ethereum-mainnet cost of the same gas | built (a fork doesn't model finality, so it shows executed only, labelled) | `src/lib/server/speed.ts`, `npm run test:speed` |
+| **Gas and the reserve rule** | Explicit, rounded gas limits (Monad bills the limit); the relayer refuses a relay that would break the reserve rule (in-flight max fees ≤ min(10 MON, balance)); `0x1001` read live | built | `src/lib/monad.ts` (unit tests), `src/lib/server/launchpad/relay.ts` |
+| **Staking precompile** | `getEpoch()` on `0x1000`, live | live read | `/monad` |
+| **x402 on Monad** | KOMA settles AUSD (EIP-3009) with its own facilitator; `KOMA_X402_FACILITATOR_URL` switches to Monad's hosted facilitator, which understood a signed AUSD authorization in a live verify | built; settlement through it awaits the testnet go | `src/lib/server/x402.ts`, `test:monad` M4 |
+| **Canonical contracts** | Permit2, Multicall3, ERC-6551 registry, x402 Permit2 proxy, CreateX, EntryPoint v0.7, WMON, checked for code on KOMA's chain; 300 ms blocks in KOMA's chain definitions (viem still says 400) | built | `/monad`, `src/lib/network.ts` |
+| `eth_sendRawTransactionSync`, `txpool_statusByHash` | For KOMA's own relays on testnet | awaiting testnet go | — |
 
 ## Architecture
 
@@ -134,6 +156,9 @@ npm run test:browser    # the main flows through the UI, real wallet signatures 
 npm run test:cre        # CRE settlement on the fork                 npm run test:envio      # indexer parity + live data
 npm run test:room       # Writers' Room (passkey PRF)                 npm run test:ai         # real Kimi / Hunyuan, credits
 node scripts/check-economics.mjs                  # fees, royalties, graduation, pool on chain
+npm run test:monad      # Monad-native: live testnet facts, P256, canonical contracts, hosted x402 verify, live pipeline
+npm run test:speed      # two-timer speed receipts          npm run test:reader     # page turns, guided mode, full screen
+npm run test:timeline   # the canon timeline                npm run test:home       # first 60 seconds, presets, board
 ```
 
 The latest full run is in [SUBMISSION.md → Evidence](SUBMISSION.md#evidence).
@@ -152,6 +177,11 @@ The latest full run is in [SUBMISSION.md → Evidence](SUBMISSION.md#evidence).
   - the Chainlink CRE workflow and `CanonSettler`;
   - the Mera Writers' Room;
   - the paid-job retry, the browser, walk, CRE, Envio and room e2e suites, and these docs.
+
+- **7 Oct 2026, the development wave:** Monad-native features (the live block pipeline, P256 passkey
+  verification, two-timer receipts, the reserve-aware relayer, the switch to Monad's x402 facilitator, canonical
+  contracts), the guided reader, the canon timeline, a loop-first home with live numbers, launch presets and board
+  curation.
 
   `git log` starts at the port.
 
