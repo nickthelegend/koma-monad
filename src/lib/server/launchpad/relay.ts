@@ -6,7 +6,8 @@ import { GASLESS_MIN_USDC } from "@/lib/network";
 import { launchpad, requireLaunchpad } from "./addresses";
 import { db } from "./db";
 import { votesFor } from "./queries";
-import { track, type SpeedKind } from "../speed";
+import { inFlightFeesWei, track, type SpeedKind } from "../speed";
+import { reserveBudget, tightGasLimit } from "@/lib/monad";
 import { chainNow } from "./chain-time";
 
 // KOMA's relayer: the same server wallet that settles x402 payments submits
@@ -32,11 +33,18 @@ function wallet() {
 async function send(req: Parameters<NonNullable<typeof serverWallet>["simulateContract"]>[0], kind: SpeedKind = "tx"): Promise<Hex> {
   const w = wallet();
   const { request } = await w.simulateContract({ ...req, account: w.account } as never);
-  const gas = await w.estimateContractGas({ ...req, account: w.account } as never);
-  // Estimates run tight on calls with nested transfers and refunds (a clipped buy ran out at 99.5%).
+  const estimate = await w.estimateContractGas({ ...req, account: w.account } as never);
+  // Monad bills the gas *limit*, so it's explicit and rounded; the margin stays at 30% because estimates run tight on
+  // calls with nested transfers and refunds (a clipped buy ran out at 99.5%).
+  const gas = tightGasLimit(estimate, 30);
+  // Reserve balance: the relayer's in-flight max fees must fit within min(10 MON, its balance), or consensus drops
+  // the transaction. Refuse up front with a clear reason instead.
+  const [{ maxFeePerGas }, balanceWei] = await Promise.all([w.estimateFeesPerGas(), w.getBalance({ address: w.account.address })]);
+  const budget = reserveBudget({ balanceWei, inFlightFeesWei: inFlightFeesWei(), gasLimit: gas, maxFeePerGasWei: maxFeePerGas ?? BigInt(0) });
+  if (!budget.ok) throw new Error("KOMA's relayer is at Monad's reserve-balance limit for in-flight gas. Try again in a moment.");
   const sentAt = Date.now();
-  const hash = await w.writeContract({ ...(request as object), gas: (gas * BigInt(13)) / BigInt(10) } as never);
-  track(kind, hash, sentAt); // Monad speed receipt: send → receipt, from the real receipt
+  const hash = await w.writeContract({ ...(request as object), gas } as never);
+  track(kind, hash, sentAt, budget.feeWei); // Monad speed receipt: send → receipt, from the real receipt
   return hash;
 }
 

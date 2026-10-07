@@ -123,7 +123,7 @@ if (run("W4") && open) {
     after = await chain.readContract({ address: open.coin, abi: coinAbi, functionName: "balanceOf", args: [me.address] });
   }
   const receipt = await page.locator("[data-speed-receipt]").first().innerText({ timeout: 20_000 }).catch(() => "");
-  check("W4", "trade widget: a $3 buy with one signature and no gas, coins arrive on chain, Monad speed receipt shown", after > before && /Confirmed on Monad in\s+[\d,]+ ms/.test(receipt), `$${open.symbol}: +${(Number(after - before) / 1e18).toLocaleString("en-US")} coins · ${receipt.replace(/\s+/g, " ")}`);
+  check("W4", "trade widget: a $3 buy with one signature and no gas, coins arrive on chain, Monad speed receipt shown", after > before && /Executed in\s+[\d,]+ ms/.test(receipt), `$${open.symbol}: +${(Number(after - before) / 1e18).toLocaleString("en-US")} coins · ${receipt.replace(/\s+/g, " ")}`);
 }
 
 // ——— W5 a canon vote from the canon board ———

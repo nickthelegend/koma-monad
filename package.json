@@ -29,7 +29,8 @@
     "demo:stop": "sh scripts/demo-stop.sh",
     "test:speed": "node scripts/e2e-speed.mjs",
     "test:reader": "node scripts/e2e-reader.mjs",
-    "test:timeline": "node scripts/e2e-timeline.mjs"
+    "test:timeline": "node scripts/e2e-timeline.mjs",
+    "test:monad": "node scripts/e2e-monad.mjs"
   },
   "dependencies": {
     "@category-labs/mera": "^0.2.0",

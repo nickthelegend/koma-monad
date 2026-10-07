@@ -22,6 +22,7 @@ const cols = [
       { href: "/launch", label: "Launch a series" },
       { href: "/shelf", label: "Your shelf" },
       { href: "/room", label: "Writers\u2019 Room" },
+      { href: "/monad", label: "Built for Monad" },
       { href: "/how", label: "How payment works" },
     ],
   },

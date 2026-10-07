@@ -52,6 +52,11 @@ const SCENES = {
     await page.locator("#story-so-far").scrollIntoViewIfNeeded();
     await page.waitForTimeout(500);
   }]],
+  monad: [["monad", async (page) => {
+    await page.goto(`${BASE}/monad`, { waitUntil: "domcontentloaded" });
+    await page.locator("[data-monad-pipeline]").getByText(/Finalized|Verified/).first().waitFor({ timeout: 15_000 });
+    await page.waitForTimeout(3000);
+  }]],
   home: [["home", async (page) => page.goto(`${BASE}/`, { waitUntil: "networkidle" })], ["studio", async (page) => page.goto(`${BASE}/create`, { waitUntil: "networkidle" })]],
   board: [["series-board", async (page) => page.goto(`${BASE}/series`, { waitUntil: "networkidle" })], ["launch-presets", async (page) => page.goto(`${BASE}/launch`, { waitUntil: "networkidle" })]],
 };

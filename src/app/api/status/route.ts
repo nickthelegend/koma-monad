@@ -4,6 +4,7 @@ import { launchpad } from "@/lib/server/launchpad/addresses";
 import { budgetStatus } from "@/lib/server/budget";
 import { falHealth } from "@/lib/server/fal-health";
 import { aiSummary } from "@/lib/server/providers";
+import { inFlightFeesWei } from "@/lib/server/speed";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,8 @@ export async function GET() {
     contract: config.contract ?? null,
     facilitator: config.account?.address ?? null,
     relayerEth,
+    // Monad reserve balance: in-flight max gas fees must fit within min(10 MON, balance).
+    relayerReserve: relayerEth === null ? null : { reserveMon: 10, belowReserve: relayerEth < 10, inFlightMon: Number(inFlightFeesWei()) / 1e18 },
     budget: budgetStatus(),
     ai: { ...aiSummary(), ...(await falHealth()) },
     launchpad: lp ? { engine: lp.engine, addresses: lp } : null,

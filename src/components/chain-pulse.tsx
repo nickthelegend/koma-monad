@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { KOMA } from "@/lib/network";
 
@@ -28,7 +29,7 @@ export function ChainPulse() {
     };
   }, []);
   return (
-    <span className="hidden items-center gap-1.5 font-mono text-[11.5px] text-mute lg:flex" title="Live from the chain: latest block and the measured block interval">
+    <Link href="/monad" className="hidden items-center gap-1.5 font-mono text-[11.5px] text-mute hover:text-paper lg:flex" title="Live from the chain: latest block and the measured block interval. Monad's own pipeline: /monad">
       <span key={tick} className="h-1.5 w-1.5 animate-[pulse-dot_0.6s_ease-out] rounded-full bg-arb" aria-hidden />
       <span className="font-sans text-[12px]">{KOMA.label}</span>
       {head?.block != null && (
@@ -37,6 +38,6 @@ export function ChainPulse() {
           {head.blockMs != null && <span>· {(head.blockMs / 1000).toFixed(1)} s blocks</span>}
         </>
       )}
-    </span>
+    </Link>
   );
 }

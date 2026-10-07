@@ -40,11 +40,13 @@ const res = await fetch(`${BASE}/api/trade/relay`, { method: "POST", headers: { 
 const { txHash } = await res.json();
 const receipt = await chain.waitForTransactionReceipt({ hash: txHash });
 let s = { pending: true };
-for (let i = 0; i < 30 && s.pending; i++) {
+// On a fork finality isn't modelled, so only the executed timer is expected there.
+const fork = (await getJson("/api/status")).network === "koma-localnet";
+for (let i = 0; i < 40 && (s.pending || (!fork && s.finalMs == null)); i++) {
   s = await getJson(`/api/speed/${txHash}`);
-  if (s.pending) await sleep(300);
+  if (s.pending || (!fork && s.finalMs == null)) await sleep(300);
 }
-check("S2", "a relayed buy's speed receipt: real send → receipt time, the receipt's block and gas", !s.pending && s.kind === "trade" && s.ms > 0 && s.ms < 5000 && s.block === Number(receipt.blockNumber) && s.gasUsed === Number(receipt.gasUsed), `${s.ms} ms, block #${s.block}, ${s.gasUsed} gas${s.ethereum ? `, ≈ $${s.ethereum.usd.toFixed(2)} on Ethereum at ${s.ethereum.gwei.toFixed(2)} gwei` : ", Ethereum prices unreachable"}`);
+check("S2", "a relayed buy's two-timer receipt: executed (receipt) and final (finalized tag) times, the receipt's block and gas", !s.pending && s.kind === "trade" && s.ms > 0 && s.ms < 5000 && (fork ? s.finalMs == null || s.finalMs >= s.ms : s.finalMs >= s.ms) && s.block === Number(receipt.blockNumber) && s.gasUsed === Number(receipt.gasUsed), `executed ${s.ms} ms, final ${s.finalMs} ms, block #${s.block}, ${s.gasUsed} gas${s.ethereum ? `, ≈ $${s.ethereum.usd.toFixed(2)} on Ethereum at ${s.ethereum.gwei.toFixed(2)} gwei` : ", Ethereum prices unreachable"}`);
 
 // S3: pending → 200 (pollable without console errors); a non-hash → 400.
 const unknown = await fetch(`${BASE}/api/speed/0x${"ab".repeat(32)}`);

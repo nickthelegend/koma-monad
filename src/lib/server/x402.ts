@@ -1,5 +1,5 @@
 import { x402Facilitator } from "@x402/core/facilitator";
-import { x402ResourceServer, type FacilitatorClient } from "@x402/core/server";
+import { HTTPFacilitatorClient, x402ResourceServer, type FacilitatorClient } from "@x402/core/server";
 import type { Network } from "@x402/core/types";
 import { registerExactEvmScheme } from "@x402/evm/exact/facilitator";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
@@ -66,7 +66,15 @@ const localFacilitator: FacilitatorClient = {
   getSupported: async () => facilitator!.getSupported() as never,
 };
 
-export const resourceServer = new x402ResourceServer(localFacilitator).register(network, new ExactEvmScheme());
+/**
+ * KOMA_X402_FACILITATOR_URL switches settlement to a hosted facilitator, e.g. Monad's own
+ * (https://x402-facilitator.molandak.org: exact / upto / batch-settlement on eip155:10143 and 143). Its `exact`
+ * scheme is token-agnostic EIP-3009, so it can settle AUSD as well. Default: KOMA's in-process facilitator, which
+ * also records the Monad speed receipt of every settlement.
+ */
+const hostedFacilitator = process.env.KOMA_X402_FACILITATOR_URL?.trim();
+export const facilitatorMode = hostedFacilitator ? hostedFacilitator : "koma";
+export const resourceServer = new x402ResourceServer(hostedFacilitator ? new HTTPFacilitatorClient({ url: hostedFacilitator }) : localFacilitator).register(network, new ExactEvmScheme());
 export { network };
 
 // ——— Payment → work ———

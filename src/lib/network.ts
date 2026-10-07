@@ -1,5 +1,10 @@
 import { defineChain } from "viem";
-import { monad, monadTestnet } from "viem/chains";
+import { monad as viemMonad, monadTestnet as viemMonadTestnet } from "viem/chains";
+import { MONAD } from "./monad";
+
+// viem still describes Monad with 400 ms blocks; it has been 300 ms since MIP-12.
+const monad = { ...viemMonad, blockTime: MONAD.blockMs };
+const monadTestnet = { ...viemMonadTestnet, blockTime: MONAD.blockMs };
 
 // Shared by the browser and the server. NEXT_PUBLIC_ values are inlined at build.
 const RPC_OVERRIDE = process.env.NEXT_PUBLIC_MONAD_RPC_URL;
@@ -14,6 +19,8 @@ const komaLocalnet = defineChain({
   name: "KOMA Localnet (Monad testnet fork)",
   nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
   rpcUrls: { default: { http: [RPC_OVERRIDE || "http://127.0.0.1:18643"] } },
+  // Canonical Multicall3 (cloned from testnet by the fork) for batched reads.
+  contracts: { multicall3: { address: MONAD.canonical.Multicall3 } },
   testnet: true,
 });
 

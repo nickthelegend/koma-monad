@@ -10,7 +10,8 @@ import { db } from "./store";
  * reached.
  */
 export type SpeedKind = "trade" | "x402" | "launch" | "canon" | "graduate" | "tx";
-export type Speed = { tx: Hex; kind: SpeedKind; ms: number; gasUsed: number; block: number; sentAt: number };
+/** `ms`: send → receipt (executed). `finalMs`: send → the chain's `finalized` tag reaching that block. */
+export type Speed = { tx: Hex; kind: SpeedKind; ms: number; finalMs: number | null; gasUsed: number; block: number; sentAt: number };
 
 let ready = false;
 function table() {
@@ -19,26 +20,44 @@ function table() {
     d.exec(`CREATE TABLE IF NOT EXISTS tx_speed (
       tx TEXT PRIMARY KEY, kind TEXT NOT NULL, sent_at INTEGER NOT NULL, ms INTEGER NOT NULL, gas_used INTEGER NOT NULL, block INTEGER NOT NULL
     )`);
+    if (!(d.prepare("PRAGMA table_info(tx_speed)").all() as { name: string }[]).some((c) => c.name === "final_ms")) d.exec("ALTER TABLE tx_speed ADD COLUMN final_ms INTEGER");
     ready = true;
   }
   return d;
 }
 
+/** Max gas fees (limit × max fee) of transactions sent but not yet seen in a receipt, for the reserve-balance rule. */
+const inFlight = new Map<string, bigint>();
+export const inFlightFeesWei = () => [...inFlight.values()].reduce((a, b) => a + b, BigInt(0));
+
 /** Call right after the transaction was sent (`sentAt` = just before sending); waits for the receipt in the background. */
-export function track(kind: SpeedKind, tx: Hex, sentAt: number) {
+export function track(kind: SpeedKind, tx: Hex, sentAt: number, feeBudgetWei?: bigint) {
+  if (feeBudgetWei) inFlight.set(tx.toLowerCase(), feeBudgetWei);
   void publicClient
     .waitForTransactionReceipt({ hash: tx, timeout: 90_000, pollingInterval: 50 })
-    .then((r) => {
+    .then(async (r) => {
       const ms = Date.now() - sentAt;
       table()
         .prepare("INSERT OR IGNORE INTO tx_speed (tx, kind, sent_at, ms, gas_used, block) VALUES (?, ?, ?, ?, ?, ?)")
         .run(tx.toLowerCase(), kind, sentAt, ms, Number(r.gasUsed), Number(r.blockNumber));
+      // Monad's second timer: the receipt comes at Proposed; the block is final when `finalized` reaches it (two
+      // slots on Monad). An anvil fork doesn't model finality (its `finalized` tag trails `latest` by many blocks),
+      // so there the timer gives up after 5 s and stays empty rather than report something meaningless.
+      for (let i = 0; i < 50; i++) {
+        const f = await publicClient.getBlock({ blockTag: "finalized" }).catch(() => null);
+        if (f && f.number >= r.blockNumber) {
+          table().prepare("UPDATE tx_speed SET final_ms = ? WHERE tx = ?").run(Date.now() - sentAt, tx.toLowerCase());
+          return;
+        }
+        await new Promise((res) => setTimeout(res, 100));
+      }
     })
-    .catch(() => {});
+    .catch(() => {})
+    .finally(() => inFlight.delete(tx.toLowerCase()));
 }
 
-type Row = { tx: string; kind: SpeedKind; sent_at: number; ms: number; gas_used: number; block: number };
-const toSpeed = (r: Row): Speed => ({ tx: r.tx as Hex, kind: r.kind, ms: r.ms, gasUsed: r.gas_used, block: r.block, sentAt: r.sent_at });
+type Row = { tx: string; kind: SpeedKind; sent_at: number; ms: number; final_ms: number | null; gas_used: number; block: number };
+const toSpeed = (r: Row): Speed => ({ tx: r.tx as Hex, kind: r.kind, ms: r.ms, finalMs: r.final_ms, gasUsed: r.gas_used, block: r.block, sentAt: r.sent_at });
 
 export function speedOf(tx: string): Speed | null {
   const r = table().prepare("SELECT * FROM tx_speed WHERE tx = ?").get(tx.toLowerCase()) as Row | undefined;

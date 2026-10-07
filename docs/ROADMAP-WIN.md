@@ -45,3 +45,19 @@ screenshots in `docs/screens/wave/`, its own commit, a push and green CI.
 Privy live autopilot (needs keys) · a series landing page for sharing (OG image per series) · creator analytics
 (earnings over time per character wallet) · empty-state guidance for new wallets · an episode reveal animation
 when a round settles.
+
+## Monad-native coverage (items 1–8 of `MONAD-TECH.md`)
+
+Each line says where it runs: **live read** (Monad testnet, read-only), **built** (KOMA's code path, verified on
+the local fork), **awaiting testnet go** (needs MON / a testnet deploy), or **not applicable** (why).
+
+| # | Item | Status | Where / evidence |
+|---|---|---|---|
+| 1 | Commit-state stream (`monadNewHeads` + `monadLogs`) | **live read** | `/monad` block pipeline: Proposed → Voted (~280 ms) → Finalized (~560 ms) → Verified (~1.4 s), measured in the browser; live AUSD transfers on testnet with commit states. `src/components/monad-pipeline.tsx`, `test:monad` M5 |
+| 2 | Two-timer receipts | **built** (fork: executed only) · final timer **awaiting testnet go** | Every KOMA tx records executed (receipt) and final (`finalized` tag reaches its block) times: `src/lib/server/speed.ts`, trade widget / studio / `/receipts`. A fork doesn't model finality, so the second timer is left empty there and labelled. `eth_sendRawTransactionSync`: awaiting testnet go (relayer sends need MON) |
+| 3 | `txpool_statusByHash` / `ByAddress` | **awaiting testnet go** | Only meaningful for KOMA's own pending relays on testnet; the fork lacks the methods |
+| 4 | Passkeys on chain (P256 `0x0100`) | **built + live read** | Every Writers' Room unlock: a server challenge, the WebAuthn assertion captured via Mera's `webAuthnClient`, verified by `eth_call` to `0x0100` on KOMA's chain **and** on Monad testnet. `src/lib/server/passkey.ts`, `src/lib/room/webauthn.ts`, `test:room` R4b; `/monad` also verifies a fresh P256 signature live each refresh |
+| 5 | Native staking (`0x1000`) | **live read** (epoch) · flows **not applicable** | `getEpoch()` live on `/monad`. KOMA holds AUSD, not MON, so there's nothing to delegate |
+| 6 | Gas correctness | **built** | Explicit gas limits (estimate + 30%, rounded) because Monad bills the limit; the relayer tracks in-flight max fees and refuses a relay that would break the reserve rule (in-flight ≤ min(10 MON, balance)); reserve precompile `0x1001` read live. `src/lib/monad.ts` (unit tested), `src/lib/server/launchpad/relay.ts`, `/api/status.relayerReserve`. 128 KB contracts: not needed (largest KOMA runtime is CoinDeployer at 14.8 KB) |
+| 7 | Monad-native payments (x402 / MPP) | **built** | KOMA's x402 settles AUSD (EIP-3009) on Monad with its own facilitator; `KOMA_X402_FACILITATOR_URL` switches to Monad's hosted facilitator, whose `exact` scheme understood a signed AUSD authorization in a live verify (`test:monad` M4). Settlement through it: awaiting testnet go |
+| 8 | Canonical contracts | **built** | Permit2, Multicall3 (viem multicall), ERC-6551 registry, x402 Permit2 proxy, CreateX, EntryPoint v0.7, WMON: all checked for code on KOMA's chain on `/monad`. Sourcify/MonadVision verification: awaiting the deploy |
