@@ -64,8 +64,8 @@ if (run("W2")) {
   const payBtn = page.getByRole("button", { name: /^Pay .* AUSD & draw$/ });
   // A real editor may ask a question before it pitches; answer like a user would, up to three times.
   for (let turn = 0; turn < 4; turn++) {
-    const replies = await page.getByText("Editor", { exact: true }).count();
-    await payBtn.or(page.getByText("Editor", { exact: true }).nth(replies)).first().waitFor({ timeout: 120_000 });
+    const replies = await page.getByText(/^Editor( · .+)?$/).count();
+    await payBtn.or(page.getByText(/^Editor( · .+)?$/).nth(replies)).first().waitFor({ timeout: 120_000 });
     if (await payBtn.isVisible()) break;
     await page.waitForTimeout(1500);
     if (await payBtn.isVisible()) break;

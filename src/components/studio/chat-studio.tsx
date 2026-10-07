@@ -86,7 +86,7 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
-  const { offline, aiDown, aiUnconfigured } = useServerStatus();
+  const { offline, aiDown, aiUnconfigured, editor } = useServerStatus();
   const { state, requestQuote, pay, cancel, resume, retry } = useGeneration();
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -220,7 +220,9 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
                 <li key={i} className="flex max-w-[640px] gap-3">
                   <span className="grid h-8 w-8 shrink-0 place-items-center bg-kapow font-display text-[16px] text-ink" aria-hidden>K</span>
                   <div className="min-w-0">
-                    <p className="text-[11.5px] text-mute">Editor</p>
+                    <p className="text-[11.5px] text-mute">
+                      Editor{editor && <span className="text-soft"> · {editor}</span>}
+                    </p>
                     <p className="mt-0.5 text-[15.5px] leading-relaxed text-paper">{m.content}</p>
                     {m.pitched && (
                       <p className="mt-2 inline-flex items-center gap-1.5 border border-rule px-2 py-1 text-[12px] text-soft">
