@@ -91,7 +91,7 @@ export type CanonView = {
   episode: number;
   slot: { snapshot: number; endsAt: number; finalized: boolean; winner: number; open: boolean } | null;
   proposals: ProposalView[];
-  canon: { episode: number; issueId: number; issue: ProposalView["issue"]; winnerVotes: number; totalVotes: number; votesRoot: string; settledBy: "cre" | "keeper" }[];
+  canon: { episode: number; issueId: number; issue: ProposalView["issue"]; winnerVotes: number; totalVotes: number; votesRoot: string; settledBy: "cre" | "keeper"; finalizedTx: string | null; finalizedAt: number | null; voters: number }[];
   alternates: { episode: number; issueId: number; issue: ProposalView["issue"] }[];
   votes: SignedVote[];
   thresholdCoins: number;

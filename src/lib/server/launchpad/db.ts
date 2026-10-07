@@ -120,9 +120,11 @@ export function db(): DatabaseSync {
     );
   `);
   // Added with the Chainlink CRE settler: who finalized a slot ("cre" when CanonSettler emitted Settled).
-  if (!(d.prepare("PRAGMA table_info(lp_slots)").all() as { name: string }[]).some((c) => c.name === "settled_by")) {
-    d.exec("ALTER TABLE lp_slots ADD COLUMN settled_by TEXT");
-  }
+  const cols = (d.prepare("PRAGMA table_info(lp_slots)").all() as { name: string }[]).map((c) => c.name);
+  if (!cols.includes("settled_by")) d.exec("ALTER TABLE lp_slots ADD COLUMN settled_by TEXT");
+  // The finalize transaction and its block time, for the canon timeline.
+  if (!cols.includes("finalized_tx")) d.exec("ALTER TABLE lp_slots ADD COLUMN finalized_tx TEXT");
+  if (!cols.includes("finalized_at")) d.exec("ALTER TABLE lp_slots ADD COLUMN finalized_at INTEGER");
   ready = true;
   return d;
 }

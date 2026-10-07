@@ -76,7 +76,7 @@ See `docs/ROADMAP-WIN.md` for the judge's-eye review and the acceptance criteria
 |---|---|
 | Monad speed receipt (ms, gas, block, Ethereum cost; live block ticker) | DONE (`test:speed` 4/4, browser W4) |
 | Guided reader (page turns, full screen, panel-by-panel) | DONE (`test:reader` 12/12) |
-| Canon timeline ("Story so far") | IN PROGRESS |
+| Canon timeline ("Story so far") | DONE (`test:timeline` 3/3) |
 | First 60 seconds (loop-first hero, live numbers, sponsor strip) | NOT STARTED |
 | Board curation + launch presets | NOT STARTED |
 
