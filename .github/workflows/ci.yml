@@ -15,9 +15,10 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      # The lockfile is written by npm 11.17 (Node 26); older npm versions disagree about peer resolution.
+      # The lockfile is written on macOS by npm 11.17; Linux adds platform-only optional deps it doesn't list, which
+      # `npm ci` rejects. `npm install` keeps every locked version and fills those in.
       - run: npm install -g npm@11.17.0
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - run: npx next typegen && npx tsc --noEmit
       - run: npm run lint
       - run: npm run test:unit
@@ -36,9 +37,10 @@ jobs:
           node-version: 24
           cache: npm
       # OpenZeppelin and Uniswap v4 come from node_modules (foundry.toml libs = ["../node_modules"]).
-      # The lockfile is written by npm 11.17 (Node 26); older npm versions disagree about peer resolution.
+      # The lockfile is written on macOS by npm 11.17; Linux adds platform-only optional deps it doesn't list, which
+      # `npm ci` rejects. `npm install` keeps every locked version and fills those in.
       - run: npm install -g npm@11.17.0
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - uses: foundry-rs/foundry-toolchain@v1
       - run: forge build --sizes
         working-directory: contracts
@@ -54,9 +56,10 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      # The lockfile is written by npm 11.17 (Node 26); older npm versions disagree about peer resolution.
+      # The lockfile is written on macOS by npm 11.17; Linux adds platform-only optional deps it doesn't list, which
+      # `npm ci` rejects. `npm install` keeps every locked version and fills those in.
       - run: npm install -g npm@11.17.0
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - uses: foundry-rs/foundry-toolchain@v1
       # Real AUSD (Agora faucet), Tokenbound, Safe; Uniswap v4 deployed by the deploy script.
       - run: forge test --match-path "test/fork/*" -vv
