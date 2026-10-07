@@ -1,5 +1,7 @@
 # KOMA on Monad
 
+[![CI](https://github.com/nickthelegend/koma-monad/actions/workflows/ci.yml/badge.svg)](https://github.com/nickthelegend/koma-monad/actions/workflows/ci.yml)
+
 **Comics fans own, and characters whose stories their holders write.**
 
 Describe a story and KOMA's AI editor (Tencent **Hunyuan 3**) shapes it into a pitch; **Kimi K2.6** writes the

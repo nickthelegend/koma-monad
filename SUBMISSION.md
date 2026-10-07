@@ -6,7 +6,7 @@
 | **Track** | **03 · Social, Attention & Culture** |
 | **Network** | Monad testnet (10143). *Not deployed yet; awaiting the owner's go ([runbook](docs/DEPLOY-LATER.md)). Today everything runs on an anvil fork of Monad testnet with `npm run demo`: real contracts, Agora's real AUSD, real AI models, no mocks.* |
 | **Live app** | `TODO after deploy` |
-| **Repo** | `TODO: github.com/<owner>/koma-monad` (MIT) |
+| **Repo** | https://github.com/nickthelegend/koma-monad (MIT) |
 | **Demo video (≤ 3 min)** | `TODO` (script below) |
 | **Judge login** | None needed: connect any wallet (or Privy email once keys are set) and tap **Get 10,000 test AUSD** |
 
@@ -28,7 +28,7 @@ policy, and Mera passkeys keep next week's twist encrypted in the Writers' Room 
 | Tagline | AI comics you own, and characters whose canon their holders write, on Monad. |
 | Track | 03 · Social, Attention & Culture |
 | Bounties | Tencent Hunyuan · Kimi · Privy · Envio · Chainlink CRE · Mera (One Passkey, Many Keys) (+ Community Team if applicable) |
-| Repo | `TODO` |
+| Repo | https://github.com/nickthelegend/koma-monad |
 | Live URL | `TODO after deploy` |
 | Contract addresses | `TODO after deploy`: `deploy/addresses.10143.json` |
 | Demo video | `TODO` |
