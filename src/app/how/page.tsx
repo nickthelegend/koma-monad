@@ -35,7 +35,7 @@ function launchpadSteps() {
     },
     {
       t: "Its coin sits on an AUSD curve",
-      d: `${compact(TOTAL_SUPPLY)} coins: 95% are sold by a bonding curve that raises the price as people buy and lowers it as they sell; 5% go to the creator, released over 30 days. The curve runs on Monad, so a trade settles in a ~400 ms block.`,
+      d: `${compact(TOTAL_SUPPLY)} coins: 95% are sold by a bonding curve that raises the price as people buy and lowers it as they sell; 5% go to the creator, released over 30 days. The curve runs on Monad, so a trade lands in a 300 ms block and is final about 600 ms later.`,
     },
     {
       t: "Trading costs no gas",

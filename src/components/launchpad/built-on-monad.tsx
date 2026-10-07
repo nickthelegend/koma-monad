@@ -28,7 +28,7 @@ export function BuiltOnMonad({
         <>
           Every quote and trade prices through KOMA&rsquo;s curve-math contract, and a royalty router splits each {TRADE_FEE_PCT}% fee in the same
           transaction: {FEE_SPLIT.character}% to the character, {FEE_SPLIT.remix}% up the remix tree, {FEE_SPLIT.treasury}% to KOMA. On Monad a
-          trade lands in a ~400 ms block and is final in about a second.
+          trade lands in a 300 ms block and is final in about 600 ms (two slots).
         </>
       ),
       chips: [

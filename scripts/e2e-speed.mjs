@@ -21,7 +21,7 @@ const check = (id, name, ok, detail = "") => {
 const getJson = async (p) => (await fetch(`${BASE}${p}`)).json();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// S1: the head moves at ~400 ms.
+// S1: the head moves (1 s blocks on the fork).
 const h1 = await getJson("/api/speed");
 await sleep(2200);
 const h2 = await getJson("/api/speed");

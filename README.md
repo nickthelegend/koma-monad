@@ -58,7 +58,7 @@ studio says it isn't configured; everything else works.
 
 ## Why Monad
 
-- **Every vote, trade and payment is a transaction somebody waits on.** Sub-second blocks make a gasless buy feel
+- **Every vote, trade and payment is a transaction somebody waits on.** 300 ms blocks and ~600 ms finality make a gasless buy feel
   like a button press, and an x402 payment settle before the studio's spinner starts.
 - **Gas cheap enough to relay.** KOMA pays the gas for every trade from $3 and for every settlement. On Monad the
   relayer's margin stays positive at small sizes.
