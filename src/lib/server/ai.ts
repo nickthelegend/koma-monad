@@ -259,6 +259,29 @@ async function retry<T>(what: string, run: (attempt: number, soft: boolean) => P
   throw new Error(`Couldn't ${what}: ${(last as Error)?.message}`);
 }
 
+/**
+ * A panel prompt fal's content filter refused, restaged by the script model so the filter accepts it: no gore,
+ * injuries, scars, weapons, screams or body horror, but the same characters (minus anything graphic), setting,
+ * framing and mood. Falls back to the word softener when no model is configured or the call fails.
+ */
+async function safeShot(prompt: string): Promise<string> {
+  try {
+    const out = await llm({
+      role: "script",
+      estimateUsd: 0.001,
+      maxTokens: 500,
+      timeoutMs: 45_000,
+      system: "You rewrite image prompts for comic panels so a strict image-safety filter accepts them. Answer with JSON only.",
+      prompt: `This comic panel prompt was refused by an image-safety filter:\n\n${prompt}\n\nRewrite it so it passes: remove gore, blood, injuries, scars or scarification, weapons, screaming, violence and body horror, and soften menace into tension. Keep each character's look (minus anything graphic), the setting, the camera framing and the mood. Answer as {"prompt": "..."}.`,
+    });
+    const p = String((JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as { prompt?: string }).prompt ?? "").trim();
+    if (p.length > 20) return soften(p.slice(0, 900));
+  } catch {
+    // fall through
+  }
+  return soften(prompt);
+}
+
 const SHEET_STYLE = "clean comic book art, confident black ink line work, flat cel-shaded colors";
 const SHEET_SIZE = { width: 1024, height: 576 };
 
@@ -295,18 +318,21 @@ export async function characterSheet(o: { name: string; prompt: string; style?: 
 export async function draw(prompt: string, size: ImageSize, seed: number, opts: { refs?: string[]; character?: string; cover?: boolean } = {}) {
   const image_size = SIZES[size];
   const refs = (opts.refs ?? []).filter(Boolean).slice(0, 4);
-  const r = await retry("draw a panel", (attempt, soft) => {
-    if (soft) prompt = soften(prompt);
+  let safe: string | null = null;
+  const r = await retry("draw a panel", async (attempt, soft) => {
+    // fal's filter refused the shot: have the writer restage it once, then keep using that version.
+    if (soft && safe === null) safe = await safeShot(prompt);
+    const shot = soft ? safe! : prompt;
     return opts.cover && !refs.length && hunyuanCovers()
-      ? render(HUNYUAN_T2I, { prompt: `${prompt}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.hunyuan(image_size.width, image_size.height), "cover")
+      ? render(HUNYUAN_T2I, { prompt: `${shot}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.hunyuan(image_size.width, image_size.height), "cover")
       : refs.length
       ? render(
           EDIT,
-          { prompt: withRefs(prompt, refs.length, opts.character), image_urls: refs, image_size, seed: seed + attempt },
+          { prompt: withRefs(shot, refs.length, opts.character), image_urls: refs, image_size, seed: seed + attempt },
           estimate.panel(image_size.width, image_size.height, refs.length),
           "panel-ref",
         )
-      : render(T2I, { prompt: `${prompt}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.panel(image_size.width, image_size.height), "panel");
+      : render(T2I, { prompt: `${shot}, ${NO_TEXT}`, image_size, seed: seed + attempt }, estimate.panel(image_size.width, image_size.height), "panel");
   });
   return r.bytes;
 }
