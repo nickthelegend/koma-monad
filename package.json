@@ -62,5 +62,10 @@
   },
   "engines": {
     "node": ">=22.13"
+  },
+  "overrides": {
+    "@privy-io/wagmi": {
+      "viem": "$viem"
+    }
   }
 }
