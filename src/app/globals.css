@@ -43,6 +43,10 @@
   --animate-ink: ink 1.6s ease-in-out infinite;
 }
 
+@keyframes pulse-dot {
+  0% { transform: scale(2.2); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
 @keyframes ticker {
   to { transform: translateX(-50%); }
 }
@@ -192,4 +196,8 @@ body {
     animation: print-in 460ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
     animation-delay: calc(var(--i, 0) * 45ms);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[pulse-dot_0\.6s_ease-out\] { animation: none; }
 }

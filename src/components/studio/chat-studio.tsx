@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { HANDOFF_KEY } from "@/lib/room/protocol";
+import { SpeedReceipt } from "../speed-receipt";
 import type { Comic, Genre, Pitch } from "@/lib/types";
 import { ComicPage } from "../comic-page";
 import { ShareButton } from "../share-button";
@@ -280,6 +281,7 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
                         : "Paid. The artists are on it, and you'll see each panel the moment it's inked."}
                   </p>
                   <Steps state={state} className="mt-5" />
+                  {state.paymentTx && <SpeedReceipt tx={state.paymentTx} who="KOMA's facilitator" className="mt-3" />}
                   {state.stage === "error" && (
                     <div className="mt-4">
                       <p className="text-[13.5px] text-soft">{state.error}</p>

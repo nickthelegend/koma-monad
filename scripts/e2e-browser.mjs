@@ -94,6 +94,10 @@ if (run("W2")) {
   const href = await read.getAttribute("href");
   const after = await chain.readContract({ address: LP.usdc, abi: erc20, functionName: "balanceOf", args: [me.address] });
   const id = href?.split("/")[2];
+  // The studio's paid step shows the settlement's Monad speed receipt; keep a shot of it for the docs.
+  await page.locator("[data-speed-receipt]").first().waitFor({ timeout: 20_000 }).catch(() => {});
+  await page.locator("[data-speed-receipt]").first().scrollIntoViewIfNeeded().catch(() => {});
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/studio-paid-desktop.png` });
   check("W2", "studio: a real Hunyuan pitch, one AUSD signature, drawn and minted", !!id && before - after === U(Number(price)), `$${price} paid, issue ${id} in ${Math.round((Date.now() - t0) / 1000)}s`);
 
   await page.goto(`${BASE}/c/${id}`, { waitUntil: "networkidle" });
@@ -118,7 +122,8 @@ if (run("W4") && open) {
     await page.waitForTimeout(1000);
     after = await chain.readContract({ address: open.coin, abi: coinAbi, functionName: "balanceOf", args: [me.address] });
   }
-  check("W4", "trade widget: a $3 buy with one signature and no gas, coins arrive on chain", after > before, `$${open.symbol}: +${(Number(after - before) / 1e18).toLocaleString("en-US")} coins`);
+  const receipt = await page.locator("[data-speed-receipt]").first().innerText({ timeout: 20_000 }).catch(() => "");
+  check("W4", "trade widget: a $3 buy with one signature and no gas, coins arrive on chain, Monad speed receipt shown", after > before && /Confirmed on Monad in\s+[\d,]+ ms/.test(receipt), `$${open.symbol}: +${(Number(after - before) / 1e18).toLocaleString("en-US")} coins · ${receipt.replace(/\s+/g, " ")}`);
 }
 
 // ——— W5 a canon vote from the canon board ———

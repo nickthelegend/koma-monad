@@ -4,6 +4,7 @@ import { allComics } from "@/lib/catalog";
 import { MonadMark } from "@/components/icons";
 import { ago, short } from "@/lib/format";
 import { txUrl } from "@/lib/explorer";
+import { recentSpeeds, speedsOf } from "@/lib/server/speed";
 
 export const metadata: Metadata = {
   title: "Receipts",
@@ -16,21 +17,26 @@ export default async function Receipts() {
   const rows = [...(await allComics())].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const total = rows.reduce((s, c) => s + Number(c.chain.paidUsdc), 0);
   const pages = rows.reduce((s, c) => s + c.pageCount, 0);
+  // Monad speed receipts: each settlement's real send → receipt time (src/lib/server/speed.ts).
+  const speeds = speedsOf(rows.map((c) => c.chain.paymentTx));
+  const settledIn = (tx: string) => speeds[tx.toLowerCase()]?.ms;
+  const { medianMs } = recentSpeeds(200);
 
   return (
     <div className="mx-auto max-w-[1320px] px-4 pt-6 md:px-8 md:pt-10">
       <h1 className="masthead text-[25vw] text-kapow md:text-[clamp(140px,15vw,216px)]">Receipts</h1>
       <p className="mt-4 max-w-[56ch] text-[15px] leading-relaxed text-soft">
-        Each issue on KOMA is one HTTP 402 payment settled in AUSD on Monad, then one mint. This is the full ledger.
+        Each issue on KOMA is one HTTP 402 payment settled in AUSD on Monad, then one mint. This is the full ledger, with how long each settlement took to land on chain.
       </p>
 
-      <dl className="mt-8 grid grid-cols-3 border-y border-rule">
+      <dl className={`mt-8 grid gap-x-6 gap-y-4 border-y border-rule py-4 ${medianMs != null ? "grid-cols-2 md:grid-cols-4" : "grid-cols-3"}`}>
         {[
           ["Issues minted", rows.length.toString()],
           ["AUSD settled", total.toFixed(2)],
           ["Pages drawn", pages.toString()],
+          ...(medianMs != null ? [["Median confirmation", `${medianMs} ms`]] : []),
         ].map(([k, v]) => (
-          <div key={k} className="border-l border-rule py-4 pl-4 first:border-l-0 first:pl-0">
+          <div key={k}>
             <dt className="text-[12px] text-mute">{k}</dt>
             <dd className="mt-1 font-display text-[34px] leading-none text-paper md:text-[48px]">{v}</dd>
           </div>
@@ -56,6 +62,7 @@ export default async function Receipts() {
             </p>
             <a href={txUrl(c.chain.paymentTx)} className="mt-1 flex items-center gap-1.5 font-mono text-[11.5px] text-arb">
               <MonadMark width={12} height={12} /> {short(c.chain.paymentTx, 10, 8)}
+              {settledIn(c.chain.paymentTx) != null && <span className="text-mute">· settled in {settledIn(c.chain.paymentTx)} ms</span>}
             </a>
           </li>
         ))}
@@ -69,6 +76,7 @@ export default async function Receipts() {
             <th className="py-3 font-medium">Pages</th>
             <th className="py-3 text-right font-medium">Paid</th>
             <th className="py-3 pl-8 font-medium">Payment tx</th>
+            <th className="py-3 text-right font-medium">Settled in</th>
             <th className="py-3 font-medium">Token</th>
             <th className="py-3 text-right font-medium">When</th>
           </tr>
@@ -89,6 +97,7 @@ export default async function Receipts() {
                   {short(c.chain.paymentTx, 10, 8)}
                 </a>
               </td>
+              <td className="py-3.5 text-right font-mono text-[12.5px] text-arb">{settledIn(c.chain.paymentTx) != null ? `${settledIn(c.chain.paymentTx)} ms` : "—"}</td>
               <td className="py-3.5 font-mono text-[12.5px] text-soft">#{c.chain.tokenId}</td>
               <td className="py-3.5 text-right text-mute">{ago(c.createdAt)}</td>
             </tr>

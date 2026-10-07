@@ -29,6 +29,13 @@ if ! up "$RPC"; then
   i=0; until up "$RPC"; do i=$((i+1)); [ $i -gt 60 ] && { tail -20 .data/chain.log; exit 1; }; sleep 1; done
 fi
 
+# A resumed chain keeps the clock it was saved with; x402 authorizations are signed against wall time, so line them up.
+DRIFT=$(( $(cast block latest --field timestamp --rpc-url "$RPC") - $(date +%s) ))
+if [ "$DRIFT" -gt 5 ] || [ "$DRIFT" -lt -5 ]; then
+  say "Re-syncing the fork's clock (${DRIFT}s off wall time)"
+  cast rpc anvil_setTime "$(date +%s)" --rpc-url "$RPC" > /dev/null
+fi
+
 # 3. Contracts (first run, or after the chain state was reset).
 FACTORY=$(node -e 'try{console.log(require("./.data/addresses.local.json").seriesFactory)}catch{}')
 if [ -z "$FACTORY" ] || [ "$(cast code "$FACTORY" --rpc-url "$RPC")" = "0x" ]; then

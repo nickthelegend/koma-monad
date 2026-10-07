@@ -1,5 +1,6 @@
 #!/bin/sh
-# Local Monad testnet: a pinned anvil fork (real AUSD, Tokenbound, Permit2) on port 18643, saved to
+# Local Monad testnet: a pinned anvil fork (real AUSD, Tokenbound, Permit2) on port 18643, one block a second
+# (KOMA_BLOCK_TIME=0.4 for Monad testnet's cadence, on a machine with memory to spare), saved to
 # .data/chain.json so it survives restarts along with koma.db. anvil rewrites that file in place every few
 # seconds, so a kill mid-write leaves it truncated: keep the last good copy and fall back to it.
 set -e
@@ -23,4 +24,4 @@ fi
 # Upstream: KOMA_FORK_RPC (an Alchemy Monad testnet URL works) or the public Monad testnet RPC.
 FORK_RPC=$(val KOMA_FORK_RPC)
 exec anvil --fork-url "${FORK_RPC:-https://testnet-rpc.monad.xyz}" ${BLOCK:+--fork-block-number "$BLOCK"} \
-  --port "$PORT" --block-time 1 --prune-history 300 --state "$STATE" --state-interval 5 --silent
+  --port "$PORT" --block-time "${KOMA_BLOCK_TIME:-1}" --prune-history 300 --state "$STATE" --state-interval 5 --silent
