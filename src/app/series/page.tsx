@@ -33,8 +33,13 @@ type Tab = (typeof TABS)[number]["key"];
 const progress = (s: SeriesSummary) => (s.graduated ? -1 : s.complete ? 2 : s.raisedUsdc / Math.max(1e-9, s.targetUsdc));
 const activity = (s: SeriesSummary) => s.lastTradeAt ?? s.launchedAt;
 
+/** Series with character art first: a series launched without a sheet (e.g. straight on chain) shouldn't lead the board. */
+const art = (s: SeriesSummary) => (s.sheetUrl ? 0 : 1);
+const curated = (list: SeriesSummary[]) => [...list].sort((a, b) => art(a) - art(b)); // stable: keeps activity order within each
+
 /** listSeries is already ordered by latest activity (a trade or the launch). */
-function view(list: SeriesSummary[], tab: Tab) {
+function view(all: SeriesSummary[], tab: Tab) {
+  const list = curated(all);
   if (tab === "new") return [...list].sort((a, b) => b.launchedAt - a.launchedAt);
   if (tab === "graduating") return list.filter((s) => !s.graduated && (s.complete || s.raisedUsdc > 0)).sort((a, b) => progress(b) - progress(a) || activity(b) - activity(a));
   if (tab === "graduated") return list.filter((s) => s.graduated);
@@ -43,7 +48,7 @@ function view(list: SeriesSummary[], tab: Tab) {
 
 /** The series closest to graduating; if nothing has raised anything, the most recently active one. */
 function pickFeatured(list: SeriesSummary[]): { s: SeriesSummary; why: string } | null {
-  const live = list.filter((s) => !s.graduated && (s.complete || s.raisedUsdc > 0)).sort((a, b) => progress(b) - progress(a) || activity(b) - activity(a));
+  const live = list.filter((s) => !s.graduated && (s.complete || s.raisedUsdc > 0)).sort((a, b) => art(a) - art(b) || progress(b) - progress(a) || activity(b) - activity(a));
   if (live[0]) return { s: live[0], why: live[0].complete ? "Graduating now" : "Closest to graduation" };
   if (list[0]) return { s: list[0], why: list[0].graduated ? "Latest to graduate" : "Latest launch" };
   return null;
