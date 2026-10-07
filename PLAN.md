@@ -67,3 +67,16 @@ The remaining 20% is all owner-side: Privy credentials, `cre login`, two devices
 | fal content filter on panels | paid jobs failing | P1 | soften + retry; "Try again" with no second charge | FIXED |
 | Hunyuan Image 3 priced as FLUX in the budget | spend under-counted | P2 | $0.10/MP; covers switchable | FIXED |
 | Remaining grep hits | `placeholder=` attributes on inputs; "todo" step states in progress UIs | none | n/a | OK |
+
+## Development wave (7 Oct): top 5
+
+See `docs/ROADMAP-WIN.md` for the judge's-eye review and the acceptance criteria.
+
+| Feature | Status |
+|---|---|
+| Monad speed receipt (ms, gas, block; 400 ms local blocks; live block ticker) | IN PROGRESS |
+| Guided reader (page turns, full screen, panel-by-panel) | NOT STARTED |
+| Canon timeline ("Story so far") | NOT STARTED |
+| First 60 seconds (loop-first hero, live numbers, sponsor strip) | NOT STARTED |
+| Board curation + launch presets | NOT STARTED |
+
