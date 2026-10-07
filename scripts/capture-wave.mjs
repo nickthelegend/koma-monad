@@ -35,10 +35,14 @@ const SCENES = {
     ["receipts", async (page) => page.goto(`${BASE}/receipts`, { waitUntil: "networkidle" })],
   ],
   reader: [
-    ["reader-page", async (page) => page.goto(`${BASE}/c/${comic.id}/read`, { waitUntil: "networkidle" })],
+    ["reader-pages", async (page) => {
+      await page.goto(`${BASE}/c/${comic.id}/read`, { waitUntil: "networkidle" });
+      await page.getByRole("radio", { name: "Pages" }).click();
+    }],
     ["reader-guided", async (page) => {
       await page.goto(`${BASE}/c/${comic.id}/read`, { waitUntil: "networkidle" });
-      await page.getByRole("button", { name: /Guided/ }).click();
+      await page.getByRole("radio", { name: "Guided" }).click();
+      await page.keyboard.press("ArrowRight");
       await page.keyboard.press("ArrowRight");
       await page.waitForTimeout(700);
     }],
