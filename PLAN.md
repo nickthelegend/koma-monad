@@ -79,4 +79,9 @@ See `docs/ROADMAP-WIN.md` for the judge's-eye review and the acceptance criteria
 | Canon timeline ("Story so far") | DONE (`test:timeline` 3/3) |
 | First 60 seconds (loop-first hero, live numbers, sponsor strip) | DONE (`test:home` 8/8) |
 | Board curation + launch presets | DONE (`test:home` H2/H3) |
+| Wave 2: series share card / OG image | DONE (`test:share` 3/3) |
+| Wave 2: creator earnings `/creator/<address>` | DONE (`test:wave2` C1) |
+| Wave 2: new-wallet empty states (Start here, holdings) | DONE (`test:wave2` E1–E2) |
+| Wave 2: episode reveal | DONE (`test:wave2` R1–R3) |
+| Wave 2: remix family tree (replaces Privy autopilot, which needs keys) | DONE (`test:wave2` T1) |
 | Monad-native (items 1–8, see ROADMAP-WIN.md) | DONE where buildable now (`test:monad` 5/5, `test:room` R4b); sync-send + txpool await the testnet go |

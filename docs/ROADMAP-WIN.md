@@ -46,6 +46,28 @@ Privy live autopilot (needs keys) · a series landing page for sharing (OG image
 (earnings over time per character wallet) · empty-state guidance for new wallets · an episode reveal animation
 when a round settles.
 
+## Wave 2 (8–9 Oct): done
+
+| Item | Status |
+|---|---|
+| Series share card (live OG image per series) + share button | DONE (`test:share` 3/3) |
+| Creator earnings `/creator/<address>` | DONE (`test:wave2` C1) |
+| New-wallet empty states (Start here, holdings) | DONE (`test:wave2` E1–E2); also fixed the faucet's cooldown message |
+| Episode reveal when a round settles | DONE (`test:wave2` R1–R3) |
+| **Swap:** Privy live autopilot → **remix family tree** | Privy needs keys, so it waits. The tree is DONE (`test:wave2` T1) |
+
+## Wave 3 (no MON, no keys; readability rule applies)
+
+1. **Readability pass** on the densest screens (speed receipt, `/receipts`, `/monad`, the series page): one headline
+   per card, chips instead of prose, details collapsed. Before/after in `docs/screens/declutter/`.
+2. **Top creators** on `/series`: ranked by what their characters earned, linking to `/creator`.
+3. **"Previously on…"**: a two-line recap of the canon so far on each series page, written once per settled
+   episode by Kimi from the canon (cached; tiny fal spend).
+4. **Embeddable series card**: `/embed/s/<id>` plus a copy-embed button, so a creator can put the live card on
+   their own site.
+5. **Since you were last here**: on a series page, chips for what changed since your last visit (trades, new
+   proposals, a settled episode).
+
 ## Monad-native coverage (items 1–8 of `MONAD-TECH.md`)
 
 Each line says where it runs: **live read** (Monad testnet, read-only), **built** (KOMA's code path, verified on

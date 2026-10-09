@@ -59,6 +59,15 @@ studio says it isn't configured; everything else works.
   mode that reads panel by panel, large, with the lettering, the way phone comic readers do.
 - **Follow the story so far.** Every series page has a canon timeline: each episode, how decisively it won, who
   settled it on chain (Chainlink CRE, with its tx), the alternate universes that lost, and the round open now.
+- **Share a series.** Every series page has a live preview card (its sheet, price, progress, holders and canon,
+  rendered at 1200×630) and a share button.
+- **See what a creator earns** at `/creator/<address>`: what their characters have earned, a 30-day chart, and
+  each series.
+- **Start from zero.** A new wallet's shelf lists three steps (get test AUSD, make an issue, back a character), and
+  each one ticks off from real state.
+- **Watch an episode become canon.** When a round settles, the winning cover lands as a splash page with its vote
+  share and who settled it.
+- **Trace a remix family.** A series page shows its whole remix tree and the royalties that flowed up it.
 - **See Monad's speed.** Every trade, payment and launch shows "Executed in N ms" with its block, the gas KOMA paid
   and what that gas would cost on Ethereum today; `/monad` shows Monad testnet's block pipeline live.
 
@@ -159,6 +168,7 @@ node scripts/check-economics.mjs                  # fees, royalties, graduation,
 npm run test:monad      # Monad-native: live testnet facts, P256, canonical contracts, hosted x402 verify, live pipeline
 npm run test:speed      # two-timer speed receipts          npm run test:reader     # page turns, guided mode, full screen
 npm run test:timeline   # the canon timeline                npm run test:home       # first 60 seconds, presets, board
+npm run test:share      # series share card (OG image)      npm run test:wave2      # creator, new wallet, episode reveal, remix tree
 ```
 
 The latest full run is in [SUBMISSION.md → Evidence](SUBMISSION.md#evidence).

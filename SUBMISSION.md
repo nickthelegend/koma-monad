@@ -95,6 +95,8 @@ Full run on 6 Oct 2026 on a **clean** local deployment (`npm run demo` from an e
 | `test:reader` (page turns, guided, full screen; desktop + 390 px) | 12/12 |
 | `test:timeline` (canon timeline) | 3/3 |
 | `test:home` (first 60 seconds, presets, board curation; desktop + 390 px) | 8/8 |
+| `test:share` (series share card, 1200×630 OG image) | 3/3 |
+| `test:wave2` (creator page, new-wallet shelf + real faucet, episode reveal, remix tree; desktop + 390 px) | 8/8 |
 | `test:autopilot` | P0 pass (honestly off); P1–P6 untested (Privy keys) |
 | lint, typecheck (`next build`), slither | clean; slither 8 low/medium findings triaged (see `docs/TEST-PLAN-ZERO-MOCK.md`) |
 | secret scan (13 real secrets checked against the whole history and tree) | none found |
@@ -112,5 +114,6 @@ Full run on 6 Oct 2026 on a **clean** local deployment (`npm run demo` from an e
 | 1:35 | Series page: a $3 gasless buy → "Executed in 3xx ms · gas paid by KOMA · ≈ $X on Ethereum today" | "One signature, no gas. Forty percent of every fee goes to the character's wallet." |
 | 1:55 | Propose (Kimi read the canon: `get_series_canon` in the credits) → vote | "Holders write the canon. Kimi reads what's been voted before it writes the next episode." |
 | 2:10 | `cre workflow simulate … --broadcast`, MonadVision tx; the canon timeline: "Settled by Chainlink CRE" with its tx | "Chainlink CRE re-checks every signature and weight on Monad and settles the winner. Here's the story so far." |
+| 2:28 | The splash: "Episode 2 is canon", 67% of the vote, settled by Chainlink CRE; tap the creator's name → `/creator` earnings | "The fans pick it, and the creator's characters get paid." |
 | 2:35 | `/room`: passkey → "verified on chain by Monad's P256 precompile · live on testnet ✓" | "Next week's twist stays secret, encrypted to a passkey, and Monad's P256 precompile verifies that passkey on chain." |
 | 2:50 | Leaderboard ("Indexed by Envio"), back to home | "KOMA. Fans write the canon." |
