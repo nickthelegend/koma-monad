@@ -5,6 +5,7 @@ import { cache } from "react";
 import { launchpad } from "@/lib/server/launchpad/addresses";
 import { familyTree, seriesDetail } from "@/lib/server/launchpad/queries";
 import { FamilyTree } from "@/components/launchpad/family-tree";
+import { PreviouslyOn } from "@/components/launchpad/previously-on";
 import type { SeriesDetail } from "@/lib/launchpad/types";
 import { txUrl, isExternal } from "@/lib/explorer";
 import { agoSec, coinAmount, coinPrice, coinPricePlain, compact, progressLabel, short, usdAmount } from "@/lib/format";
@@ -95,6 +96,7 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
               <span className="font-mono text-kapow">${symbol}</span> · starring <span className="font-semibold text-paper">{s.characterName}</span>
             </p>
             {s.pitch && <p className="mt-4 max-w-[56ch] text-[15.5px] leading-relaxed text-soft">{s.pitch}</p>}
+            {s.episodes > 0 && <PreviouslyOn seriesId={s.id} />}
             {s.parent && (
               <p className="mt-3 flex items-center gap-1.5 text-[13px] text-soft">
                 <IconRemix width={14} height={14} /> Remix of{" "}
