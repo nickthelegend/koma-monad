@@ -387,3 +387,14 @@ export function topCreators(limit = 5): TopCreator[] {
     .all(limit) as { address: Addr; series: number; earned: number }[];
   return rows.map((r) => ({ address: r.address, series: r.series, earnedUsdc: r.earned / 1e6 }));
 }
+
+export type SinceVisit = { since: number; now: number; trades: number; volumeUsdc: number; proposals: number; settled: number[] };
+
+/** What changed on a series since a chain time: trades (count, volume), new proposals, episodes settled. */
+export async function changesSince(seriesId: number, since: number): Promise<SinceVisit> {
+  const d = db();
+  const t = d.prepare("SELECT COUNT(*) AS n, COALESCE(SUM(CAST(usdc AS INTEGER)), 0) AS v FROM lp_trades WHERE series_id = ? AND at > ?").get(seriesId, since) as { n: number; v: number };
+  const p = d.prepare("SELECT COUNT(*) AS n FROM lp_proposals WHERE series_id = ? AND at > ?").get(seriesId, since) as { n: number };
+  const settled = (d.prepare("SELECT episode FROM lp_slots WHERE series_id = ? AND finalized = 1 AND finalized_at > ? ORDER BY episode").all(seriesId, since) as { episode: number }[]).map((r) => r.episode);
+  return { since, now: await chainNow(), trades: t.n, volumeUsdc: t.v / 1e6, proposals: p.n, settled };
+}

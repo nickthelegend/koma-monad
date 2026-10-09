@@ -33,7 +33,8 @@
     "test:monad": "node scripts/e2e-monad.mjs",
     "test:home": "node scripts/e2e-home.mjs",
     "test:share": "node scripts/e2e-share.mjs",
-    "test:wave2": "node scripts/e2e-wave2.mjs"
+    "test:wave2": "node scripts/e2e-wave2.mjs",
+    "test:wave3": "node scripts/e2e-wave3.mjs"
   },
   "dependencies": {
     "@category-labs/mera": "^0.2.0",
