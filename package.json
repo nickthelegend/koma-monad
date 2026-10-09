@@ -32,7 +32,8 @@
     "test:timeline": "node scripts/e2e-timeline.mjs",
     "test:monad": "node scripts/e2e-monad.mjs",
     "test:home": "node scripts/e2e-home.mjs",
-    "test:share": "node scripts/e2e-share.mjs"
+    "test:share": "node scripts/e2e-share.mjs",
+    "test:wave2": "node scripts/e2e-wave2.mjs"
   },
   "dependencies": {
     "@category-labs/mera": "^0.2.0",

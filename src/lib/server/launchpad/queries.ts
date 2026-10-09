@@ -331,3 +331,45 @@ export function holdingsOf(address: Addr): Holding[] {
     .filter((h) => h.coins > 0)
     .sort((a, b) => b.valueUsdc - a.valueUsdc);
 }
+
+export type FamilyNode = {
+  id: number; parentId: number; depth: number; name: string; symbol: string; characterName: string; sheetUrl: string; creator: Addr;
+  /** AUSD this series' trades sent to its ancestors' character wallets (Routed kind 1). */
+  sentUpUsdc: number;
+  /** AUSD this character's wallet received from trades in its descendants. */
+  fromBelowUsdc: number;
+};
+
+/**
+ * The whole remix family a series belongs to: up to its root, then every descendant, depth-first (parents before
+ * children), with the royalties that actually flowed up the tree, from the indexed Routed events.
+ */
+export function familyTree(id: number): FamilyNode[] {
+  const d = db();
+  const all = d.prepare("SELECT s.id, s.parent_id, s.name, s.symbol, s.creator, s.character_account, m.character_name, m.sheet FROM lp_series s LEFT JOIN lp_series_meta m ON m.id = s.id ORDER BY s.id").all() as {
+    id: number; parent_id: number; name: string; symbol: string; creator: Addr; character_account: Addr; character_name: string | null; sheet: string | null;
+  }[];
+  const byId = new Map(all.map((r) => [r.id, r]));
+  let root = byId.get(id);
+  if (!root) return [];
+  for (let hops = 0; root.parent_id && byId.has(root.parent_id) && hops < 32; hops++) root = byId.get(root.parent_id)!;
+  const kids = new Map<number, number[]>();
+  for (const r of all) if (r.parent_id) kids.set(r.parent_id, [...(kids.get(r.parent_id) ?? []), r.id]);
+  const sentUp = d.prepare("SELECT SUM(CAST(amount AS INTEGER)) AS t FROM lp_routed WHERE series_id = ? AND kind = 1");
+  const fromBelow = d.prepare("SELECT SUM(CAST(amount AS INTEGER)) AS t FROM lp_routed WHERE lower(recipient) = lower(?) AND series_id != ? AND kind = 1");
+  const out: FamilyNode[] = [];
+  const seen = new Set<number>();
+  const walk = (nid: number, depth: number) => {
+    if (seen.has(nid) || out.length >= 200) return;
+    seen.add(nid);
+    const r = byId.get(nid)!;
+    out.push({
+      id: r.id, parentId: r.parent_id, depth, name: r.name, symbol: r.symbol, characterName: r.character_name ?? r.name, sheetUrl: r.sheet ?? "", creator: r.creator,
+      sentUpUsdc: ((sentUp.get(r.id) as { t: number | null }).t ?? 0) / 1e6,
+      fromBelowUsdc: ((fromBelow.get(r.character_account, r.id) as { t: number | null }).t ?? 0) / 1e6,
+    });
+    for (const c of kids.get(nid) ?? []) walk(c, depth + 1);
+  };
+  walk(root.id, 0);
+  return out;
+}

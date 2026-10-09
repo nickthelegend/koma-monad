@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { launchpad } from "@/lib/server/launchpad/addresses";
-import { seriesDetail } from "@/lib/server/launchpad/queries";
+import { familyTree, seriesDetail } from "@/lib/server/launchpad/queries";
+import { FamilyTree } from "@/components/launchpad/family-tree";
 import type { SeriesDetail } from "@/lib/launchpad/types";
 import { txUrl, isExternal } from "@/lib/explorer";
 import { agoSec, coinAmount, coinPrice, coinPricePlain, compact, progressLabel, short, usdAmount } from "@/lib/format";
@@ -60,6 +61,7 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
   const s = await load((await params).id);
   if (!s) notFound();
   const lp = launchpad()!;
+  const family = familyTree(s.id);
   // Chart runs to the chain's clock (trade times are block times).
   const now = s.chainTime;
   const royaltiesTotal = s.royalties.reduce((t, r) => t + r.amountUsdc, 0);
@@ -297,8 +299,10 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
           {/* ——— Remixes ——— */}
           <section aria-labelledby="remix-h" className="grid gap-6 lg:grid-cols-2">
             <div>
-              <h2 id="remix-h" className="font-display text-[26px] uppercase leading-none text-paper">Remixes</h2>
-              {s.remixes.length === 0 ? (
+              <h2 id="remix-h" className="font-display text-[26px] uppercase leading-none text-paper">{family.length > 1 ? "Remix family" : "Remixes"}</h2>
+              {family.length > 1 ? (
+                <FamilyTree nodes={family} current={s.id} />
+              ) : s.remixes.length === 0 ? (
                 <p className="mt-2 text-[13px] leading-relaxed text-mute">No remixes yet. A remix is a new series in this world; a share of its fees flows back here.</p>
               ) : (
                 <ul className="mt-3 flex flex-wrap gap-2">
