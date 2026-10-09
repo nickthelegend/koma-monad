@@ -8,6 +8,7 @@ import { formatUnits } from "viem";
 import { coinAbi } from "@/lib/launchpad/abi";
 import { signVote } from "@/lib/launchpad/client";
 import type { Addr, CanonView, ProposalView } from "@/lib/launchpad/types";
+import { EpisodeReveal } from "./episode-reveal";
 import { agoSec, coinAmount, countdown, short } from "@/lib/format";
 import { KOMA } from "@/lib/network";
 import { txUrl } from "@/lib/explorer";
@@ -268,6 +269,7 @@ export function CanonBoard({ seriesId, symbol, characterName, coin, canonRegistr
         {/* ——— Story so far: the canon as a timeline ——— */}
         <StoryTimeline view={view} now={now} open={open} total={total} top={top} />
       </div>
+      <EpisodeReveal seriesId={seriesId} view={view} characterName={characterName} />
     </section>
   );
 }
