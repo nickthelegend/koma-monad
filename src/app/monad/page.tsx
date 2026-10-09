@@ -9,6 +9,7 @@ import { monadLive } from "@/lib/server/monad-live";
 import { recentSpeeds } from "@/lib/server/speed";
 import { config, publicClient } from "@/lib/server/config";
 import { addressUrl } from "@/lib/explorer";
+import { Chip, Details } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Built for Monad",
@@ -41,10 +42,7 @@ export default async function MonadPage() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 pb-16 pt-6 md:px-8 md:pt-10">
       <h1 className="masthead text-[17vw] text-kapow sm:text-[clamp(72px,8vw,112px)]">Built for Monad</h1>
-      <p className="mt-3 max-w-[64ch] text-[15px] leading-relaxed text-soft">
-        Every vote, trade, payment and launch on KOMA is a Monad transaction. Here is the chain doing its thing, live,
-        and what KOMA does because it&rsquo;s Monad. Each part says where it runs.
-      </p>
+      <p className="mt-3 text-[15px] text-soft">Every vote, trade and payment on KOMA is a Monad transaction.</p>
 
       <section className="mt-8" aria-labelledby="pipe-h">
         <h2 id="pipe-h" className="sr-only">Monad testnet block pipeline</h2>
@@ -55,7 +53,9 @@ export default async function MonadPage() {
         <h2 id="facts-h" className="font-display text-[22px] uppercase leading-none text-paper">
           Live from Monad testnet
         </h2>
-        <p className="mt-1 text-[12.5px] text-mute">Read-only, from {MONAD.testnet.rpc}. Refreshes every 5 s.</p>
+        <p className="mt-1.5">
+          <Chip tone="arb" title={`Read-only, from ${MONAD.testnet.rpc}. Refreshes every 5 s.`}>live · testnet · read-only</Chip>
+        </p>
         <div className="mt-3">
           <MonadFacts initial={live} />
         </div>
@@ -65,44 +65,49 @@ export default async function MonadPage() {
         <h2 id="ours-h" className="font-display text-[22px] uppercase leading-none text-paper">
           KOMA&rsquo;s own transactions
         </h2>
-        <p className="mt-1 text-[12.5px] text-mute">
-          {FORK
-            ? "Measured on this local fork of Monad testnet (1 s blocks, instant finality), so these are fork timings, not Monad's. Monad's are the live numbers above."
-            : "Measured on Monad from send to receipt (executed) and to the finalized tag (final)."}
-        </p>
-        <dl className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {[
-            ["Transactions timed", ours.count.toLocaleString("en-US")],
-            ["Median executed", ours.medianMs != null ? `${ours.medianMs} ms` : "—"],
-            ["Median final", finalMedian != null ? `${finalMedian} ms` : "—"],
-            ["Relayer balance", relayer != null ? `${(Number(relayer) / 1e18).toFixed(2)} MON` : "—"],
-          ].map(([k, v]) => (
-            <div key={k}>
-              <dt className="text-[12px] text-mute">{k}</dt>
-              <dd className="font-mono text-[22px] text-paper">{v}</dd>
-            </div>
-          ))}
-        </dl>
-        <ul className="mt-4 list-disc space-y-1.5 pl-5 text-[13px] leading-relaxed text-soft">
-          <li>
-            <span className="text-paper">Gas is billed on the limit.</span> Every relayed transaction gets an explicit limit (estimate + 30%, rounded), never a wallet&rsquo;s fallback guess.
-          </li>
-          <li>
-            <span className="text-paper">The 10 MON reserve.</span> Consensus runs 3 blocks behind execution, so an account&rsquo;s in-flight gas must fit within min(10 MON, balance). KOMA&rsquo;s relayer tracks its
-            in-flight fees and refuses a relay that wouldn&rsquo;t fit, instead of letting it be dropped.
-          </li>
-          <li>
-            <span className="text-paper">Gasless by design.</span> Buys, sells, votes and payments are signatures; KOMA&rsquo;s relayer and facilitator pay the gas, so a new fan needs no MON at all.
-          </li>
-        </ul>
+        <div className="mt-3 border-y border-rule py-4">
+          <p className="text-[12px] text-mute">Median executed</p>
+          <p className="font-display text-[56px] leading-none text-arb">{ours.medianMs != null ? `${ours.medianMs} ms` : "—"}</p>
+          <p className="mt-3 flex flex-wrap gap-1.5">
+            {FORK && <Chip title="Measured on a local fork of Monad testnet (1 s blocks), so these are fork timings, not Monad's. Monad's are the live numbers above.">fork timings</Chip>}
+            <Chip>{ours.count.toLocaleString("en-US")} txs timed</Chip>
+            {finalMedian != null && <Chip>final {finalMedian} ms</Chip>}
+            {relayer != null && <Chip>relayer {(Number(relayer) / 1e18).toFixed(2)} MON</Chip>}
+            <Chip tone="arb">gasless for fans</Chip>
+          </p>
+        </div>
+        <Details className="mt-3" label="Gas, the 10 MON reserve, gasless">
+          <ul className="list-disc space-y-1.5 pl-5">
+            <li>
+              <span className="text-paper">Gas is billed on the limit.</span> Every relayed transaction gets an explicit limit (estimate + 30%, rounded), never a wallet&rsquo;s fallback guess.
+            </li>
+            <li>
+              <span className="text-paper">The 10 MON reserve.</span> Consensus runs 3 blocks behind execution, so an account&rsquo;s in-flight gas must fit within min(10 MON, balance). KOMA&rsquo;s relayer tracks its
+              in-flight fees and refuses a relay that wouldn&rsquo;t fit, instead of letting it be dropped.
+            </li>
+            <li>
+              <span className="text-paper">Gasless by design.</span> Buys, sells, votes and payments are signatures; KOMA&rsquo;s relayer and facilitator pay the gas, so a new fan needs no MON at all.
+            </li>
+            <li>
+              {FORK
+                ? "Measured on this local fork of Monad testnet (1 s blocks, instant finality), so these are fork timings, not Monad's. Monad's are the live numbers above."
+                : "Measured on Monad from send to receipt (executed) and to the finalized tag (final)."}
+            </li>
+          </ul>
+        </Details>
       </section>
 
       <section className="mt-10" aria-labelledby="canon-h">
         <h2 id="canon-h" className="font-display text-[22px] uppercase leading-none text-paper">
           Canonical contracts on this chain
         </h2>
-        <p className="mt-1 text-[12.5px] text-mute">KOMA uses Monad&rsquo;s canonical deployments instead of its own copies. Checked live for code on {KOMA.label}.</p>
-        <ul className="mt-3 divide-y divide-rule border-y border-rule">
+        <p className="mt-1.5">
+          <Chip tone="ok" title={`KOMA uses Monad's canonical deployments instead of its own copies. Checked live for code on ${KOMA.label}.`}>
+            {live.canonical.filter((c) => c.present).length}/{live.canonical.length} present on {KOMA.label}
+          </Chip>
+        </p>
+        <Details className="mt-2" label="Addresses">
+        <ul className="divide-y divide-rule border-y border-rule">
           {live.canonical.map((c) => {
             const href = addressUrl(c.address);
             return (
@@ -120,6 +125,7 @@ export default async function MonadPage() {
             );
           })}
         </ul>
+        </Details>
       </section>
 
       <section className="mt-10" aria-labelledby="cov-h">
@@ -131,15 +137,13 @@ export default async function MonadPage() {
             <tr>
               <th className="py-2 font-medium">What</th>
               <th className="py-2 font-medium">Status</th>
-              <th className="hidden py-2 font-medium md:table-cell">Where</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
             {COVERAGE.map((c) => (
-              <tr key={c.item}>
+              <tr key={c.item} title={c.where}>
                 <td className="py-2 pr-3 text-soft">{c.item}</td>
                 <td className="py-2 pr-3 font-mono text-[11.5px] uppercase text-arb">{c.status}</td>
-                <td className="hidden py-2 text-mute md:table-cell">{c.where}</td>
               </tr>
             ))}
           </tbody>

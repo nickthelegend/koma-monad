@@ -20,7 +20,7 @@ export function MonadFacts({ initial }: { initial: MonadLive }) {
     ["Staking epoch (0x1000)", t.epoch !== null ? `${t.epoch.toLocaleString("en-US")}${t.inEpochDelay ? " · in its delay period" : ""}` : "—", "getEpoch() on the native staking precompile."],
     [
       "P256VERIFY (0x0100)",
-      t.p256.valid && t.p256.tamperedRejected ? "a fresh signature verifies · a tampered one fails" : "unexpected answer",
+      t.p256.valid && t.p256.tamperedRejected ? "fresh ✓ · tampered ✗" : "unexpected answer",
       "Signed with a new key on every refresh; this is how passkey (WebAuthn ES256) signatures verify on chain.",
     ],
     ["Reserve balance (0x1001)", t.reserveDipped === null ? "—" : t.reserveDipped ? "dipped" : "not dipped", "dippedIntoReserve(), the precompile behind the 10 MON reserve rule KOMA's relayer respects."],
@@ -31,8 +31,10 @@ export function MonadFacts({ initial }: { initial: MonadLive }) {
         <div key={k} className="grid gap-1 py-2.5 md:grid-cols-[220px_1fr]">
           <dt className="font-mono text-[12px] text-mute">{k}</dt>
           <dd>
-            <span className="font-mono text-[13px] text-paper">{val}</span>
-            <span className="block text-[12px] text-mute">{note}</span>
+            {/* The method note is a hover/long-press title, not a sentence on screen. */}
+            <span className="font-mono text-[13px] text-paper" title={note}>
+              {val}
+            </span>
           </dd>
         </div>
       ))}

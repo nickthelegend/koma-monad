@@ -59,7 +59,7 @@ try {
   const txt = await pipe.innerText();
   const med = txt.match(/Proposed → Finalized\s+(\d+) ms/);
   const facts = await page.locator("[data-monad-facts]").innerText();
-  check("M5", "/monad: the live block pipeline shows blocks reaching Finalized with measured ms; live facts render; clean console", !!med && /fresh signature verifies/.test(facts) && errors.length === 0, `Proposed → Finalized median ${med?.[1] ?? "?"} ms${errors.length ? ` · ${errors[0]}` : ""}`);
+  check("M5", "/monad: the live block pipeline shows blocks reaching Finalized with measured ms; live facts render; clean console", !!med && /fresh ✓ · tampered ✗/.test(facts) && errors.length === 0, `Proposed → Finalized median ${med?.[1] ?? "?"} ms${errors.length ? ` · ${errors[0]}` : ""}`);
 } finally {
   await browser.close();
 }

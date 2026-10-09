@@ -135,7 +135,9 @@ export function MonadPipeline() {
           </div>
         ))}
       </dl>
-      <p className="mt-1 text-[11.5px] text-mute">Medians of the last blocks, measured in this browser from the first Proposed message. Blocks are 300 ms; a block is final two slots later.</p>
+      <p className="mt-1 text-[11px] text-mute" title="Medians of the last blocks, measured in this browser from the first Proposed message. Blocks are 300 ms; a block is final two slots later.">
+        medians · measured in this browser
+      </p>
 
       <p className="mt-4 font-display text-[15px] uppercase text-paper">AUSD on Monad testnet, live</p>
       {transfers.length === 0 ? (

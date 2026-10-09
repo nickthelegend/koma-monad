@@ -67,6 +67,8 @@ npx next build > .data/build.log 2>&1 || { tail -30 .data/build.log; exit 1; }
 [ -f .data/web.pid ] && kill "$(cat .data/web.pid)" 2>/dev/null || true
 say "Serving http://localhost:4320"
 ( set -a; . ./.env.local; set +a
+  # The fork's faucet hands out fork AUSD: per-IP/day caps only make repeated local test runs flaky.
+  KOMA_FAUCET_PER_IP=1000 KOMA_FAUCET_PER_DAY=10000 \
   ENVIO_GRAPHQL_URL=$ENVIO_URL KOMA_CANON_FINALIZER=cre KOMA_DATA_DIR=.data KOMA_LAUNCHPAD_ADDRESSES=.data/addresses.local.json \
   nohup npx next start -p 4320 > .data/web.log 2>&1 & echo $! > .data/web.pid )
 i=0; until curl -sf -o /dev/null http://localhost:4320/api/status; do i=$((i+1)); [ $i -gt 60 ] && { tail -20 .data/web.log; exit 1; }; sleep 1; done
