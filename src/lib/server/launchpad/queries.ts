@@ -373,3 +373,17 @@ export function familyTree(id: number): FamilyNode[] {
   walk(root.id, 0);
   return out;
 }
+
+export type TopCreator = { address: Addr; series: number; earnedUsdc: number };
+
+/** Creators ranked by what their characters' wallets have earned (indexed Routed events to each character account). */
+export function topCreators(limit = 5): TopCreator[] {
+  const rows = db()
+    .prepare(
+      `SELECT s.creator AS address, COUNT(DISTINCT s.id) AS series, COALESCE(SUM(CAST(r.amount AS INTEGER)), 0) AS earned
+       FROM lp_series s LEFT JOIN lp_routed r ON lower(r.recipient) = lower(s.character_account)
+       GROUP BY lower(s.creator) ORDER BY earned DESC, series DESC LIMIT ?`,
+    )
+    .all(limit) as { address: Addr; series: number; earned: number }[];
+  return rows.map((r) => ({ address: r.address, series: r.series, earnedUsdc: r.earned / 1e6 }));
+}

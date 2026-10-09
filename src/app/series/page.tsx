@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { SeriesSummary } from "@/lib/launchpad/types";
 import { launchpad } from "@/lib/server/launchpad/addresses";
-import { listSeries, recentActivity, sparklines } from "@/lib/server/launchpad/queries";
+import { listSeries, recentActivity, sparklines, topCreators } from "@/lib/server/launchpad/queries";
 import { board } from "@/lib/server/launchpad/board";
 import { chainNow } from "@/lib/server/launchpad/chain-time";
 import { SeriesCard } from "@/components/launchpad/series-card";
@@ -181,7 +181,7 @@ export default async function SeriesBoard({ searchParams }: PageProps<"/series">
               </ul>
             )}
           </section>
-          {leaders && <Leaderboard b={leaders} />}
+          {leaders && <Leaderboard b={leaders} creators={topCreators()} />}
           <p className="mx-auto max-w-[1320px] px-4 pt-10 text-[12px] text-mute md:px-8">{COIN_DISCLAIMER}</p>
         </>
       )}
