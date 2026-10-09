@@ -19,6 +19,7 @@ import { CanonBoard } from "@/components/launchpad/canon-board";
 import { AutopilotPanel } from "@/components/launchpad/autopilot-panel";
 import { AddressList } from "@/components/launchpad/address-list";
 import { AutoRefresh } from "@/components/launchpad/auto-refresh";
+import { ShareButton } from "@/components/share-button";
 import { MonadMark, IconBack, IconRemix } from "@/components/icons";
 import { FEE_SPLIT, GRADUATION_FEE_PCT, TRADE_FEE_PCT } from "@/lib/network";
 
@@ -38,7 +39,8 @@ export async function generateMetadata({ params }: PageProps<"/s/[id]">): Promis
   return {
     title: `${s.name} ($${s.symbol.trim()})`,
     description,
-    openGraph: { title: `${s.name} — a KOMA series`, description, images: s.sheetUrl ? [s.sheetUrl] : undefined },
+    // The card image comes from ./opengraph-image.tsx (sheet, coin, curve and canon, rendered live).
+    openGraph: { title: `${s.name} — a KOMA series`, description },
     twitter: { card: "summary_large_image" },
   };
 }
@@ -114,6 +116,13 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
                   Launch tx {short(s.launchTx, 8, 4)}
                 </a>
               )}
+            </div>
+            <div className="mt-4">
+              <ShareButton
+                title={s.name}
+                path={`/s/${s.id}`}
+                message={`Back ${s.characterName} in “${s.name}” ($${s.symbol.trim()}) on KOMA: fans vote on what happens next.`}
+              />
             </div>
           </div>
         </div>
