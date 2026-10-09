@@ -109,7 +109,11 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
             </p>
             <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 text-[12.5px] text-mute">
               <span>
-                Launched by <span className="font-mono text-soft">{short(s.creator)}</span> {agoSec(s.launchedAt, s.chainTime * 1000)}
+                Launched by{" "}
+                <Link href={`/creator/${s.creator}`} className="font-mono text-soft underline decoration-rule underline-offset-2 hover:text-paper">
+                  {short(s.creator)}
+                </Link>{" "}
+                {agoSec(s.launchedAt, s.chainTime * 1000)}
               </span>
               {s.launchTx && (
                 <a href={txUrl(s.launchTx)} target={isExternal ? "_blank" : undefined} rel="noreferrer" className="text-arb hover:underline">

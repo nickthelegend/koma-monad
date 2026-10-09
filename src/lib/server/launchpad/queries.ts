@@ -269,3 +269,49 @@ export function sparklines(points = 24): Record<number, number[]> {
   for (const id of Object.keys(out)) if (out[+id].length < points) out[+id].unshift(LAUNCH_PRICE_PER_COIN);
   return out;
 }
+
+export type CreatorStats = {
+  address: Addr;
+  series: { id: number; name: string; symbol: string; sheetUrl: string; characterName: string; earnedUsdc: number; fromRemixesUsdc: number; volumeUsdc: number; trades: number; holders: number; episodes: number; graduated: boolean }[];
+  totals: { series: number; earnedUsdc: number; fromRemixesUsdc: number; volumeUsdc: number; trades: number; holders: number; episodes: number };
+  /** Character earnings per UTC day for the last `days` days (oldest first), from the fee splits of real trades. */
+  daily: { day: number; usdc: number }[];
+};
+
+/** Everything an address has launched, and what its characters have earned (own trades and royalties from remixes). */
+export function creatorStats(address: Addr, days = 30): CreatorStats {
+  const d = db();
+  const rows = d.prepare(`${SELECT} WHERE lower(s.creator) = lower(?) ORDER BY s.launched_at`).all(address) as Row[];
+  const accounts = rows.map((r) => r.character_account.toLowerCase());
+  const earned = (account: string) => {
+    const own = d.prepare("SELECT kind, SUM(CAST(amount AS INTEGER)) AS t FROM lp_routed WHERE lower(recipient) = ? GROUP BY kind").all(account) as { kind: number; t: number }[];
+    return { total: own.reduce((s, x) => s + x.t, 0) / 1e6, fromRemixes: (own.find((x) => x.kind === 1)?.t ?? 0) / 1e6 };
+  };
+  const series = rows.map((r) => {
+    const sum = summary(r);
+    const v = d.prepare("SELECT COUNT(*) AS n, SUM(CAST(usdc AS INTEGER)) AS t FROM lp_trades WHERE series_id = ?").get(r.id) as { n: number; t: number | null };
+    const e = earned(r.character_account.toLowerCase());
+    return { id: r.id, name: r.name, symbol: r.symbol, sheetUrl: sum.sheetUrl, characterName: sum.characterName, earnedUsdc: e.total, fromRemixesUsdc: e.fromRemixes, volumeUsdc: (v.t ?? 0) / 1e6, trades: v.n, holders: sum.holders, episodes: sum.episodes, graduated: sum.graduated };
+  });
+  const today = Math.floor(Date.now() / 86_400_000);
+  const byDay = new Map<number, number>();
+  if (accounts.length) {
+    const marks = accounts.map(() => "?").join(",");
+    const daily = d
+      .prepare(
+        `SELECT t.at / 86400 AS day, SUM(CAST(r.amount AS INTEGER)) AS total FROM lp_routed r JOIN (SELECT DISTINCT tx, at FROM lp_trades) t ON t.tx = r.tx WHERE lower(r.recipient) IN (${marks}) GROUP BY day`,
+      )
+      .all(...accounts) as { day: number; total: number }[];
+    for (const x of daily) byDay.set(x.day, x.total / 1e6);
+  }
+  // Day indices follow the chain's clock (a fork's can differ from the wall clock): end at the latest earning day if later.
+  const last = Math.max(today, ...byDay.keys());
+  const series30 = Array.from({ length: days }, (_, i) => last - days + 1 + i).map((day) => ({ day, usdc: byDay.get(day) ?? 0 }));
+  const sum = (k: "earnedUsdc" | "fromRemixesUsdc" | "volumeUsdc" | "trades" | "holders" | "episodes") => series.reduce((s, x) => s + x[k], 0);
+  return {
+    address,
+    series,
+    totals: { series: series.length, earnedUsdc: sum("earnedUsdc"), fromRemixesUsdc: sum("fromRemixesUsdc"), volumeUsdc: sum("volumeUsdc"), trades: sum("trades"), holders: sum("holders"), episodes: sum("episodes") },
+    daily: series30,
+  };
+}
