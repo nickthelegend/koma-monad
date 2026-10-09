@@ -67,6 +67,9 @@ studio says it isn't configured; everything else works.
   each one ticks off from real state.
 - **Watch an episode become canon.** When a round settles, the winning cover lands as a splash page with its vote
   share and who settled it.
+- **Catch up fast.** A series page opens with "Previously on…" (Kimi's two-sentence recap of the canon, written once
+  per settled episode) and chips for what changed since your last visit. `/series` ranks the top creators.
+- **Embed a series** anywhere: `/embed/s/<id>` is a live card, and the series page copies the iframe for you.
 - **Trace a remix family.** A series page shows its whole remix tree and the royalties that flowed up it.
 - **See Monad's speed.** Every trade, payment and launch shows "Executed in N ms" with its block, the gas KOMA paid
   and what that gas would cost on Ethereum today; `/monad` shows Monad testnet's block pipeline live.
@@ -169,6 +172,7 @@ npm run test:monad      # Monad-native: live testnet facts, P256, canonical cont
 npm run test:speed      # two-timer speed receipts          npm run test:reader     # page turns, guided mode, full screen
 npm run test:timeline   # the canon timeline                npm run test:home       # first 60 seconds, presets, board
 npm run test:share      # series share card (OG image)      npm run test:wave2      # creator, new wallet, episode reveal, remix tree
+npm run test:wave3      # top creators, recap, embed card, since your last visit
 ```
 
 The latest full run is in [SUBMISSION.md → Evidence](SUBMISSION.md#evidence).

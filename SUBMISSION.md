@@ -97,6 +97,8 @@ Full run on 6 Oct 2026 on a **clean** local deployment (`npm run demo` from an e
 | `test:home` (first 60 seconds, presets, board curation; desktop + 390 px) | 8/8 |
 | `test:share` (series share card, 1200×630 OG image) | 3/3 |
 | `test:wave2` (creator page, new-wallet shelf + real faucet, episode reveal, remix tree; desktop + 390 px) | 8/8 |
+| `test:wave3` (top creators, cached Kimi recap, embed card, since your last visit) | 7/7 |
+| Readability pass (visible words: series page −43%, trade view −52%, `/monad` −50 to −58%, `/receipts` −40 to −45%) | `docs/screens/declutter/` |
 | `test:autopilot` | P0 pass (honestly off); P1–P6 untested (Privy keys) |
 | lint, typecheck (`next build`), slither | clean; slither 8 low/medium findings triaged (see `docs/TEST-PLAN-ZERO-MOCK.md`) |
 | secret scan (13 real secrets checked against the whole history and tree) | none found |

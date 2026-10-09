@@ -56,7 +56,7 @@ when a round settles.
 | Episode reveal when a round settles | DONE (`test:wave2` R1–R3) |
 | **Swap:** Privy live autopilot → **remix family tree** | Privy needs keys, so it waits. The tree is DONE (`test:wave2` T1) |
 
-## Wave 3 (no MON, no keys; readability rule applies)
+## Wave 3 (no MON, no keys; readability rule applies): done 9 Oct, `test:wave3` 7/7, declutter −40 to −58%
 
 1. **Readability pass** on the densest screens (speed receipt, `/receipts`, `/monad`, the series page): one headline
    per card, chips instead of prose, details collapsed. Before/after in `docs/screens/declutter/`.
