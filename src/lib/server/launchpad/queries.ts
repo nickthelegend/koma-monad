@@ -315,3 +315,19 @@ export function creatorStats(address: Addr, days = 30): CreatorStats {
     daily: series30,
   };
 }
+
+export type Holding = { id: number; name: string; symbol: string; characterName: string; sheetUrl: string; coins: number; valueUsdc: number };
+
+/** Every series coin an address holds, by the index (the chain is authoritative), largest position first. */
+export function holdingsOf(address: Addr): Holding[] {
+  const rows = db()
+    .prepare(`${SELECT.replace("SELECT s.*", "SELECT b.balance, s.*")} JOIN lp_balances b ON b.series_id = s.id WHERE b.holder = ? AND b.balance != '0'`)
+    .all(address.toLowerCase()) as (Row & { balance: string })[];
+  return rows
+    .map((r) => {
+      const n = coins(r.balance);
+      return { id: r.id, name: r.name, symbol: r.symbol, characterName: r.character_name ?? r.name, sheetUrl: r.sheet ?? "", coins: n, valueUsdc: n * currentPrice(r) };
+    })
+    .filter((h) => h.coins > 0)
+    .sort((a, b) => b.valueUsdc - a.valueUsdc);
+}

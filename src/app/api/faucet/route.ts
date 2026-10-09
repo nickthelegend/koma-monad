@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
     if (receipt.status !== "success") throw new Error("reverted");
   } catch (e) {
     const msg = (e as { shortMessage?: string }).shortMessage ?? (e as Error).message;
-    // Agora's faucet has a 60 s global cooldown shared by everyone.
-    const busy = /cooldown|too soon|wait/i.test(msg);
+    // Agora's faucet has a 60 s global cooldown shared by everyone; it reverts with custom error 0x20e5bc67.
+    const busy = /cooldown|too soon|wait|0x20e5bc67/i.test(`${msg} ${(e as Error).message ?? ""}`);
     return NextResponse.json({ error: busy ? "Agora's faucet is cooling down. Try again in a minute." : "The AUSD faucet didn't pay out. Try again shortly." }, { status: busy ? 429 : 502 });
   }
   const after = await publicClient.readContract({ address: usdc, abi: erc20Abi, functionName: "balanceOf", args: [who] });
