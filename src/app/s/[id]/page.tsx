@@ -22,6 +22,7 @@ import { AutopilotPanel } from "@/components/launchpad/autopilot-panel";
 import { AddressList } from "@/components/launchpad/address-list";
 import { AutoRefresh } from "@/components/launchpad/auto-refresh";
 import { ShareButton } from "@/components/share-button";
+import { EmbedButton } from "@/components/embed-button";
 import { Chip, Details } from "@/components/ui";
 import { MonadMark, IconBack, IconRemix } from "@/components/icons";
 import { FEE_SPLIT, GRADUATION_FEE_PCT, TRADE_FEE_PCT } from "@/lib/network";
@@ -124,12 +125,13 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
                 </a>
               )}
             </div>
-            <div className="mt-4">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <ShareButton
                 title={s.name}
                 path={`/s/${s.id}`}
                 message={`Back ${s.characterName} in “${s.name}” ($${s.symbol.trim()}) on KOMA: fans vote on what happens next.`}
               />
+              <EmbedButton seriesId={s.id} title={s.name} />
             </div>
           </div>
         </div>

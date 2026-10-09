@@ -227,3 +227,8 @@ body {
   .reveal-stamp { animation: reveal-stamp 420ms cubic-bezier(0.3, 1.4, 0.5, 1) 640ms both; }
   .reveal-bar { transform-origin: left; animation: reveal-bar 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 900ms both; }
 }
+
+/* /embed pages render alone inside someone else's iframe: no site chrome around them. */
+body:has([data-embed]) :is(main ~ *, *:has(~ main)) { display: none !important; }
+body:has([data-embed]) main { padding: 0; }
+body:has([data-embed]) { min-height: 0; }
