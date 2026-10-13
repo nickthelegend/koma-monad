@@ -7,10 +7,10 @@ import { MonadMark } from "./icons";
 const MADE_BY = [
   { who: "Tencent Hunyuan 3", does: "edits your idea into a pitch", href: "/create" },
   { who: "Kimi K2.6", does: "writes each episode after reading the canon", href: "/series" },
-  { who: "Hunyuan Image 3", does: "draws every character sheet and cover", href: "/launch" },
+  { who: "FLUX.2 on fal", does: "draws every sheet, cover and panel", href: "/launch" },
   { who: "Chainlink CRE", does: "re-checks every vote and settles the canon", href: "/series" },
-  { who: "Envio", does: "indexes the board and leaderboard", href: "/series" },
-  { who: "Privy", does: "lets backers put votes and buys on autopilot", href: "/series" },
+  { who: "Envio", does: "indexes the leaderboard", href: "/series" },
+  { who: "Privy", does: "backer autopilot under a policy (setup pending)", href: "/series" },
   { who: "Mera passkeys", does: "keep unpublished twists encrypted", href: "/room" },
   { who: "Monad", does: "300 ms blocks; watch them live", href: "/monad" },
 ];
@@ -47,7 +47,7 @@ export function HomeProof({ board, medianMs, fork }: { board: Board | null; medi
           {MADE_BY.map((m) => (
             <li key={m.who}>
               <Link href={m.href} className="group block">
-                <span className="text-paper group-hover:text-kapow">{m.who}</span> <span className="text-mute">{m.does}</span>
+                <span className="text-paper group-hover:text-kapow">{m.who}</span> <span className="text-mute">{m.who === "Envio" && board?.source !== "envio" ? "indexer built; hosted indexing pending" : m.does}</span>
               </Link>
             </li>
           ))}

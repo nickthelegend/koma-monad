@@ -9,7 +9,7 @@ import { PreviouslyOn } from "@/components/launchpad/previously-on";
 import { SinceLastVisit } from "@/components/launchpad/since-last-visit";
 import type { SeriesDetail } from "@/lib/launchpad/types";
 import { txUrl, isExternal } from "@/lib/explorer";
-import { agoSec, coinAmount, coinPrice, coinPricePlain, compact, progressLabel, short, usdAmount } from "@/lib/format";
+import { agoSec, coinAmount, coinPrice, coinPricePlain, compact, perMillion, progressLabel, short, usdAmount } from "@/lib/format";
 import { Sheet, RaisedBar, DemoBadge, GraduatedBadge } from "@/components/launchpad/sheet";
 import { BuiltOnMonad } from "@/components/launchpad/built-on-monad";
 import { CharacterEarnings } from "@/components/launchpad/character-earnings";
@@ -140,7 +140,7 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
 
         {/* ——— Numbers ——— */}
         <dl className="mt-9 grid grid-cols-2 gap-px border border-rule bg-rule md:grid-cols-4">
-          <Stat label="Price per coin" value={coinPrice(s.priceUsdc)} title={coinPricePlain(s.priceUsdc)} chain />
+          <Stat label="Price per 1M coins" value={perMillion(s.priceUsdc)} title={`${coinPricePlain(s.priceUsdc)} per coin`} chain />
           <Stat label="Market cap" value={usdAmount(s.marketCapUsdc)} />
           <Stat label="Holders" value={s.holders.toLocaleString("en-US")} />
           <Stat label="Canon episodes" value={String(s.episodes)} />
@@ -172,7 +172,14 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
       {/* ——— Trade + story. Phones read: chart, trade, canon, the rest. ——— */}
       <div className="mx-auto mt-10 grid max-w-[1320px] gap-8 px-4 md:grid-cols-[minmax(0,1fr)_380px] md:gap-x-12 md:px-8">
         <div className="min-w-0 md:col-start-1 md:row-start-1">
-          <PriceChart points={s.chart} now={now} />
+          {/* A chart of one or two trades is a flat block; until there are three, say so instead. */}
+          {s.trades.length >= 3 ? (
+            <PriceChart points={s.chart} now={now} />
+          ) : (
+            <p data-chart-placeholder className="border border-dashed border-rule px-4 py-5 text-center font-mono text-[12px] text-mute">
+              price chart appears after 3 trades · {s.trades.length} so far
+            </p>
+          )}
         </div>
 
         <aside id="trade" aria-label={`Trade $${symbol}`} className="scroll-mt-24 md:col-start-2 md:row-span-2 md:row-start-1">
@@ -186,8 +193,17 @@ export default async function SeriesPage({ params }: PageProps<"/s/[id]">) {
               ) : (
                 <>
                   <Chip>{TRADE_FEE_PCT}% fee</Chip>
-                  <Chip tone="arb">{FEE_SPLIT.character}% to {s.characterName}</Chip>
-                  <Chip>{FEE_SPLIT.remix}% remixes</Chip>
+                  {/* With no parent, the character keeps the remix share: chips match "Where the fees went". */}
+                  {s.parent ? (
+                    <>
+                      <Chip tone="arb">{FEE_SPLIT.character}% to {s.characterName}</Chip>
+                      <Chip>{FEE_SPLIT.remix}% up the remix tree</Chip>
+                    </>
+                  ) : (
+                    <Chip tone="arb" title={`${FEE_SPLIT.character}% plus the ${FEE_SPLIT.remix}% remix share, since this series has no parent`}>
+                      {FEE_SPLIT.character + FEE_SPLIT.remix}% to {s.characterName}
+                    </Chip>
+                  )}
                   <Chip>{FEE_SPLIT.treasury}% KOMA</Chip>
                 </>
               )}

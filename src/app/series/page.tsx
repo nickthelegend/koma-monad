@@ -12,7 +12,7 @@ import { AutoRefresh } from "@/components/launchpad/auto-refresh";
 import { DemoBadge, GraduatedBadge, RaisedBar, RemixBadge, Sheet } from "@/components/launchpad/sheet";
 import { COIN_DISCLAIMER, MAINNET } from "@/components/launchpad/network-note";
 import { IconPlus, IconSearch } from "@/components/icons";
-import { coinPrice, coinPricePlain, plural, progressLabel, usdAmount } from "@/lib/format";
+import { coinPricePlain, perMillion, plural, progressLabel, usdAmount } from "@/lib/format";
 import { KOMA, LAUNCH_PRICE } from "@/lib/network";
 
 export const metadata: Metadata = {
@@ -216,8 +216,8 @@ function Featured({ s, why, parentName }: { s: SeriesSummary; why: string; paren
           </p>
           <dl className="mt-auto grid grid-cols-2 gap-x-4 gap-y-3 pt-5">
             <div>
-              <dt className="text-[11.5px] text-mute">Price per coin</dt>
-              <dd className="font-mono text-[20px] text-arb" title={coinPricePlain(s.priceUsdc)}>{coinPrice(s.priceUsdc)}</dd>
+              <dt className="text-[11.5px] text-mute">Price per 1M coins</dt>
+              <dd className="font-mono text-[20px] text-arb" title={`${coinPricePlain(s.priceUsdc)} per coin`}>{perMillion(s.priceUsdc)}</dd>
             </div>
             <div>
               <dt className="text-[11.5px] text-mute">Market cap</dt>
