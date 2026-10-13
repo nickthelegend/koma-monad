@@ -1,0 +1,276 @@
+1
+00:00:00,300 --> 00:00:02,668
+KOMA is for comic fans: the people
+
+2
+00:00:02,668 --> 00:00:04,642
+who make characters famous but never own
+
+3
+00:00:04,642 --> 00:00:07,208
+them or get a say. Here, fans
+
+4
+00:00:07,208 --> 00:00:08,729
+own the comic, and they write the
+
+5
+00:00:08,729 --> 00:00:09,599
+canon.
+
+6
+00:00:10,267 --> 00:00:13,471
+Sign-in is Privy: email, Google, a passkey,
+
+7
+00:00:13,471 --> 00:00:15,468
+or a wallet you already have. We
+
+8
+00:00:15,468 --> 00:00:17,059
+use a test wallet that holds no
+
+9
+00:00:17,059 --> 00:00:17,940
+MON.
+
+10
+00:00:18,933 --> 00:00:22,299
+The studio's editor is Tencent's Hunyuan 3.
+
+11
+00:00:22,660 --> 00:00:24,425
+It turns a one-line idea into a
+
+12
+00:00:24,425 --> 00:00:26,979
+pitch, with a title, style, pages and
+
+13
+00:00:26,979 --> 00:00:27,953
+a price.
+
+14
+00:00:29,567 --> 00:00:33,816
+Paying is HTTP 402. The server quotes
+
+15
+00:00:33,816 --> 00:00:36,625
+a price, the wallet signs one AUSD
+
+16
+00:00:36,649 --> 00:00:39,807
+authorization, and KOMA's facilitator settles it on
+
+17
+00:00:39,807 --> 00:00:42,720
+Monad. No gas, no account.
+
+18
+00:00:43,367 --> 00:00:46,280
+Executed in about four hundred fifty milliseconds,
+
+19
+00:00:46,304 --> 00:00:48,207
+final in about nine hundred.
+
+20
+00:00:50,100 --> 00:00:52,643
+Kimi K2.6 writes the script, FLUX draws
+
+21
+00:00:52,643 --> 00:00:55,187
+the panels, and the issue is minted
+
+22
+00:00:55,187 --> 00:00:56,427
+to the buyer.
+
+23
+00:01:00,933 --> 00:01:02,872
+The credits name the models that made
+
+24
+00:01:02,872 --> 00:01:04,579
+it, and the reader has a guided
+
+25
+00:01:04,579 --> 00:01:06,981
+mode that reads panel by panel.
+
+26
+00:01:17,599 --> 00:01:20,316
+A series costs one dollar. FLUX draws
+
+27
+00:01:20,316 --> 00:01:22,429
+a character sheet, and one transaction mints
+
+28
+00:01:22,429 --> 00:01:24,820
+a character NFT with its own wallet,
+
+29
+00:01:24,820 --> 00:01:28,198
+a coin and an AUSD bonding curve.
+
+30
+00:01:29,899 --> 00:01:32,717
+Buying is a gasless signature. KOMA's relayer
+
+31
+00:01:32,717 --> 00:01:35,534
+sends it with eth_sendRawTransactionSync, so the receipt
+
+32
+00:01:35,534 --> 00:01:38,351
+comes back with the send: executed in
+
+33
+00:01:38,351 --> 00:01:41,168
+two hundred thirteen milliseconds, final in under
+
+34
+00:01:41,168 --> 00:01:42,123
+nine hundred.
+
+35
+00:01:45,233 --> 00:01:47,961
+Holders propose the next episode. Kimi calls
+
+36
+00:01:47,961 --> 00:01:49,575
+a tool to read the voted canon
+
+37
+00:01:49,575 --> 00:01:51,990
+first, then writes it, drawn on model
+
+38
+00:01:51,990 --> 00:01:53,464
+from the character sheet.
+
+39
+00:01:59,499 --> 00:02:01,717
+Votes are free signatures, weighted by the
+
+40
+00:02:01,717 --> 00:02:04,596
+coins held when the round opened. Three
+
+41
+00:02:04,596 --> 00:02:07,138
+team wallets vote too; that's seeded, and
+
+42
+00:02:07,138 --> 00:02:08,240
+we say so.
+
+43
+00:02:09,499 --> 00:02:11,775
+While the vote runs, here is Monad
+
+44
+00:02:11,775 --> 00:02:14,886
+testnet live: blocks moving from proposed to
+
+45
+00:02:14,886 --> 00:02:17,870
+voted to finalized, the precompiles read on
+
+46
+00:02:17,870 --> 00:02:21,027
+chain, and KOMA's own median confirmation.
+
+47
+00:02:24,733 --> 00:02:27,229
+When the window closes, a Chainlink CRE
+
+48
+00:02:27,229 --> 00:02:30,550
+workflow re-verifies every signature and weight, then
+
+49
+00:02:30,550 --> 00:02:32,453
+settles the winner on Monad.
+
+50
+00:02:34,066 --> 00:02:36,365
+Episode one is canon, and anyone who
+
+51
+00:02:36,365 --> 00:02:37,921
+was away sees it the next time
+
+52
+00:02:37,921 --> 00:02:39,464
+they open the series.
+
+53
+00:02:45,266 --> 00:02:48,317
+The Writers' Room: one passkey derives keys
+
+54
+00:02:48,317 --> 00:02:51,369
+that aren't a wallet. Drafts are encrypted
+
+55
+00:02:51,369 --> 00:02:54,420
+in the browser, the server keeps only
+
+56
+00:02:54,420 --> 00:02:57,472
+ciphertext, and each unlock is verified by
+
+57
+00:02:57,472 --> 00:02:58,930
+Monad's P256 precompile.
+
+58
+00:03:09,099 --> 00:03:10,910
+The shelf holds your issues and the
+
+59
+00:03:10,910 --> 00:03:13,209
+characters you back, and every creator gets
+
+60
+00:03:13,209 --> 00:03:15,704
+a page with what their characters earned.
+
+61
+00:03:21,665 --> 00:03:23,917
+Signal Fire filled its curve tonight and
+
+62
+00:03:23,917 --> 00:03:27,132
+graduated into a locked Uniswap v4 pool.
+
+63
+00:03:27,493 --> 00:03:29,595
+Its story so far shows three canon
+
+64
+00:03:29,595 --> 00:03:33,193
+episodes, each settled by Chainlink CRE.
+
+65
+00:03:36,365 --> 00:03:39,151
+The board ranks series, backers and creators,
+
+66
+00:03:39,151 --> 00:03:41,137
+and every payment step is explained in
+
+67
+00:03:41,137 --> 00:03:42,413
+plain words.
+
+68
+00:03:53,965 --> 00:03:56,275
+KOMA. Fans write the canon, live on
+
+69
+00:03:56,275 --> 00:03:57,598
+Monad testnet.
+

@@ -1,0 +1,27 @@
+{
+  "name": "koma-walkthrough",
+  "work": "video/work2",
+  "beats": [
+    ["demo.webm", 8.0, 17.7, 1, "s1", 0.3, true],
+    ["demo.webm", 17.7, 30.7, 1.5, "w2", 0.3, true],
+    ["demo.webm", 30.7, 40.1, 1.5, "w3", 0.3, true],
+    ["demo.webm", 40.1, 57.6, 4, null, 0, true],
+    ["demo.webm", 57.6, 95.7, 3, "w4", 0.3, true],
+    ["demo.webm", 95.7, 102.2, 1, "w5", 0.3, true],
+    ["demo.webm", 102.2, 134.7, 3, "w6", 0.5, true],
+    ["video/work3/demo.webm", 10.0, 31.9, 1.3, "w7", 0.5, true],
+    ["demo.webm", 140.8, 177.7, 3, "w9", 0.3, true],
+    ["demo.webm", 177.7, 197.6, 1.3, "w10", 0.3, true],
+    ["demo.webm", 200.9, 257.9, 4, "w11", 0.3, true],
+    ["demo.webm", 262.0, 272.0, 1, "w12", 0.3, true],
+    ["demo.webm", 280.5, 305.0, 1.6, "w13", 0.3, true],
+    ["cre.mp4", 0, 7.6, 1, "w14", 0.2, false],
+    ["demo.webm", 572.8, 585.0, 1, "w15", 1.3, true],
+    ["demo.webm", 595.1, 690.0, 6, "w16", 0.3, true],
+    ["demo.webm", 690.0, 698.0, 1, null, 0, true],
+    ["video/work3/demo.webm", 31.9, 49.5, 1.4, "w17", 0.3, true],
+    ["video/work3/demo.webm", 49.5, 70.1, 1.4, "w18", 0.3, true],
+    ["video/work3/demo.webm", 70.1, 87.5, 1, "w19", 0.3, true],
+    ["outro.mp4", 0, 6.0, 1, "s15", 0.5, false]
+  ]
+}

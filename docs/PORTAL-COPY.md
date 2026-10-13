@@ -66,7 +66,7 @@ Kimi-written episode → vote → Chainlink CRE settlement.
 ## Links
 - Demo video (≤3:00): `docs/demo/koma-demo.mp4` (2:56). Upload it to YouTube/Loom and paste the link.
 - Pitch video (≤2:00): `docs/demo/koma-pitch.mp4` (1:18)
-- Full walkthrough: `docs/demo/koma-walkthrough.mp4` (~4:00)
+- Full walkthrough: `docs/demo/koma-walkthrough.mp4` (4:00)
 - Repo: https://github.com/nickthelegend/koma-monad (MIT)
 - Live app: https://web-production-655c7.up.railway.app
 

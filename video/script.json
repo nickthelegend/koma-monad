@@ -189,6 +189,99 @@
    "id": "p6",
    "scene": "pitch",
    "text": "Next, a character economy where every fandom writes its own canon. KOMA. Fans write the canon."
+  },
+  {
+   "id": "w2",
+   "scene": "walk",
+   "text": "Sign-in is Privy: email, Google, a passkey, or a wallet you already have. We use a test wallet that holds no MON."
+  },
+  {
+   "id": "w3",
+   "scene": "walk",
+   "text": "The studio's editor is Tencent's Hunyuan 3. It turns a one-line idea into a pitch, with a title, style, pages and a price.",
+   "say": "The studio's editor is Tencent's Hunyuan three. It turns a one-line idea into a pitch, with a title, style, pages and a price."
+  },
+  {
+   "id": "w4",
+   "scene": "walk",
+   "text": "Paying is HTTP 402. The server quotes a price, the wallet signs one AUSD authorization, and KOMA's facilitator settles it on Monad. No gas, no account.",
+   "say": "Paying is H-T-T-P four-oh-two. The server quotes a price, the wallet signs one A-U-S-D authorization, and KOMA's facilitator settles it on Monad. No gas, no account."
+  },
+  {
+   "id": "w5",
+   "scene": "walk",
+   "text": "Executed in about four hundred fifty milliseconds, final in about nine hundred."
+  },
+  {
+   "id": "w6",
+   "scene": "walk",
+   "text": "Kimi K2.6 writes the script, FLUX draws the panels, and the issue is minted to the buyer.",
+   "say": "Kimi K two point six writes the script, FLUX draws the panels, and the issue is minted to the buyer."
+  },
+  {
+   "id": "w7",
+   "scene": "walk",
+   "text": "The credits name the models that made it, and the reader has a guided mode that reads panel by panel."
+  },
+  {
+   "id": "w9",
+   "scene": "walk",
+   "text": "A series costs one dollar. FLUX draws a character sheet, and one transaction mints a character NFT with its own wallet, a coin and an AUSD bonding curve.",
+   "say": "A series costs one dollar. FLUX draws a character sheet, and one transaction mints a character NFT with its own wallet, a coin and an A-U-S-D bonding curve."
+  },
+  {
+   "id": "w10",
+   "scene": "walk",
+   "text": "Buying is a gasless signature. KOMA's relayer sends it with eth_sendRawTransactionSync, so the receipt comes back with the send: executed in two hundred thirteen milliseconds, final in under nine hundred.",
+   "say": "Buying is a gasless signature. KOMA's relayer sends it with send raw transaction sync, so the receipt comes back with the send: executed in two hundred thirteen milliseconds, final in under nine hundred."
+  },
+  {
+   "id": "w11",
+   "scene": "walk",
+   "text": "Holders propose the next episode. Kimi calls a tool to read the voted canon first, then writes it, drawn on model from the character sheet."
+  },
+  {
+   "id": "w12",
+   "scene": "walk",
+   "text": "Votes are free signatures, weighted by the coins held when the round opened. Three team wallets vote too; that's seeded, and we say so."
+  },
+  {
+   "id": "w13",
+   "scene": "walk",
+   "text": "While the vote runs, here is Monad testnet live: blocks moving from proposed to voted to finalized, the precompiles read on chain, and KOMA's own median confirmation."
+  },
+  {
+   "id": "w14",
+   "scene": "walk",
+   "text": "When the window closes, a Chainlink CRE workflow re-verifies every signature and weight, then settles the winner on Monad.",
+   "say": "When the window closes, a Chainlink C-R-E workflow re-verifies every signature and weight, then settles the winner on Monad."
+  },
+  {
+   "id": "w15",
+   "scene": "walk",
+   "text": "Episode one is canon, and anyone who was away sees it the next time they open the series."
+  },
+  {
+   "id": "w16",
+   "scene": "walk",
+   "text": "The Writers' Room: one passkey derives keys that aren't a wallet. Drafts are encrypted in the browser, the server keeps only ciphertext, and each unlock is verified by Monad's P256 precompile.",
+   "say": "The Writers' Room: one passkey derives keys that aren't a wallet. Drafts are encrypted in the browser, the server keeps only ciphertext, and each unlock is verified by Monad's P two fifty-six precompile."
+  },
+  {
+   "id": "w17",
+   "scene": "walk",
+   "text": "The shelf holds your issues and the characters you back, and every creator gets a page with what their characters earned."
+  },
+  {
+   "id": "w18",
+   "scene": "walk",
+   "text": "Signal Fire filled its curve tonight and graduated into a locked Uniswap v4 pool. Its story so far shows three canon episodes, each settled by Chainlink CRE.",
+   "say": "Signal Fire filled its curve tonight and graduated into a locked Uniswap v-four pool. Its story so far shows three canon episodes, each settled by Chainlink C-R-E."
+  },
+  {
+   "id": "w19",
+   "scene": "walk",
+   "text": "The board ranks series, backers and creators, and every payment step is explained in plain words."
   }
  ]
 }
