@@ -150,19 +150,20 @@ On Monad testnet we ran `cre workflow simulate koma-canon --target staging-setti
 Code: cre/koma-canon/workflow.ts, cre/koma-canon/canon.ts, contracts/src/cre/CanonSettler.sol, contracts/src/CanonRegistry.sol. Tests: forge test --match-path test/cre/* (9/9) and npm run test:cre on a Monad fork. Write-up: https://github.com/nickthelegend/koma-monad/blob/main/docs/CHAINLINK-CRE.md
 
 **Video (required, ≤ 2:00)**
-`docs/demo/bounty-cre.mp4`: upload it and paste the link. It shows the `cre workflow simulate … --broadcast` CLI run and the resulting Monad tx.
+`docs/demo/bounty-cre.mp4` (1:00): upload it and paste the link. It shows a real `cre workflow simulate koma-canon --target staging-settings --broadcast` run (terminal output replayed at its recorded timing, waits fast-forwarded with a chip): 4 verified votes, then the settle tx [0xd73ea019…0d2a](https://testnet.monadvision.com/tx/0xd73ea01980379dc499286330abceaf1850800978a16a76acb738f1119a380d2a). After that come the episode reveal in the app and the tx on Monad testnet.
 
 **What we did**
 - A CRE workflow (cron, HTTP and EVM read/write capabilities) settles every canon vote on Monad.
 - Every EIP-712 vote is re-verified, and each weight is read at the snapshot from chain, inside the workflow.
 - CanonSettler receives the report through the forwarder only, and finalizes in CanonRegistry with a votes root.
-- Four settles ran live on Monad testnet, including a contested round with 5 verified votes.
+- Five settles ran live on Monad testnet, including a contested round with 5 verified votes.
 
 **Evidence**
 - [0x054895f6…587e](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e): Signal Fire episode 1.
 - [0x63e90dcd…cd57](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57): episode 2, 5 verified votes, 62%.
 - [0x16d3a3ad…f144a75](https://testnet.monadvision.com/tx/0x16d3a3ad75dd3ef84c2139dc325f919afe3f746f361cf23931308c5f5f144a75): episode 3.
 - [0xffcf4bfb…c4df](https://testnet.monadvision.com/tx/0xffcf4bfb1a1be6df8dd51afbde4d08a4f2bc14221c3abd00339b995c67b6c4df): Ferry of Lost Things episode 1.
+- [0xd73ea019…0d2a](https://testnet.monadvision.com/tx/0xd73ea01980379dc499286330abceaf1850800978a16a76acb738f1119a380d2a): Ferry of Lost Things episode 2, 4 verified votes (the run in the video).
 - CanonSettler `0x5e307d014eb2d46B02cbed483a9fd32b23144825` (verified).
 - Multi-vote rounds are team-seeded (labelled).
 

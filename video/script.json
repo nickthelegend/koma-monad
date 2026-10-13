@@ -323,6 +323,39 @@
    "id": "q8",
    "scene": "pitch2",
    "text": "KOMA. Fans write the canon."
+  },
+  {
+   "id": "c1",
+   "scene": "bounty-cre",
+   "text": "In KOMA, holders vote on each comic's next episode with free signatures. A Chainlink CRE workflow, not our server, decides the winner.",
+   "say": "In KOMA, holders vote on each comic's next episode with free signatures. A Chainlink C-R-E workflow, not our server, decides the winner."
+  },
+  {
+   "id": "c2",
+   "scene": "bounty-cre",
+   "text": "Each run, the workflow fetches the due rounds, reads the proposals and every voter's snapshot weight from Monad, re-verifies every signature, tallies, and reports."
+  },
+  {
+   "id": "c3",
+   "scene": "bounty-cre",
+   "text": "Here's a real run against Monad testnet: cre workflow simulate, with broadcast. It compiles the workflow, verifies four votes, picks the winner, and writes the report on chain.",
+   "say": "Here's a real run against Monad testnet: C-R-E workflow simulate, with broadcast. It compiles the workflow, verifies four votes, picks the winner, and writes the report on chain."
+  },
+  {
+   "id": "c4",
+   "scene": "bounty-cre",
+   "text": "The report goes through Chainlink's forwarder to our CanonSettler contract, which finalizes the round. Fans see the new canon right away."
+  },
+  {
+   "id": "c5",
+   "scene": "bounty-cre",
+   "text": "And this is that settlement, on Monad testnet."
+  },
+  {
+   "id": "c6",
+   "scene": "bounty-cre",
+   "text": "KOMA. Fans vote, and Chainlink CRE settles the canon.",
+   "say": "KOMA. Fans vote, and Chainlink C-R-E settles the canon."
   }
  ]
 }

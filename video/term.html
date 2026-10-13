@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&display=block" rel="stylesheet" />
+<style>
+  html,body{margin:0;width:1920px;height:1080px;background:#000;color:#e8e3d9;overflow:hidden;font-family:"JetBrains Mono",monospace}
+  .bar{position:absolute;left:120px;right:120px;top:70px;height:46px;background:#1b1b1b;border:2px solid #2c2c2c;border-bottom:0;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:20px;color:#8c877e}
+  .bar i{width:14px;height:14px;border-radius:50%;background:#3a3a3a;display:inline-block}
+  .term{position:absolute;left:120px;right:120px;top:116px;bottom:70px;background:#0b0b0b;border:2px solid #2c2c2c;padding:26px 30px;font-size:22px;line-height:1.5;overflow:hidden;white-space:pre-wrap;word-break:break-all}
+  .p{color:#5ad17a} .hl{color:#ffd23f;font-weight:700} .cmd{color:#fff}
+  .cur{display:inline-block;width:12px;height:24px;background:#e8e3d9;vertical-align:-4px;animation:b 1s steps(1) infinite}
+  @keyframes b{50%{opacity:0}}
+</style></head><body>
+<div class="bar"><i></i><i></i><i></i><span style="margin-left:14px">koma-monad/cre — Chainlink CRE CLI</span></div>
+<div class="term" id="t"></div>
+<script src="work4/term-data.js"></script>
+<script>
+  const t = document.getElementById("t");
+  const esc = (s) => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  const hl = (s) => esc(s).replace(/(\[USER LOG\][^\n]*)/g, '<span class="hl">$1</span>').replace(/(✓[^\n]*)/g, '<span class="p">$1</span>');
+  let html = '<span class="p">$</span> <span class="cmd" id="c"></span><span class="cur" id="k"></span>';
+  t.innerHTML = html;
+  window.__go = () => {
+    const c = document.getElementById("c"); let i = 0;
+    const type = setInterval(() => { c.textContent = DATA.cmd.slice(0, ++i); if (i >= DATA.cmd.length) { clearInterval(type); run(); } }, 28);
+    function run() {
+      const start = performance.now(); let out = ""; let n = 0;
+      const tick = () => {
+        const el = performance.now() - start;
+        while (n < DATA.chunks.length && DATA.chunks[n].t * DATA.speed <= el) out += DATA.chunks[n++].text;
+        t.innerHTML = '<span class="p">$</span> <span class="cmd">' + esc(DATA.cmd) + '</span>\n' + hl(out.replace(/\x1b\[[0-9;]*m/g, "")) + '<span class="cur"></span>';
+        t.scrollTop = t.scrollHeight;
+        if (n < DATA.chunks.length || el < 2000) requestAnimationFrame(tick);
+      };
+      tick();
+    }
+  };
+</script></body></html>

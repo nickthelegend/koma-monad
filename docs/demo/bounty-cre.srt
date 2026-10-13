@@ -1,0 +1,76 @@
+1
+00:00:00,400 --> 00:00:02,652
+In KOMA, holders vote on each comic's
+
+2
+00:00:02,652 --> 00:00:05,810
+next episode with free signatures. A Chainlink
+
+3
+00:00:05,810 --> 00:00:08,806
+CRE workflow, not our server, decides the
+
+4
+00:00:08,806 --> 00:00:09,606
+winner.
+
+5
+00:00:10,300 --> 00:00:12,506
+Each run, the workflow fetches the due
+
+6
+00:00:12,506 --> 00:00:15,025
+rounds, reads the proposals and every voter's
+
+7
+00:00:15,025 --> 00:00:19,007
+snapshot weight from Monad, re-verifies every signature,
+
+8
+00:00:19,007 --> 00:00:20,713
+tallies, and reports.
+
+9
+00:00:21,300 --> 00:00:23,714
+Here's a real run against Monad testnet:
+
+10
+00:00:24,005 --> 00:00:27,976
+cre workflow simulate, with broadcast. It compiles
+
+11
+00:00:27,976 --> 00:00:30,600
+the workflow, verifies four votes, picks the
+
+12
+00:00:30,600 --> 00:00:32,921
+winner, and writes the report on chain.
+
+13
+00:00:33,667 --> 00:00:35,919
+The report goes through Chainlink's forwarder to
+
+14
+00:00:35,919 --> 00:00:39,367
+our CanonSettler contract, which finalizes the round.
+
+15
+00:00:39,727 --> 00:00:42,130
+Fans see the new canon right away.
+
+16
+00:00:48,667 --> 00:00:50,641
+And this is that settlement, on Monad
+
+17
+00:00:50,641 --> 00:00:51,696
+testnet.
+
+18
+00:00:55,067 --> 00:00:58,167
+KOMA. Fans vote, and Chainlink CRE settles
+
+19
+00:00:58,167 --> 00:00:59,118
+the canon.
+

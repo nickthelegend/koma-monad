@@ -98,6 +98,7 @@ Each run:
 | Signal Fire, episode 2, **contested: 5 verified votes, 62% to the winner** | [0x63e90dcd…cd57](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57) |
 | Signal Fire, episode 3 (5 verified votes) | [0x16d3a3ad…f144a75](https://testnet.monadvision.com/tx/0x16d3a3ad75dd3ef84c2139dc325f919afe3f746f361cf23931308c5f5f144a75) |
 | Ferry of Lost Things, episode 1 (4 verified votes) | [0xffcf4bfb…c4df](https://testnet.monadvision.com/tx/0xffcf4bfb1a1be6df8dd51afbde4d08a4f2bc14221c3abd00339b995c67b6c4df) |
+| Ferry of Lost Things, episode 2 (4 verified votes; the run shown in `docs/demo/bounty-cre.mp4`) | [0xd73ea019…0d2a](https://testnet.monadvision.com/tx/0xd73ea01980379dc499286330abceaf1850800978a16a76acb738f1119a380d2a) |
 
 - **Contracts:**
   - `CanonSettler` [`0x5e307d014eb2d46B02cbed483a9fd32b23144825`](https://testnet.monadvision.com/address/0x5e307d014eb2d46B02cbed483a9fd32b23144825);

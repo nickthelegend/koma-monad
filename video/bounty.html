@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700&family=Schibsted+Grotesk:wght@600;700&display=block" rel="stylesheet" />
+<style>
+  :root{--kapow:#ff4a1c;--arb:#2ea3f2;--paper:#f1ece2;--ok:#5ad17a;--rule:#2c2c2c}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;background:#000;color:var(--paper);overflow:hidden;font-family:"Schibsted Grotesk",sans-serif}
+  .scene{position:absolute;inset:0;opacity:0;transition:opacity .35s}.scene.on{opacity:1}
+  .mast{font-family:Anton;text-transform:uppercase;line-height:.92}
+  .rise{opacity:0;transform:translateY(40px)}.on .rise{animation:r .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d,0s)}
+  @keyframes r{to{opacity:1;transform:none}}
+  .step{display:flex;gap:26px;align-items:baseline;margin-top:34px;font-size:40px;font-weight:700}
+  .step b{font-family:Anton;font-size:56px;color:var(--arb);width:60px}
+  .step span.s{font-family:"JetBrains Mono";font-size:24px;color:#8c877e;font-weight:400;margin-left:8px}
+</style></head><body>
+<div class="scene" id="card">
+  <div class="mast rise" style="position:absolute;left:140px;top:300px;font-size:150px;color:var(--arb)">Chainlink CRE</div>
+  <div class="mast rise" style="position:absolute;left:140px;top:470px;font-size:110px;--d:.3s">bounty · KOMA</div>
+  <div class="rise" style="position:absolute;left:146px;top:620px;font-size:34px;color:#c9c4ba;--d:.6s">Fans vote on the next episode. CRE settles the canon on Monad.</div>
+</div>
+<div class="scene" id="steps">
+  <div class="mast rise" style="position:absolute;left:140px;top:110px;font-size:96px">The workflow: <span style="color:var(--arb)">cre/koma-canon</span></div>
+  <div style="position:absolute;left:150px;top:270px">
+    <div class="step rise" style="--d:.8s"><b>1</b>Fetch due rounds + signed votes<span class="s">HTTP capability · consensus</span></div>
+    <div class="step rise" style="--d:3.4s"><b>2</b>Read proposals &amp; snapshot weights<span class="s">EVM read · Monad</span></div>
+    <div class="step rise" style="--d:6.2s"><b>3</b>Re-verify every EIP-712 signature<span class="s">drop bad or empty votes</span></div>
+    <div class="step rise" style="--d:8.6s"><b>4</b>Tally + votes root<span class="s">keccak256 of counted votes</span></div>
+    <div class="step rise" style="--d:10.6s"><b>5</b>Report → forwarder → CanonSettler<span class="s">EVM write · finalize</span></div>
+  </div>
+</div>
+<div class="scene" id="close">
+  <div class="mast rise" style="position:absolute;left:0;right:0;top:300px;text-align:center;font-size:260px;color:var(--kapow)">KOMA</div>
+  <div class="mast rise" style="position:absolute;left:0;right:0;top:600px;text-align:center;font-size:60px;--d:.3s">Fans vote. Chainlink CRE settles the canon.</div>
+  <div class="rise" style="position:absolute;left:0;right:0;top:710px;text-align:center;font-family:'JetBrains Mono';font-size:34px;color:#c9c4ba;--d:.6s">koma-comics.up.railway.app</div>
+</div>
+<script>
+  const plan = JSON.parse(new URLSearchParams(location.search).get("plan") || "[]");
+  window.__go = () => plan.forEach(([id, t]) => setTimeout(() => { document.querySelectorAll(".scene").forEach((s) => s.classList.remove("on")); document.getElementById(id).classList.add("on"); }, t * 1000));
+</script></body></html>

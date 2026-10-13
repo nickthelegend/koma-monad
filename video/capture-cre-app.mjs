@@ -1,0 +1,30 @@
+// The app side of the CRE bounty video: the settled round's reveal on the series page, its story so far, and the
+// settlement tx in KOMA's own tx view (/tx/<hash>, read from Monad testnet).
+import { readFileSync, renameSync, writeFileSync } from "node:fs";
+import { chromium } from "playwright";
+const BASE = "https://koma-comics.up.railway.app";
+const { seriesId, episode, tx } = JSON.parse(readFileSync("video/work4/round.json", "utf8"));
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 1600, height: 900 }, recordVideo: { dir: "video/work4", size: { width: 1600, height: 900 } } });
+const p = await ctx.newPage();
+const t0 = Date.now(); const marks = {};
+await p.goto(`${BASE}/s/${seriesId}`, { waitUntil: "networkidle" });
+await p.evaluate(([k, v]) => localStorage.setItem(k, v), [`koma:seen-canon:${seriesId}`, String(episode - 1)]);
+marks.load = (Date.now() - t0) / 1000;
+await p.reload({ waitUntil: "networkidle" });
+await p.locator("[data-episode-reveal]").waitFor({ timeout: 30_000 });
+marks.reveal = (Date.now() - t0) / 1000;
+await p.mouse.move(980, 620, { steps: 30 });
+await p.waitForTimeout(6000);
+await p.keyboard.press("Escape");
+await p.evaluate(async () => { const el = document.querySelector("#story-so-far"); const y = el.getBoundingClientRect().top + scrollY - 110; const s = scrollY; for (let i = 1; i <= 45; i++) { scrollTo(0, s + ((y - s) * (1 - Math.cos((Math.PI * i) / 45))) / 2); await new Promise((r) => setTimeout(r, 20)); } });
+marks.story = (Date.now() - t0) / 1000;
+await p.waitForTimeout(5000);
+await p.goto(`${BASE}/tx/${tx}`, { waitUntil: "networkidle" });
+marks.tx = (Date.now() - t0) / 1000;
+await p.waitForTimeout(6500);
+marks.end = (Date.now() - t0) / 1000;
+const v = p.video(); await ctx.close(); await b.close();
+renameSync(await v.path(), "video/work4/app.webm");
+writeFileSync("video/work4/app-marks.json", JSON.stringify(marks));
+console.log(JSON.stringify(marks));
