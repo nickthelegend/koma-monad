@@ -17,7 +17,7 @@ import { EpisodeBanner, type EpisodeSeries } from "../launchpad/episode-banner";
 import { priceFor } from "@/lib/order";
 import { AI_DOWN_NOTE, AI_UNCONFIGURED_NOTE, useServerStatus } from "../use-server-status";
 
-type Msg = { role: "user" | "assistant"; content: string; pitched?: string };
+type Msg = { role: "user" | "assistant"; content: string; pitched?: string; by?: string };
 type Saved = { messages: Msg[]; pitch: Pitch | null; jobId?: string; genre?: Genre };
 
 const STARTERS = [
@@ -139,9 +139,9 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })), pitch, remixOf: remix?.id, genre }),
       });
-      const body = (await res.json().catch(() => ({}))) as { reply?: string; pitch?: Pitch | null; error?: string };
+      const body = (await res.json().catch(() => ({}))) as { reply?: string; pitch?: Pitch | null; error?: string; by?: string };
       if (!res.ok || !body.reply) throw new Error(body.error ?? `The editor didn't answer (${res.status}).`);
-      setMessages((m) => [...m, { role: "assistant", content: body.reply!, pitched: body.pitch?.title }]);
+      setMessages((m) => [...m, { role: "assistant", content: body.reply!, pitched: body.pitch?.title, by: body.by }]);
       // An episode is priced as one (the editor doesn't know it's writing for a series).
       if (body.pitch) setPitch(series ? { ...body.pitch, seriesId: series.id, remixOf: undefined, price: priceFor(body.pitch.pages, true) } : body.pitch);
     } catch (e) {
@@ -224,6 +224,7 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
                       Editor{editor && <span className="text-soft"> · {editor}</span>}
                     </p>
                     <p className="mt-0.5 text-[15.5px] leading-relaxed text-paper">{m.content}</p>
+                    {m.by && <p className="mt-1 font-mono text-[10.5px] uppercase tracking-wide text-mute">answered by {m.by}</p>}
                     {m.pitched && (
                       <p className="mt-2 inline-flex items-center gap-1.5 border border-rule px-2 py-1 text-[12px] text-soft">
                         <IconPen width={12} height={12} /> Pitch: {m.pitched}

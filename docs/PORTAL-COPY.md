@@ -16,10 +16,10 @@ CRE settles the canon on chain.
 **Problem.** Fans make characters famous but own nothing and decide nothing. Creators get paid once, if at all.
 
 **Solution.** In KOMA, a story becomes an economy:
-- **Make an issue.** Tencent Hunyuan 3 shapes your idea into a pitch, Kimi K2.6 writes the script, and FLUX draws it.
+- **Make an issue** (10¢ a page; an episode proposed into a series is 30¢ a page). Tencent Hunyuan 3 shapes your idea into a pitch, Kimi K2.6 writes the script, and FLUX draws it.
   You pay a few cents of AUSD over x402 with one signature and no gas, and the issue is minted to you.
 - **Launch the hero as a series ($1).** It gets a Character NFT with its own ERC-6551 wallet, a 1B-supply coin on an AUSD
-  bonding curve, and a canon. The character's wallet earns 40% of every trade fee, and remixes pay royalties up the
+  bonding curve, and a canon. The character's wallet earns 40% of every trade fee (60% for an original with no parent, which keeps the remix share), and remixes pay royalties up the
   family tree.
 - **Fans write the canon.** Holders propose the next episode; Kimi reads the voted canon with a tool call before
   writing it. Holders vote for free with a signature. A Chainlink CRE workflow re-verifies every signature and
@@ -31,7 +31,8 @@ CRE settles the canon on chain.
 **Why Monad.** Every vote, trade and payment is a transaction. That only works as a fan experience when it's instant
 and nearly free:
 - KOMA's relayer sends with `eth_sendRawTransactionSync`. A live buy executed in **133 ms** and was final in
-  **800 ms**.
+  **800 ms**. Across all of KOMA's live transactions, the median is about 444 ms executed and about 1.1 s final, shown on
+  `/monad` and `/receipts`.
   "Executed" is measured by the relayer from the send to the receipt that the sync call returns. "Final" is when
   the `finalized` tag reaches that block. Block timestamps are whole seconds, so they can't show this.
 - Receipts show both timers.
