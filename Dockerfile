@@ -3,7 +3,9 @@
 FROM node:24-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# Same as CI: the lockfile is written on macOS by npm 11.17; Linux needs platform-only optional deps it doesn't
+# list, which `npm ci` rejects. `npm install` keeps every locked version and fills those in.
+RUN npm install -g npm@11.17.0 && npm install --no-audit --no-fund
 
 FROM node:24-slim AS build
 WORKDIR /app

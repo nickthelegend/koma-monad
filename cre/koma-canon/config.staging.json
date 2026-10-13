@@ -3,9 +3,9 @@
   "chainSelectorName": "monad-testnet",
   "isTestnet": true,
   "chainId": 10143,
-  "komaUrl": "https://REPLACE-with-KOMA-public-origin",
-  "canonRegistry": "0xREPLACE_with_canonRegistry_from_deploy/addresses.10143.json",
-  "receiver": "0xREPLACE_with_canonSettler_from_deploy/addresses.10143.json",
+  "komaUrl": "https://web-production-655c7.up.railway.app",
+  "canonRegistry": "0x6ee09Bc9ad42EdD588C97AcC4eb1665f080455ea",
+  "receiver": "0x5e307d014eb2d46B02cbed483a9fd32b23144825",
   "gasLimit": "1500000",
   "readFinalized": true,
   "maxSlots": 20
