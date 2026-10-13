@@ -250,7 +250,9 @@ function Featured({ s, why, parentName }: { s: SeriesSummary; why: string; paren
             </p>
             <div className="min-w-0">
               <RaisedBar raised={s.raisedUsdc} target={s.targetUsdc} size="lg" />
-              <p className="mt-1 text-[12px] text-mute">At ${s.targetUsdc.toLocaleString("en-US")} raised the curve closes and becomes a Uniswap v4 pool.</p>
+              <p className="mt-1 font-mono text-[11px] uppercase tracking-wide text-mute" title={`At $${s.targetUsdc.toLocaleString("en-US")} raised the curve closes and becomes a Uniswap v4 pool.`}>
+                then Uniswap v4
+              </p>
             </div>
           </>
         )}

@@ -29,7 +29,7 @@ const latest = (ms: Partial<Record<State, number>>): State => [...ORDER].reverse
 export function MonadPipeline() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [status, setStatus] = useState<"connecting" | "live" | "paused" | "error">("connecting");
+  const [status, setStatus] = useState<"connecting" | "live" | "http" | "paused" | "error">("connecting");
   const hist = useRef<Record<State, number[]>>({ Proposed: [], Voted: [], Finalized: [], Verified: [] });
   const [medians, setMedians] = useState<Partial<Record<State, number | null>>>({});
 
@@ -39,19 +39,68 @@ export function MonadPipeline() {
     const blockMap = new Map<string, Block>();
     const txMap = new Map<string, Transfer>();
 
+    // Fallback when Monad's public WebSocket refuses us (it rate-limits busy clients): poll the latest / safe /
+    // finalized tags over HTTP, which are Proposed / Voted / Finalized (N, N−1, N−2), still timed in this browser.
+    let poller: ReturnType<typeof setInterval> | null = null;
+    const pollTags = async () => {
+      const body = ["latest", "safe", "finalized"].map((t, id) => ({ jsonrpc: "2.0", id, method: "eth_getBlockByNumber", params: [t, false] }));
+      const res = (await fetch(MONAD.testnet.rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        .then((r) => r.json())
+        .catch(() => null)) as { id: number; result?: { number: string; hash: string } }[] | null;
+      if (!res || closed) return;
+      const n = (id: number) => parseInt(res.find((x) => x.id === id)?.result?.number ?? "0x0", 16);
+      const [latestN, safeN, finalN] = [n(0), n(1), n(2)];
+      if (!latestN) return;
+      setStatus((s) => (s === "live" ? s : "http"));
+      const now = performance.now();
+      for (let num = Math.max(latestN - 8, 1); num <= latestN; num++) {
+        const id = `n${num}`;
+        const b = blockMap.get(id) ?? { id, number: num, seen: now, ms: {}, txs: 0 };
+        const reach = (state: State, ok: boolean) => {
+          if (!ok || b.ms[state] !== undefined || b.seen === now) return;
+          b.ms[state] = Math.round(now - b.seen);
+          const h = hist.current[state];
+          h.push(b.ms[state]!);
+          if (h.length > 60) h.shift();
+        };
+        reach("Voted", num <= safeN);
+        reach("Finalized", num <= finalN);
+        blockMap.set(id, b);
+      }
+      const recent = [...blockMap.values()].sort((a, c) => c.number - a.number).slice(0, 9);
+      for (const k of blockMap.keys()) if (!recent.some((x) => x.id === k)) blockMap.delete(k);
+      setBlocks(recent);
+      setMedians({ Voted: median(hist.current.Voted), Finalized: median(hist.current.Finalized), Verified: median(hist.current.Verified) });
+    };
+    const startPolling = () => {
+      if (poller || closed) return;
+      blockMap.clear();
+      void pollTags();
+      poller = setInterval(() => void pollTags(), 300);
+    };
+    const stopPolling = () => {
+      if (poller) clearInterval(poller);
+      poller = null;
+    };
+
     const open = () => {
       if (closed || ws) return;
-      setStatus("connecting");
+      setStatus((s) => (s === "http" ? s : "connecting"));
       ws = new WebSocket(MONAD.testnet.wss);
       ws.onopen = () => {
+        stopPolling();
+        blockMap.clear();
         setStatus("live");
         ws!.send(JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_subscribe", params: ["monadNewHeads"] }));
         ws!.send(JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_subscribe", params: ["monadLogs", { address: AUSD_TESTNET, topics: [TRANSFER] }] }));
       };
-      ws.onerror = () => setStatus("error");
+      ws.onerror = () => startPolling();
       ws.onclose = () => {
         ws = null;
-        if (!closed && document.visibilityState === "visible") setTimeout(open, 3000);
+        if (!closed && document.visibilityState === "visible") {
+          startPolling();
+          setTimeout(open, 15_000); // try the socket again now and then; the HTTP tags keep the strip live meanwhile
+        }
       };
       ws.onmessage = (e) => {
         const m = JSON.parse(e.data as string) as { params?: { result: Record<string, string> } };
@@ -87,6 +136,7 @@ export function MonadPipeline() {
       };
     };
     const close = () => {
+      stopPolling();
       ws?.close();
       ws = null;
     };
@@ -112,7 +162,7 @@ export function MonadPipeline() {
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="font-display text-[18px] uppercase leading-none text-paper">Block pipeline</p>
         <p className="font-mono text-[11px] text-mute">
-          {status === "live" ? "● live · Monad testnet (read-only)" : status === "paused" ? "paused while hidden" : status === "error" ? "can't reach Monad testnet" : "connecting to Monad testnet…"}
+          {status === "live" ? "● live · Monad testnet (read-only)" : status === "http" ? "● live · Monad testnet · block tags over HTTP" : status === "paused" ? "paused while hidden" : status === "error" ? "can't reach Monad testnet" : "connecting to Monad testnet…"}
         </p>
       </div>
       <ol className="mt-3 flex gap-1.5 overflow-hidden" aria-label="Recent Monad testnet blocks and their commit state">
