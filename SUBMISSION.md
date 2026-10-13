@@ -115,6 +115,8 @@ Smoke test (`KOMA_URL=https://web-production-655c7.up.railway.app node scripts/s
 | Episode 1 proposal: paid over x402, scripted by **Kimi K2.6** (after its `get_series_canon` tool call), drawn by FLUX, minted | [`0x6c4860be…874c`](https://testnet.monadvision.com/tx/0x6c4860be7bcae73f7af6c993503ff1817ebebd91d30925806a34fe60ef82874c) |
 | **Chainlink CRE** `cre workflow simulate koma-canon --broadcast`: re-verified the signed vote and settled episode 1 through the forwarder | [`0x054895f6…587e`](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e) |
 
+Team-seeded activity (labelled as such): five wallets, a second series, and a **contested episode 2 settled by Chainlink CRE with 5 verified votes** ([`0x63e90dcd…cd57`](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57)). See [docs/evidence/seed-13oct.md](docs/evidence/seed-13oct.md).
+
 Deploy: block 70,679,579 from `0x2318…694c`; 14 contracts verified on Sourcify (KOMA's 11, plus Uniswap v4
 PoolManager, PositionManager and V4Quoter). Paid AI is capped per day (20 issues, 10 launches, 150 model calls on
 top of the USD cap), refused before payment.
