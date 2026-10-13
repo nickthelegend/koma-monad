@@ -48,3 +48,6 @@ next-env.d.ts
 # stylus (Rust -> WASM) build output and local nitro devnode checkout
 stylus/.devnode/
 stylus/**/target/
+
+# demo video build files (the deliverable is docs/demo/)
+video/work/

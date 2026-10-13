@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Comic+Neue:wght@700&family=JetBrains+Mono:wght@400;700&family=Schibsted+Grotesk:wght@400;600&display=block" rel="stylesheet" />
+<style>
+  :root { --ink:#000; --stock:#121212; --rule:#2c2c2c; --paper:#f1ece2; --kapow:#ff4a1c; --deep:#c8330f; --arb:#2ea3f2; --bam:#ffd23f; --mute:#8c877e; --ok:#5ad17a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); color: var(--paper); font-family: "Schibsted Grotesk", sans-serif; }
+  .scene { position: absolute; inset: 0; opacity: 0; transition: opacity .35s ease; }
+  .scene.on { opacity: 1; }
+  .halftone { position: absolute; inset: -20%; background-image: radial-gradient(currentColor 2px, transparent 2.6px); background-size: 16px 16px; color: rgba(255,74,28,.22); -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 20%, transparent 65%); }
+  .on .halftone { animation: burst 8s ease-out both; }
+  @keyframes burst { from { transform: scale(.6) rotate(-6deg); } to { transform: scale(1.15) rotate(0); } }
+  .mast { font-family: Anton, sans-serif; text-transform: uppercase; line-height: .84; letter-spacing: -.01em; }
+  .pop { opacity: 0; transform: scale(.7) rotate(-3deg); }
+  .on .pop { animation: pop .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay: var(--d, 0s); }
+  @keyframes pop { to { opacity: 1; transform: none; } }
+  .slide { opacity: 0; transform: translateY(40px); }
+  .on .slide { animation: slide .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0s); }
+  @keyframes slide { to { opacity: 1; transform: none; } }
+  .cap { font-family: "Comic Neue", cursive; font-weight: 700; background: var(--paper); color: #141210; border: 4px solid #000; box-shadow: 8px 8px 0 #000; padding: 18px 26px; font-size: 40px; display: inline-block; }
+  .chip { font-family: "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; border: 2px solid currentColor; padding: 6px 12px; font-size: 22px; display: inline-block; }
+  .panel { border: 6px solid var(--paper); box-shadow: 14px 14px 0 var(--deep); background: #000; overflow: hidden; }
+  .panel img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .live { position: absolute; top: 48px; right: 56px; color: var(--arb); }
+  .bang { font-family: Bangers, cursive; letter-spacing: .04em; }
+  /* S1 */
+  #s1 h1 { position: absolute; left: 140px; top: 150px; font-size: 168px; line-height: .95; color: var(--paper); width: 1640px; }
+  #s1 .c1 { position: absolute; left: 150px; top: 620px; --d: 1.6s; }
+  #s1 .c2 { position: absolute; left: 700px; top: 740px; --d: 3.2s; }
+  /* S2 */
+  #s2 .band { position: absolute; left: 0; right: 0; top: 70px; height: 210px; background: var(--kapow); }
+  #s2 .band .mast { position: absolute; left: 140px; top: 18px; font-size: 200px; color: #000; }
+  #s2 .band .price { position: absolute; right: 150px; top: 44px; background: var(--paper); color: #000; border: 4px solid #000; width: 150px; height: 120px; text-align: center; padding-top: 6px; }
+  #s2 .price b { font-family: Anton; font-size: 64px; display: block; line-height: 1; }
+  #s2 .p1 { position: absolute; left: 140px; top: 360px; width: 470px; height: 600px; --d: 1.6s; }
+  #s2 .p2 { position: absolute; left: 690px; top: 400px; width: 900px; height: 506px; --d: 4.2s; background: #f6f1e7; }
+  #s2 .tag { position: absolute; font-size: 30px; }
+  #s2 .t1 { left: 160px; top: 975px; --d: 2.2s; }
+  #s2 .t2 { left: 700px; top: 930px; --d: 4.8s; }
+  #s2 .coin { position: absolute; right: 120px; top: 330px; --d: 6s; background: var(--arb); color: #000; font-family: Anton; font-size: 72px; padding: 6px 28px; transform: rotate(4deg); box-shadow: 8px 8px 0 #1b6fb0; }
+  /* S3 */
+  #s3 h2 { position: absolute; left: 140px; top: 110px; font-size: 120px; }
+  #s3 .row { position: absolute; left: 140px; width: 1100px; }
+  #s3 .row .name { font-size: 40px; font-weight: 600; }
+  #s3 .bar { height: 30px; background: #222; border: 2px solid var(--rule); margin-top: 12px; }
+  #s3 .bar i { display: block; height: 100%; width: 0; background: var(--kapow); }
+  #s3.on .bar i { animation: fill 2.2s ease-out both; animation-delay: var(--d); }
+  @keyframes fill { to { width: var(--w); } }
+  #s3 .r1 { top: 330px; } #s3 .r2 { top: 520px; }
+  #s3 .stamp { position: absolute; right: 170px; top: 300px; border: 12px solid var(--kapow); color: var(--kapow); font-family: Anton; font-size: 150px; padding: 0 30px; transform: rotate(-10deg) scale(2.4); opacity: 0; }
+  #s3.on .stamp { animation: stamp .45s cubic-bezier(.3,1.4,.5,1) 3.4s both; }
+  @keyframes stamp { to { opacity: 1; transform: rotate(-10deg) scale(1); } }
+  #s3 .cre { position: absolute; right: 170px; top: 560px; color: var(--arb); --d: 3.9s; font-size: 30px; }
+  #s3 .sig { position: absolute; left: 140px; top: 760px; color: var(--mute); font-size: 30px; --d: 1.2s; }
+  /* S4 */
+  #s4 h2 { position: absolute; left: 140px; top: 110px; font-size: 130px; }
+  #s4 .blocks { position: absolute; left: 140px; top: 360px; display: flex; gap: 18px; }
+  #s4 .blk { width: 250px; padding: 18px; border: 3px solid var(--rule); font-family: "JetBrains Mono"; font-size: 24px; color: var(--mute); }
+  #s4 .blk b { display: block; font-size: 30px; color: var(--paper); }
+  #s4 .blk.v { border-color: var(--arb); color: var(--arb); } #s4 .blk.f { border-color: var(--ok); color: var(--ok); }
+  #s4 .stats { position: absolute; left: 140px; top: 640px; display: flex; gap: 90px; }
+  #s4 .stat .n { font-family: Anton; font-size: 150px; color: var(--arb); line-height: 1; }
+  #s4 .stat .l { font-size: 30px; color: var(--soft, #c9c4ba); margin-top: 8px; }
+  /* S5 / outro */
+  #s5 .mast { position: absolute; left: 0; right: 0; top: 230px; text-align: center; font-size: 330px; color: var(--kapow); }
+  #s5 .tl { position: absolute; left: 0; right: 0; top: 640px; text-align: center; font-size: 64px; font-family: Anton; text-transform: uppercase; }
+  #s5 .url { position: absolute; left: 0; right: 0; top: 770px; text-align: center; font-family: "JetBrains Mono"; font-size: 34px; color: var(--soft, #c9c4ba); }
+  #s5 .badge { position: absolute; left: 0; right: 0; top: 860px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="scene" id="s1">
+  <div class="halftone"></div>
+  <h1 class="mast pop">Fans make characters famous.</h1>
+  <div class="cap pop c1">They don't own them.</div>
+  <div class="cap pop c2">…or get a say in what's next.</div>
+</div>
+
+<div class="scene" id="s2">
+  <div class="band"><div class="mast slide">KOMA</div><div class="price pop" style="--d:.6s"><b>10¢</b>a page</div></div>
+  <div class="panel pop p1"><img id="cover" alt="" /></div>
+  <div class="panel pop p2"><img id="sheet" alt="" style="object-fit:contain" /></div>
+  <div class="chip slide tag t1" style="color:var(--kapow)">AI comic · minted to you</div>
+  <div class="chip slide tag t2" style="color:var(--arb)">a character with its own wallet</div>
+  <div class="pop coin">$FIRE</div>
+</div>
+
+<div class="scene" id="s3">
+  <h2 class="mast slide">Fans write the canon.</h2>
+  <div class="row r1 slide" style="--d:.5s"><div class="name">Episode 2 · "Keep the lamp lit"</div><div class="bar"><i style="--w:62%;--d:1.3s"></i></div></div>
+  <div class="row r2 slide" style="--d:.8s"><div class="name">Episode 2 · "Her own logbook"</div><div class="bar"><i style="--w:38%;--d:1.5s;background:#555"></i></div></div>
+  <div class="chip slide sig">votes are free signatures · weighted by coins held</div>
+  <div class="stamp">CANON</div>
+  <div class="chip slide cre">settled by Chainlink CRE</div>
+</div>
+
+<div class="scene" id="s4">
+  <h2 class="mast slide">Built for Monad.</h2>
+  <div class="blocks">
+    <div class="blk pop" style="--d:.4s"><b>#70,7…</b>PROPOSED</div>
+    <div class="blk v pop" style="--d:.8s"><b>+300 ms</b>VOTED</div>
+    <div class="blk f pop" style="--d:1.2s"><b>+600 ms</b>FINALIZED</div>
+    <div class="blk f pop" style="--d:1.6s"><b>live</b>MONAD TESTNET</div>
+  </div>
+  <div class="stats">
+    <div class="stat slide" style="--d:2.4s"><div class="n">0</div><div class="l">MON a fan ever needs</div></div>
+    <div class="stat slide" style="--d:3.2s"><div class="n">1</div><div class="l">signature per vote, trade or payment</div></div>
+  </div>
+</div>
+
+<div class="scene" id="s5">
+  <div class="halftone"></div>
+  <div class="mast pop">KOMA</div>
+  <div class="tl slide" style="--d:.5s">Fans write the canon.</div>
+  <div class="url slide" style="--d:1s">web-production-655c7.up.railway.app</div>
+  <div class="badge slide" style="--d:1.4s"><span class="chip" style="color:var(--arb)">● live on Monad testnet</span></div>
+</div>
+
+<script>
+  const BASE = "https://web-production-655c7.up.railway.app";
+  document.getElementById("cover").src = BASE + "/api/art/abcad8d37c/cover.jpg";
+  document.getElementById("sheet").src = BASE + "/api/art/s-437730a8f4/sheet.jpg";
+  const q = new URLSearchParams(location.search);
+  // Scene start times (s), timed to the narration; ?outro=1 shows only the end card.
+  const plan = q.get("outro") ? [["s5", 0]] : JSON.parse(q.get("plan") || "[]");
+  window.__go = () => {
+    window.__t0 = performance.now();
+    plan.forEach(([id, t], i) => setTimeout(() => {
+      document.querySelectorAll(".scene").forEach((s) => s.classList.remove("on"));
+      document.getElementById(id).classList.add("on");
+    }, t * 1000));
+  };
+</script>
+</body>
+</html>

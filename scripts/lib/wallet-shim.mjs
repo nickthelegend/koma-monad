@@ -5,8 +5,11 @@
 import { createWalletClient, http, numberToHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
-export async function installWallet(page, key, { rpc = "http://127.0.0.1:18643", chainId = 10143 } = {}) {
-  if (!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/.test(rpc)) throw new Error("wallet shim only signs for a local chain");
+export async function installWallet(page, key, { rpc = "http://127.0.0.1:18643", chainId = 10143, allowMonadTestnet = false } = {}) {
+  // Local chains by default. The demo recording opts in to Monad testnet only (chain 10143, test funds, team-seeded
+  // wallets with no MON): never a mainnet.
+  const testnet = allowMonadTestnet && chainId === 10143 && rpc === "https://testnet-rpc.monad.xyz";
+  if (!testnet && !/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/.test(rpc)) throw new Error("wallet shim only signs for a local chain (or, opted in, Monad testnet)");
   const account = privateKeyToAccount(key);
   const wallet = createWalletClient({ account, transport: http(rpc) });
   const log = [];

@@ -64,6 +64,7 @@ Kimi-written episode → vote → Chainlink CRE settlement.
 | Agora AUSD (payments) | Every payment and trade is in AUSD (EIP-3009 + permit) | everywhere | launch [0xe2fa666e…2d05](https://testnet.monadvision.com/tx/0xe2fa666e80c40503be3a753ed18c61566cb9c568fe1e311d5f3794fb16582d05) |
 
 ## Links
+- Demo video: `docs/demo/koma-metropolis.mp4` in the repo (2:43; upload this file to the portal)
 - Repo: https://github.com/nickthelegend/koma-monad (MIT)
 - Live app: https://web-production-655c7.up.railway.app
 

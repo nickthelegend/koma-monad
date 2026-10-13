@@ -1,0 +1,82 @@
+{
+ "lines": [
+  {
+   "id": "i1",
+   "scene": "intro",
+   "text": "Fans make characters famous. They don't own them, and they never get a say in what happens next."
+  },
+  {
+   "id": "i2",
+   "scene": "intro",
+   "text": "KOMA changes that. An AI comic costs ten cents a page, and its hero can become a character with its own wallet and its own coin."
+  },
+  {
+   "id": "i3",
+   "scene": "intro",
+   "text": "Holders propose the next episode, vote for free, and Chainlink settles the winner on chain."
+  },
+  {
+   "id": "i4",
+   "scene": "intro",
+   "text": "Every vote, trade and payment is a transaction. On Monad, they land in a fraction of a second, and fans never pay gas."
+  },
+  {
+   "id": "d1",
+   "scene": "monad",
+   "text": "This is Monad testnet, live. A block every three hundred milliseconds, final in about six hundred."
+  },
+  {
+   "id": "d2",
+   "scene": "buy",
+   "text": "We connect a wallet that holds no MON at all, and back Signal Fire. One signature, no gas, executed in under half a second."
+  },
+  {
+   "id": "d3",
+   "scene": "graduate",
+   "text": "That buy filled the curve, so the series graduated into its own Uniswap v4 pool.",
+   "say": "That buy filled the curve, so the series graduated into its own Uniswap v-four pool."
+  },
+  {
+   "id": "d4",
+   "scene": "studio",
+   "text": "Holders write what happens next. We pitch episode three, and Tencent's Hunyuan 3 turns the idea into a pitch."
+  },
+  {
+   "id": "d5",
+   "scene": "draw",
+   "text": "One AUSD payment over x402. Kimi reads the canon so far and writes the script, and FLUX draws it on model.",
+   "say": "One A-U-S-D payment over x-four-oh-two. Kimi reads the canon so far and writes the script, and FLUX draws it on model."
+  },
+  {
+   "id": "d6",
+   "scene": "issue",
+   "text": "It's minted to us, and proposed as episode three."
+  },
+  {
+   "id": "d7",
+   "scene": "vote",
+   "text": "Voting is a free signature. Four more team wallets vote too. This is seeded activity, and we label it that way."
+  },
+  {
+   "id": "d8",
+   "scene": "cre",
+   "text": "When the window closes, a Chainlink CRE workflow re-checks all five votes on Monad and settles the winner.",
+   "say": "When the window closes, a Chainlink C-R-E workflow re-checks all five votes on Monad and settles the winner."
+  },
+  {
+   "id": "d9",
+   "scene": "reveal",
+   "text": "Episode three is canon. The fans wrote it."
+  },
+  {
+   "id": "d10",
+   "scene": "room",
+   "text": "And next week's twist waits in the Writers' Room, encrypted to a passkey."
+  },
+  {
+   "id": "o1",
+   "scene": "outro",
+   "text": "KOMA. Fans write the canon. Live on Monad testnet."
+  }
+ ]
+}
