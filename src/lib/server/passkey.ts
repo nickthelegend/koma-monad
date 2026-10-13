@@ -68,7 +68,7 @@ export function p256Input(a: Assertion, x: string, y: string): Hex {
 
 const isOne = (r: string | undefined) => typeof r === "string" && /^0x0*1$/.test(r);
 
-export async function verifyUnlock(room: string, challenge: string, a: Assertion, origin: string): Promise<PasskeyCheck> {
+export async function verifyUnlock(room: string, challenge: string, a: Assertion, origin: string | string[]): Promise<PasskeyCheck> {
   const key = passkeyOf(room);
   if (!key) return { ok: false, error: "This room has no passkey registered for on-chain checks." };
   if (key.credential_id !== a.credentialId) return { ok: false, error: "That passkey isn't this room's." };
@@ -82,7 +82,7 @@ export async function verifyUnlock(room: string, challenge: string, a: Assertion
     return { ok: false, error: "Malformed clientDataJSON." };
   }
   if (client.type !== "webauthn.get" || client.challenge !== challenge) return { ok: false, error: "Assertion isn't for this challenge." };
-  if (client.origin !== origin) return { ok: false, error: "Assertion is from another origin." };
+  if (!client.origin || !(Array.isArray(origin) ? origin : [origin]).includes(client.origin)) return { ok: false, error: "Assertion is from another origin." };
   const flags = unb64(a.authenticatorData)[32] ?? 0;
   if ((flags & 0x04) === 0) return { ok: false, error: "The passkey didn't verify the user." };
 

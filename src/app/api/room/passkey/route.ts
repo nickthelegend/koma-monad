@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
   if (limited(`pk:${clientIp(req)}`, 60_000, 30)) return bad("Too many requests.", 429);
   const b = (await req.json().catch(() => null)) as { room?: string; challenge?: string; assertion?: Assertion } | null;
   if (!b?.room || !b.challenge || !b.assertion) return bad("Send { room, challenge, assertion }.");
-  const r = await verifyUnlock(b.room, b.challenge, b.assertion, req.nextUrl.origin);
+  // Behind a proxy (Railway) the request's own origin is the container's; the browser signed the public one.
+  const origins = [req.nextUrl.origin, ...(process.env.KOMA_PUBLIC_URL ? [new URL(process.env.KOMA_PUBLIC_URL).origin] : [])];
+  const r = await verifyUnlock(b.room, b.challenge, b.assertion, origins);
   return r.ok ? NextResponse.json({ local: r.local, testnet: r.testnet }) : bad(r.error, 422);
 }
