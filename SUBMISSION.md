@@ -113,13 +113,14 @@ Smoke test (`KOMA_URL=https://koma-comics.up.railway.app node scripts/smoke-test
 |---|---|
 | x402 launch: AUSD settled, series #1 launched (Character NFT + ERC-6551 wallet + coin + curve) | [`0xe2fa666e…2d05`](https://testnet.monadvision.com/tx/0xe2fa666e80c40503be3a753ed18c61566cb9c568fe1e311d5f3794fb16582d05) |
 | Gasless $3 buy, relayed with `eth_sendRawTransactionSync`: **executed in 133 ms, final in 800 ms** (Monad's real timers) | [`0x2daa3fb7…0ee0d7`](https://testnet.monadvision.com/tx/0x2daa3fb7262915375d8b03fd1f3c98fac2471821beac57de8a6e1630340ee0d7) |
+| Graduation into a Uniswap v4 pool: Signal Fire's curve filled; the Graduator created and seeded the pool | [`0x0795bf54…9e0e`](https://testnet.monadvision.com/tx/0x0795bf547d92f03cc1256f14ef742c7c38ddf9e0219395111c70c8a11fef9e0e) |
 | `txpool_statusByHash` follows a tx: `tracked` → `committed` | [`0xe353700d…06b3`](https://testnet.monadvision.com/tx/0xe353700d1cc85186be47c862ae4797c93687234982ac55fe201acbed87d506b3) |
 | Episode 1 proposal: paid over x402, scripted by **Kimi K2.6** (after its `get_series_canon` tool call), drawn by FLUX, minted | [`0x6c4860be…874c`](https://testnet.monadvision.com/tx/0x6c4860be7bcae73f7af6c993503ff1817ebebd91d30925806a34fe60ef82874c) |
 | **Chainlink CRE** `cre workflow simulate koma-canon --broadcast`: re-verified the signed vote and settled episode 1 through the forwarder | [`0x054895f6…587e`](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e) |
 
 Team-seeded activity (labelled as such): five wallets, a second series, and a **contested episode 2 settled by Chainlink CRE with 5 verified votes** ([`0x63e90dcd…cd57`](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57)). See [docs/evidence/seed-13oct.md](docs/evidence/seed-13oct.md).
 
-Signal Fire's curve filled live and **graduated into a Uniswap v4 pool** (pool id `0x806903d5bb268d4ccfadcf70ded7930af4c36c7008702616deb755b57fa6e08b`); its page shows the pool.
+Signal Fire's curve filled live and **graduated into a Uniswap v4 pool** (pool id `0x806903d5bb268d4ccfadcf70ded7930af4c36c7008702616deb755b57fa6e08b`, graduation tx [`0x0795bf54…9e0e`](https://testnet.monadvision.com/tx/0x0795bf547d92f03cc1256f14ef742c7c38ddf9e0219395111c70c8a11fef9e0e)); its page shows the pool.
 
 Deploy: block 70,679,579 from `0x2318…694c`; 14 contracts verified on Sourcify (KOMA's 11, plus Uniswap v4
 PoolManager, PositionManager and V4Quoter). Paid AI is capped per day (20 issues, 10 launches, 150 model calls on

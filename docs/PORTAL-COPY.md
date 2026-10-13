@@ -25,7 +25,7 @@ CRE settles the canon on chain.
   writing it. Holders vote for free with a signature. A Chainlink CRE workflow re-verifies every signature and
   snapshot weight on Monad and settles the winner.
 - **Graduation.** At its target, the curve graduates into a locked Uniswap v4 pool.
-  Live: Signal Fire's curve filled and graduated into a Uniswap v4 pool (pool id `0x806903d5…e08b`).
+  Live: Signal Fire's curve filled and graduated into a Uniswap v4 pool (pool id `0x806903d5…e08b`, graduation tx [`0x0795bf54…9e0e`](https://testnet.monadvision.com/tx/0x0795bf547d92f03cc1256f14ef742c7c38ddf9e0219395111c70c8a11fef9e0e)).
 - **Writers' Room.** Next week's twist stays encrypted in a Mera passkey Writers' Room.
 
 **Why Monad.** Every vote, trade and payment is a transaction. That only works as a fan experience when it's instant
@@ -46,7 +46,7 @@ Kimi-written episode → vote → Chainlink CRE settlement.
 - Verified on Sourcify: the 14 core contracts (KOMA's 11 plus Uniswap v4), and series #1's coin, curve and vesting
   wallet. Its character wallet is an ERC-6551 proxy to the verified AccountProxy.
 - Team-seeded, and labelled so: 5 wallets, 2 series, and a contested episode 2 that CRE settled from 5 verified votes ([0x63e90dcd…cd57](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57); `docs/evidence/seed-13oct.md`).
-- Graduation is live: Signal Fire graduated into Uniswap v4 (pool id `0x806903d5…e08b`). Remix royalties are built and fork-tested; no live remix yet.
+- Graduation is live: Signal Fire graduated into Uniswap v4 (pool id `0x806903d5…e08b`, graduation tx [`0x0795bf54…9e0e`](https://testnet.monadvision.com/tx/0x0795bf547d92f03cc1256f14ef742c7c38ddf9e0219395111c70c8a11fef9e0e)). Remix royalties are built and fork-tested; no live remix yet.
 
 ## Track
 03 · Social, Attention & Culture
@@ -87,6 +87,7 @@ The full list is in `deploy/addresses.10143.json`.
 1. Chainlink CRE settles the fan-voted canon: [0x054895f6…587e](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e)
 2. A gasless buy via `eth_sendRawTransactionSync` (executed 133 ms, final 800 ms): [0x2daa3fb7…0ee0d7](https://testnet.monadvision.com/tx/0x2daa3fb7262915375d8b03fd1f3c98fac2471821beac57de8a6e1630340ee0d7)
 3. A Kimi-written episode, minted: [0x6c4860be…874c](https://testnet.monadvision.com/tx/0x6c4860be7bcae73f7af6c993503ff1817ebebd91d30925806a34fe60ef82874c)
+4. Graduation into Uniswap v4 (Signal Fire's curve → a locked v4 pool): [`0x0795bf54…9e0e`](https://testnet.monadvision.com/tx/0x0795bf547d92f03cc1256f14ef742c7c38ddf9e0219395111c70c8a11fef9e0e)
 
 ## Team and attribution
 - Built by nickthelegend.

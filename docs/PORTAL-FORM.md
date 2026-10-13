@@ -57,7 +57,7 @@ The full loop runs with real signed transactions. The key ones:
 | Kimi-written episode mint | `0x6c4860be…874c` |
 | Chainlink CRE settles | `0x054895f6…587e`, `0x63e90dcd…cd57` (5 verified votes), `0xffcf4bfb…c4df` |
 
-- Signal Fire's curve filled and **graduated into a Uniswap v4 pool** (pool id `0x806903d5…e08b`).
+- Signal Fire's curve filled and **graduated into a Uniswap v4 pool** (pool id `0x806903d5…e08b`, graduation tx [`0x0795bf54…9e0e`](https://testnet.monadvision.com/tx/0x0795bf547d92f03cc1256f14ef742c7c38ddf9e0219395111c70c8a11fef9e0e)).
 - 14 core contracts are verified on Sourcify/MonadVision.
 - Paid AI is capped per day and refused before payment.
 
