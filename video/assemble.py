@@ -6,13 +6,16 @@ Captions come from the ElevenLabs word timings, rendered as PNGs (this ffmpeg ha
 .srt. Audio is normalised to -16 LUFS.
     python3 video/assemble.py      (from the repo root) → docs/demo/koma-metropolis.mp4 + .srt
 """
-import json, os, subprocess, math
+import json, os, subprocess, math, sys
 
-W = "video/work"
-VO = f"{W}/vo"
+CUT = json.load(open(sys.argv[1])) if len(sys.argv) > 1 else None
+W = CUT["work"] if CUT else "video/work"
+VO = "video/work/vo"  # one narration cache for every cut (same voice)
 OUT = "docs/demo"
+NAME = CUT["name"] if CUT else "koma-metropolis"
 os.makedirs(OUT, exist_ok=True)
 os.makedirs(f"{W}/seg", exist_ok=True)
+SRC = lambda src: src if "/" in src else f"{W}/{src}"
 
 def run(*a):
     subprocess.run(a, check=True)
@@ -43,6 +46,9 @@ BEATS = [
     ("outro.mp4", 0, 6.0, 1, "o1", 0.5, False),
 ]
 INTRO_VO = [("i1", 0.8), ("i2", 7.4), ("i3", 16.3), ("i4", 22.6)]
+if CUT:
+    BEATS = [tuple(b) for b in CUT["beats"]]
+    INTRO_VO = [tuple(x) for x in CUT.get("extra_vo", [])]
 
 # 1. clips. A line plays over its beat and the unnarrated beats after it; the last beat of that run holds its final
 # frame only if the line would otherwise overrun.
@@ -56,20 +62,23 @@ for n, (_, _, _, _, line, delay, _) in enumerate(BEATS):
         end += 1
     room = sum(lengths[n:end + 1])
     holds[end] = max(holds[end], vo(line)["seconds"] + delay + 0.5 - room)
-clips, t, placed, live = [], 0.0, [], []
+clips, t, placed, live, fast = [], 0.0, [], [], []
 for n, (src, a, b, sp, line, delay, tag) in enumerate(BEATS):
     hold = holds[n]
     out = f"{W}/seg/{n:02d}.mp4"
     # Browser captures: Playwright pins a 1600×900 viewport top-left in its 1920×1080 frame, so crop it out and scale
     # it to fill the frame exactly (×1.2). No grey edges.
-    crop = "crop=1600:900:0:0," if src.endswith(".webm") else ""
+    # old captures pinned 1600×900 in a 1920×1080 frame; new ones are recorded at 1600×900 and only scaled
+    crop = "crop=1600:900:0:0," if src.endswith(".webm") and SRC(src).startswith("video/work/") else ""
     vf = f"{crop}setpts=(PTS-STARTPTS)/{sp},fps=30,scale=1920:1080:flags=lanczos,format=yuv420p" + (f",tpad=stop_mode=clone:stop_duration={hold:.3f}" if hold else "")
-    run("ffmpeg", "-y", "-loglevel", "error", "-ss", str(a), "-to", str(b), "-i", f"{W}/{src}", "-vf", vf, "-an", "-c:v", "libx264", "-crf", "18", "-preset", "medium", out)
+    run("ffmpeg", "-y", "-loglevel", "error", "-ss", str(a), "-to", str(b), "-i", SRC(src), "-vf", vf, "-an", "-c:v", "libx264", "-crf", "18", "-preset", "medium", out)
     d = dur(out)
     if line:
         placed.append((line, t + delay))
     if tag:
         live.append((t, t + d))
+    if sp > 1:
+        fast.append((t, t + d - hold, sp))
     clips.append(out)
     t += d
 for i, at in INTRO_VO:
@@ -105,15 +114,16 @@ for i, at in placed:
 caps.sort(key=lambda c: c["s"])
 for a, b in zip(caps, caps[1:]):
     a["e"] = min(a["e"], b["s"])
-json.dump({"caps": caps, "live": live, "total": total}, open(f"{W}/captions.json", "w"), indent=1)
+speeds = sorted({int(round(x[2])) if x[2] == int(x[2]) else x[2] for x in fast})
+json.dump({"caps": caps, "live": live, "total": total, "speeds": speeds, "out": f"{W}/cap"}, open(f"{W}/captions.json", "w"), indent=1)
 
 def ts(x):
     h, m, s = int(x // 3600), int(x % 3600 // 60), x % 60
     return f"{h:02d}:{m:02d}:{int(s):02d},{int(round((s - int(s)) * 1000)):03d}"
-open(f"{OUT}/koma-metropolis.srt", "w").write("".join(f"{n+1}\n{ts(c['s'])} --> {ts(c['e'])}\n{c['text']}\n\n" for n, c in enumerate(caps)))
+open(f"{OUT}/{NAME}.srt", "w").write("".join(f"{n+1}\n{ts(c['s'])} --> {ts(c['e'])}\n{c['text']}\n\n" for n, c in enumerate(caps)))
 
 # 4. PNGs for captions and the live tag (Playwright, KOMA's fonts, transparent background)
-run("node", "video/caption-pngs.mjs")
+run("node", "video/caption-pngs.mjs", f"{W}/captions.json")
 
 # 5. overlay everything, in one pass
 fs, idx = [], 1
@@ -123,6 +133,11 @@ ins += ["-i", f"{W}/cap/live.png"]
 live_en = "+".join(f"between(t,{a:.2f},{b:.2f})" for a, b in live)
 fs.append(f"[{prev}][1:v]overlay=x=14:y=92:enable='{live_en}'[v1]")  # a small pill in the left margin, below the nav
 prev, idx = "v1", 2
+for a, b, sp in fast:  # "⏩ ×N" chip on every sped-up stretch
+    k = int(round(sp)) if sp == int(sp) else sp
+    ins += ["-i", f"{W}/cap/fast-{k}.png"]
+    fs.append(f"[{prev}][{idx}:v]overlay=x=W-w-14:y=92:enable='between(t,{a:.3f},{b:.3f})'[v{idx}]")
+    prev, idx = f"v{idx}", idx + 1
 for n, c in enumerate(caps):
     ins += ["-i", f"{W}/cap/{n:03d}.png"]
     fs.append(f"[{prev}][{idx}:v]overlay=x=(W-w)/2:y=H-h-26:enable='between(t,{c['s']:.3f},{c['e']:.3f})'[v{idx}]")
@@ -130,5 +145,5 @@ for n, c in enumerate(caps):
 open(f"{W}/overlay.txt", "w").write(";".join(fs))
 run("ffmpeg", "-y", "-loglevel", "error", *ins, "-i", f"{W}/vo.m4a", "-filter_complex_script", f"{W}/overlay.txt",
     "-map", f"[{prev}]", "-map", f"{idx}:a", "-c:v", "libx264", "-crf", "19", "-preset", "medium", "-pix_fmt", "yuv420p",
-    "-c:a", "copy", "-movflags", "+faststart", "-shortest", f"{OUT}/koma-metropolis.mp4")
-print(f"{OUT}/koma-metropolis.mp4  {dur(f'{OUT}/koma-metropolis.mp4'):.1f}s, {len(caps)} captions")
+    "-c:a", "copy", "-movflags", "+faststart", "-shortest", f"{OUT}/{NAME}.mp4")
+print(f"{OUT}/{NAME}.mp4  {dur(f'{OUT}/{NAME}.mp4'):.1f}s, {len(caps)} captions, {len(fast)} fast-forwards")

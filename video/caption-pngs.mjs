@@ -1,8 +1,9 @@
 // Captions and the "LIVE · MONAD TESTNET" tag as transparent PNGs, in KOMA's type (this ffmpeg has no libass).
 import { mkdirSync, readFileSync } from "node:fs";
 import { chromium } from "playwright";
-const { caps } = JSON.parse(readFileSync("video/work/captions.json", "utf8"));
-mkdirSync("video/work/cap", { recursive: true });
+const file = process.argv[2] ?? "video/work/captions.json";
+const { caps, speeds = [], out = "video/work/cap" } = JSON.parse(readFileSync(file, "utf8"));
+mkdirSync(out, { recursive: true });
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1920, height: 400 } });
 await p.setContent(`<html><head><link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@700&family=JetBrains+Mono:wght@700&display=block" rel="stylesheet"><style>
@@ -11,11 +12,16 @@ await p.setContent(`<html><head><link href="https://fonts.googleapis.com/css2?fa
   #t{display:inline-block;font-family:"JetBrains Mono";font-weight:700;font-size:15px;letter-spacing:.08em;color:#2ea3f2;background:#000;border:1.5px solid #2ea3f2;border-radius:999px;padding:4px 10px}
 </style></head><body><span id="c"></span><span id="t">● LIVE · TESTNET</span></body></html>`);
 await p.evaluate(() => document.fonts.ready);
-await p.locator("#t").screenshot({ path: "video/work/cap/live.png", omitBackground: true });
+await p.locator("#t").screenshot({ path: `${out}/live.png`, omitBackground: true });
+for (const k of speeds) {
+  await p.evaluate((k) => (document.getElementById("t").textContent = `⏩ ×${k}`), k);
+  await p.evaluate(() => { const t = document.getElementById("t"); t.style.color = "#ffd23f"; t.style.borderColor = "#ffd23f"; });
+  await p.locator("#t").screenshot({ path: `${out}/fast-${k}.png`, omitBackground: true });
+}
 await p.evaluate(() => (document.getElementById("t").style.display = "none"));
 for (const [n, c] of caps.entries()) {
   await p.evaluate((t) => (document.getElementById("c").textContent = t), c.text);
-  await p.locator("#c").screenshot({ path: `video/work/cap/${String(n).padStart(3, "0")}.png`, omitBackground: true });
+  await p.locator("#c").screenshot({ path: `${out}/${String(n).padStart(3, "0")}.png`, omitBackground: true });
 }
 await b.close();
 console.log(`${caps.length} caption PNGs + live tag`);

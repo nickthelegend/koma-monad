@@ -51,3 +51,5 @@ stylus/**/target/
 
 # demo video build files (the deliverable is docs/demo/)
 video/work/
+video/work2/
+video/work3/

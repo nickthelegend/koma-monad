@@ -77,6 +77,118 @@
    "id": "o1",
    "scene": "outro",
    "text": "KOMA. Fans write the canon. Live on Monad testnet."
+  },
+  {
+   "id": "s1",
+   "scene": "demo",
+   "text": "KOMA is for comic fans: the people who make characters famous but never own them or get a say. Here, fans own the comic, and they write the canon."
+  },
+  {
+   "id": "s2",
+   "scene": "demo",
+   "text": "We sign in with Privy, using a wallet that holds no MON at all."
+  },
+  {
+   "id": "s3",
+   "scene": "demo",
+   "text": "Pitch an idea in the studio, and Tencent's Hunyuan 3 edits it into a pitch.",
+   "say": "Pitch an idea in the studio, and Tencent's Hunyuan three edits it into a pitch."
+  },
+  {
+   "id": "s4",
+   "scene": "demo",
+   "text": "One AUSD payment over x402, settled on Monad: executed in about four hundred fifty milliseconds, final in about nine hundred.",
+   "say": "One A-U-S-D payment over x-four-oh-two, settled on Monad: executed in about four hundred fifty milliseconds, final in about nine hundred."
+  },
+  {
+   "id": "s5",
+   "scene": "demo",
+   "text": "Kimi K2.6 writes the script, FLUX draws it, and the issue is minted to us.",
+   "say": "Kimi K two point six writes the script, FLUX draws it, and the issue is minted to us."
+  },
+  {
+   "id": "s6",
+   "scene": "demo",
+   "text": "Now launch its hero as a series for one dollar: a character NFT with its own wallet, a coin, and a bonding curve."
+  },
+  {
+   "id": "s7",
+   "scene": "demo",
+   "text": "Back it with one signature and no gas. Executed in two hundred thirteen milliseconds, final in under nine hundred, with the block and gas in the details."
+  },
+  {
+   "id": "s8",
+   "scene": "demo",
+   "text": "Holders propose the next episode. Kimi reads the canon so far before it writes."
+  },
+  {
+   "id": "s9",
+   "scene": "demo",
+   "text": "Votes are free signatures. Three more team wallets vote too, and we label that as seeded."
+  },
+  {
+   "id": "s10",
+   "scene": "demo",
+   "text": "While the vote runs, here is Monad testnet live: blocks go from proposed to voted to finalized in about six hundred milliseconds."
+  },
+  {
+   "id": "s11",
+   "scene": "demo",
+   "text": "When the window closes, a Chainlink CRE workflow re-verifies every vote on Monad and settles the winner.",
+   "say": "When the window closes, a Chainlink C-R-E workflow re-verifies every vote on Monad and settles the winner."
+  },
+  {
+   "id": "s12",
+   "scene": "demo",
+   "text": "Episode one is canon. The fans wrote it."
+  },
+  {
+   "id": "s13",
+   "scene": "demo",
+   "text": "Unpublished twists wait in the Writers' Room, encrypted to a passkey, and every unlock is verified by Monad's P256 precompile.",
+   "say": "Unpublished twists wait in the Writers' Room, encrypted to a passkey, and every unlock is verified by Monad's P two fifty-six precompile."
+  },
+  {
+   "id": "s14",
+   "scene": "demo",
+   "text": "And when a curve fills, the series graduates into its own Uniswap v4 pool.",
+   "say": "And when a curve fills, the series graduates into its own Uniswap v-four pool."
+  },
+  {
+   "id": "s15",
+   "scene": "demo",
+   "text": "KOMA. Fans write the canon, live on Monad testnet."
+  },
+  {
+   "id": "p1",
+   "scene": "pitch",
+   "text": "Fans make culture. They make characters famous, but they own nothing and decide nothing."
+  },
+  {
+   "id": "p2",
+   "scene": "pitch",
+   "text": "Two things changed. AI can draw a comic in a minute, and Monad makes every vote and trade a gasless signature that lands in under a second."
+  },
+  {
+   "id": "p3",
+   "scene": "pitch",
+   "text": "KOMA puts them together. Make a comic for ten cents a page. Launch its hero as a character with its own wallet and coin. Then holders vote on what happens next."
+  },
+  {
+   "id": "p4",
+   "scene": "pitch",
+   "text": "Every vote, trade and payment is a transaction. On Monad they execute in a few hundred milliseconds and finalize in under one second, so fans never wait and never pay gas."
+  },
+  {
+   "id": "p5",
+   "scene": "pitch",
+   "text": "It's live on Monad testnet today: comics paid over x402, series launched, a curve graduated into Uniswap v4, and canon rounds settled by Chainlink CRE from verified votes.",
+   "say": "It's live on Monad testnet today: comics paid over x-four-oh-two, series launched, a curve graduated into Uniswap v-four, and canon rounds settled by Chainlink C-R-E from verified votes."
+  },
+  {
+   "id": "p6",
+   "scene": "pitch",
+   "text": "Next, a character economy where every fandom writes its own canon. KOMA. Fans write the canon."
   }
  ]
 }

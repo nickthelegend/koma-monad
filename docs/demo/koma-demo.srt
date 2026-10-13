@@ -1,0 +1,180 @@
+1
+00:00:00,300 --> 00:00:02,668
+KOMA is for comic fans: the people
+
+2
+00:00:02,668 --> 00:00:04,642
+who make characters famous but never own
+
+3
+00:00:04,642 --> 00:00:07,208
+them or get a say. Here, fans
+
+4
+00:00:07,208 --> 00:00:08,729
+own the comic, and they write the
+
+5
+00:00:08,729 --> 00:00:09,599
+canon.
+
+6
+00:00:10,367 --> 00:00:12,074
+We sign in with Privy, using a
+
+7
+00:00:12,074 --> 00:00:14,418
+wallet that holds no MON at all.
+
+8
+00:00:16,667 --> 00:00:18,664
+Pitch an idea in the studio, and
+
+9
+00:00:18,664 --> 00:00:20,986
+Tencent's Hunyuan 3 edits it into a
+
+10
+00:00:20,986 --> 00:00:21,833
+pitch.
+
+11
+00:00:35,267 --> 00:00:39,226
+One AUSD payment over x402, settled on
+
+12
+00:00:39,226 --> 00:00:41,838
+Monad: executed in about four hundred fifty
+
+13
+00:00:41,838 --> 00:00:44,798
+milliseconds, final in about nine hundred.
+
+14
+00:00:46,167 --> 00:00:48,681
+Kimi K2.6 writes the script, FLUX draws
+
+15
+00:00:48,681 --> 00:00:51,195
+it, and the issue is minted to
+
+16
+00:00:51,195 --> 00:00:51,704
+us.
+
+17
+00:00:53,600 --> 00:00:55,434
+Now launch its hero as a series
+
+18
+00:00:55,434 --> 00:00:57,896
+for one dollar: a character NFT with
+
+19
+00:00:57,896 --> 00:00:59,753
+its own wallet, a coin, and a
+
+20
+00:00:59,753 --> 00:01:01,088
+bonding curve.
+
+21
+00:01:02,833 --> 00:01:04,656
+Back it with one signature and no
+
+22
+00:01:04,656 --> 00:01:08,556
+gas. Executed in two hundred thirteen milliseconds,
+
+23
+00:01:08,580 --> 00:01:10,681
+final in under nine hundred, with the
+
+24
+00:01:10,681 --> 00:01:12,689
+block and gas in the details.
+
+25
+00:01:18,433 --> 00:01:21,521
+Holders propose the next episode. Kimi reads
+
+26
+00:01:21,521 --> 00:01:23,831
+the canon so far before it writes.
+
+27
+00:01:29,833 --> 00:01:32,097
+Votes are free signatures. Three more team
+
+28
+00:01:32,097 --> 00:01:33,966
+wallets vote too, and we label that
+
+29
+00:01:33,966 --> 00:01:34,999
+as seeded.
+
+30
+00:01:39,833 --> 00:01:41,946
+While the vote runs, here is Monad
+
+31
+00:01:41,946 --> 00:01:45,081
+testnet live: blocks go from proposed to
+
+32
+00:01:45,081 --> 00:01:47,635
+voted to finalized in about six hundred
+
+33
+00:01:47,635 --> 00:01:48,899
+milliseconds.
+
+34
+00:01:55,167 --> 00:01:57,791
+When the window closes, a Chainlink CRE
+
+35
+00:01:57,791 --> 00:02:00,937
+workflow re-verifies every vote on Monad and
+
+36
+00:02:00,937 --> 00:02:02,237
+settles the winner.
+
+37
+00:02:04,067 --> 00:02:06,447
+Episode one is canon. The fans wrote
+
+38
+00:02:06,447 --> 00:02:07,003
+it.
+
+39
+00:02:15,067 --> 00:02:18,236
+Unpublished twists wait in the Writers' Room,
+
+40
+00:02:18,236 --> 00:02:21,406
+encrypted to a passkey, and every unlock
+
+41
+00:02:21,406 --> 00:02:24,273
+is verified by Monad's P256 precompile.
+
+42
+00:02:37,633 --> 00:02:39,525
+And when a curve fills, the series
+
+43
+00:02:39,525 --> 00:02:42,752
+graduates into its own Uniswap v4 pool.
+
+44
+00:02:50,367 --> 00:02:52,677
+KOMA. Fans write the canon, live on
+
+45
+00:02:52,677 --> 00:02:54,000
+Monad testnet.
+

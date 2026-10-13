@@ -1,0 +1,92 @@
+1
+00:00:00,500 --> 00:00:03,519
+Fans make culture. They make characters famous,
+
+2
+00:00:03,519 --> 00:00:05,944
+but they own nothing and decide nothing.
+
+3
+00:00:07,000 --> 00:00:09,403
+Two things changed. AI can draw a
+
+4
+00:00:09,403 --> 00:00:11,296
+comic in a minute, and Monad makes
+
+5
+00:00:11,296 --> 00:00:13,826
+every vote and trade a gasless signature
+
+6
+00:00:13,850 --> 00:00:15,834
+that lands in under a second.
+
+7
+00:00:16,800 --> 00:00:19,203
+KOMA puts them together. Make a comic
+
+8
+00:00:19,203 --> 00:00:21,363
+for ten cents a page. Launch its
+
+9
+00:00:21,363 --> 00:00:23,278
+hero as a character with its own
+
+10
+00:00:23,278 --> 00:00:25,844
+wallet and coin. Then holders vote on
+
+11
+00:00:25,844 --> 00:00:27,260
+what happens next.
+
+12
+00:00:32,867 --> 00:00:34,690
+Every vote, trade and payment is a
+
+13
+00:00:34,690 --> 00:00:37,499
+transaction. On Monad they execute in a
+
+14
+00:00:37,499 --> 00:00:40,019
+few hundred milliseconds and finalize in under
+
+15
+00:00:40,019 --> 00:00:42,236
+one second, so fans never wait and
+
+16
+00:00:42,236 --> 00:00:43,605
+never pay gas.
+
+17
+00:00:49,400 --> 00:00:52,070
+It's live on Monad testnet today: comics
+
+18
+00:00:52,070 --> 00:00:55,762
+paid over x402, series launched, a curve
+
+19
+00:00:55,762 --> 00:00:58,932
+graduated into Uniswap v4, and canon rounds
+
+20
+00:00:58,932 --> 00:01:02,460
+settled by Chainlink CRE from verified votes.
+
+21
+00:01:10,133 --> 00:01:12,676
+Next, a character economy where every fandom
+
+22
+00:01:12,676 --> 00:01:16,426
+writes its own canon. KOMA. Fans write
+
+23
+00:01:16,426 --> 00:01:17,388
+the canon.
+

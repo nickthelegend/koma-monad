@@ -12,7 +12,7 @@ episode's script reads the voted canon first (a Kimi tool call). The votes are s
 **Chainlink CRE** workflow, the board's leaderboard is indexed by **Envio**, the account layer is **Privy**, and
 unpublished twists sit in a **Mera** passkey-encrypted Writers' Room.
 
-**Live on Monad testnet: https://web-production-655c7.up.railway.app** · [demo video (2:43)](docs/demo/koma-metropolis.mp4) · [contracts](deploy/addresses.10143.json) · [tx evidence](SUBMISSION.md#live-on-monad-testnet-evidence-13-oct-2026)
+**Live on Monad testnet: https://web-production-655c7.up.railway.app** · [demo video (2:56)](docs/demo/koma-demo.mp4) · [pitch (1:18)](docs/demo/koma-pitch.mp4) · [contracts](deploy/addresses.10143.json) · [tx evidence](SUBMISSION.md#live-on-monad-testnet-evidence-13-oct-2026)
 
 Monad Metropolis · Track 3 (Social, Attention & Culture) · [Submission](SUBMISSION.md) ·
 [Sponsor status](docs/SPONSOR-GAP.md) · [Go-live runbook](docs/DEPLOY-LATER.md) · [Security review](contracts/AUDIT.md) · MIT

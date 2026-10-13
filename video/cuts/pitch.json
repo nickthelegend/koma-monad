@@ -1,0 +1,17 @@
+{
+  "name": "koma-pitch",
+  "work": "video/work2",
+  "beats": [
+    ["pitch-cards.mp4", 0, 16.2, 1, "p1", 0.5, false],
+    ["demo.webm", 30.7, 57.6, 6, "p3", 0.6, true],
+    ["demo.webm", 97.0, 102.0, 1, null, 0, true],
+    ["demo.webm", 140.8, 182.0, 6, null, 0, true],
+    ["demo.webm", 190.6, 197.6, 1, "p4", 0.3, true],
+    ["demo.webm", 280.5, 290.0, 1, null, 0, true],
+    ["demo.webm", 572.8, 580.0, 1, "p5", 0.3, true],
+    ["demo.webm", 688.0, 696.0, 1, null, 0, true],
+    ["video/work/demo.webm", 46.0, 51.5, 1, null, 0, true],
+    ["outro.mp4", 0, 6.0, 1, "p6", 0.3, false]
+  ],
+  "extra_vo": [["p2", 7.0]]
+}
