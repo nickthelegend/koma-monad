@@ -25,7 +25,7 @@ CRE settles the canon on chain.
   writing it. Holders vote for free with a signature. A Chainlink CRE workflow re-verifies every signature and
   snapshot weight on Monad and settles the winner.
 - **Graduation.** At its target, the curve graduates into a locked Uniswap v4 pool.
-  This is built and tested on a fork of Monad testnet (`check:economics`); no live series has reached its target yet.
+  Live: Signal Fire's curve filled and graduated into a Uniswap v4 pool (pool id `0x806903d5…e08b`).
 - **Writers' Room.** Next week's twist stays encrypted in a Mera passkey Writers' Room.
 
 **Why Monad.** Every vote, trade and payment is a transaction. That only works as a fan experience when it's instant
@@ -46,7 +46,7 @@ Kimi-written episode → vote → Chainlink CRE settlement.
 - Verified on Sourcify: the 14 core contracts (KOMA's 11 plus Uniswap v4), and series #1's coin, curve and vesting
   wallet. Its character wallet is an ERC-6551 proxy to the verified AccountProxy.
 - Team-seeded, and labelled so: 5 wallets, 2 series, and a contested episode 2 that CRE settled from 5 verified votes ([0x63e90dcd…cd57](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57); `docs/evidence/seed-13oct.md`).
-- Remix royalties and graduation are built and tested on a fork; no live series has a remix or has graduated yet.
+- Graduation is live: Signal Fire graduated into Uniswap v4 (pool id `0x806903d5…e08b`). Remix royalties are built and fork-tested; no live remix yet.
 
 ## Track
 03 · Social, Attention & Culture
@@ -65,10 +65,10 @@ Kimi-written episode → vote → Chainlink CRE settlement.
 
 ## Links
 - Demo video (≤3:00): `docs/demo/koma-demo.mp4` (2:56). Upload it to YouTube/Loom and paste the link.
-- Pitch video (≤2:00): `docs/demo/koma-pitch.mp4` (1:18)
+- Pitch video (≤2:00): `docs/demo/koma-pitch.mp4` (1:16)
 - Full walkthrough: `docs/demo/koma-walkthrough.mp4` (4:00)
 - Repo: https://github.com/nickthelegend/koma-monad (MIT)
-- Live app: https://web-production-655c7.up.railway.app
+- Live app: https://koma-comics.up.railway.app
 
 ## Contracts (Monad testnet 10143; all verified on MonadVision)
 

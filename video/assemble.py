@@ -128,11 +128,12 @@ run("node", "video/caption-pngs.mjs", f"{W}/captions.json")
 # 5. overlay everything, in one pass
 fs, idx = [], 1
 ins = ["-i", f"{W}/base.mp4"]
-prev = "0:v"
-ins += ["-i", f"{W}/cap/live.png"]
-live_en = "+".join(f"between(t,{a:.2f},{b:.2f})" for a, b in live)
-fs.append(f"[{prev}][1:v]overlay=x=14:y=92:enable='{live_en}'[v1]")  # a small pill in the left margin, below the nav
-prev, idx = "v1", 2
+prev, idx = "0:v", 1
+if live:  # the LIVE pill only where there's live app footage
+    ins += ["-i", f"{W}/cap/live.png"]
+    live_en = "+".join(f"between(t,{a:.2f},{b:.2f})" for a, b in live)
+    fs.append(f"[{prev}][1:v]overlay=x=14:y=92:enable='{live_en}'[v1]")  # a small pill in the left margin, below the nav
+    prev, idx = "v1", 2
 for a, b, sp in fast:  # "⏩ ×N" chip on every sped-up stretch
     k = int(round(sp)) if sp == int(sp) else sp
     ins += ["-i", f"{W}/cap/fast-{k}.png"]

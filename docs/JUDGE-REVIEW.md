@@ -1,6 +1,6 @@
 # Judge review of the live app (13 Oct 2026, 18:40 IST)
 
-Read-only pass over https://web-production-655c7.up.railway.app at 390 px and 1440 px (home, /series, /s/1,
+Read-only pass over https://koma-comics.up.railway.app at 390 px and 1440 px (home, /series, /s/1,
 /create, /monad, plus test:walk's 15 pages). It reads it the way a judge has three minutes to: what does it do,
 does it really run on Monad, and does it hold up.
 

@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Comic+Neue:wght@700&family=JetBrains+Mono:wght@400;700&family=Schibsted+Grotesk:wght@400;600;700&display=block" rel="stylesheet" />
+<style>
+  :root { --ink:#000; --rule:#2c2c2c; --paper:#f1ece2; --kapow:#ff4a1c; --deep:#c8330f; --arb:#2ea3f2; --bam:#ffd23f; --mute:#8c877e; --ok:#5ad17a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); color: var(--paper); font-family: "Schibsted Grotesk", sans-serif; }
+  .scene { position: absolute; inset: 0; opacity: 0; transition: opacity .4s ease; }
+  .scene.on { opacity: 1; }
+  .mast { font-family: Anton, sans-serif; text-transform: uppercase; line-height: .92; letter-spacing: -.005em; }
+  .halftone { position: absolute; inset: -20%; background-image: radial-gradient(currentColor 2px, transparent 2.6px); background-size: 16px 16px; color: rgba(255,74,28,.2); -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 15%, transparent 62%); }
+  .on .halftone { animation: burst 9s ease-out both; }
+  @keyframes burst { from { transform: scale(.7) rotate(-5deg); } to { transform: scale(1.15) rotate(0); } }
+  .pop { opacity: 0; transform: scale(.72) rotate(-3deg); }
+  .on .pop { animation: pop .55s cubic-bezier(.3,1.5,.5,1) both; animation-delay: var(--d, 0s); }
+  @keyframes pop { to { opacity: 1; transform: rotate(var(--r, 0deg)); } }
+  .rise { opacity: 0; transform: translateY(46px); }
+  .on .rise { animation: rise .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0s); }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .kb { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .32; filter: saturate(1.1); }
+  .on .kb { animation: kb 14s ease-out both; }
+  @keyframes kb { from { transform: scale(1.12); } to { transform: scale(1); } }
+  .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.92) 35%, rgba(0,0,0,.45)); }
+  .cap { font-family: "Comic Neue", cursive; font-weight: 700; background: var(--paper); color: #141210; border: 4px solid #000; box-shadow: 8px 8px 0 #000; padding: 16px 26px; font-size: 42px; display: inline-block; position: absolute; }
+  .panel { position: absolute; border: 6px solid var(--paper); box-shadow: 14px 14px 0 var(--deep); background: #000; overflow: hidden; }
+  .panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .chip { font-family: "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .06em; border: 2px solid currentColor; padding: 8px 14px; font-size: 26px; display: inline-block; }
+  .verb { position: absolute; top: 140px; width: 520px; }
+  .verb .w { font-family: Anton; font-size: 120px; color: var(--kapow); line-height: 1; }
+  .verb .p { height: 520px; margin-top: 18px; }
+  .verb .t { margin-top: 26px; font-size: 30px; font-weight: 600; line-height: 1.25; }
+  .stamp { position: absolute; border: 10px solid var(--kapow); color: var(--kapow); font-family: Anton; font-size: 92px; padding: 0 22px; transform: rotate(-10deg) scale(2.2); opacity: 0; }
+  .on .stamp { animation: stamp .45s cubic-bezier(.3,1.4,.5,1) both; animation-delay: var(--d, 0s); }
+  @keyframes stamp { to { opacity: 1; transform: rotate(-10deg) scale(1); } }
+  .proof { position: absolute; left: 160px; right: 160px; top: 150px; bottom: 150px; border: 4px solid var(--paper); background: #0b0b0b; box-shadow: 16px 16px 0 var(--deep); padding: 60px 70px; }
+  .proof li { list-style: none; font-size: 44px; font-weight: 700; margin-top: 30px; display: flex; gap: 22px; align-items: baseline; }
+  .proof li b { color: var(--ok); font-family: "JetBrains Mono"; font-size: 36px; }
+</style>
+</head>
+<body>
+<!-- 1 hook -->
+<div class="scene" id="h">
+  <div class="halftone"></div>
+  <div class="mast rise" style="position:absolute;left:140px;top:250px;font-size:150px;width:1640px;--d:.2s">Every fandom builds the story.</div>
+  <div class="mast pop" style="position:absolute;left:140px;top:560px;font-size:150px;color:var(--kapow);--d:1.7s">None of them own it.</div>
+</div>
+<!-- 2 team -->
+<div class="scene" id="t">
+  <div class="kb" style="background-image:url(ART/api/art/5a472739fd/cover.jpg)"></div><div class="shade"></div>
+  <div class="mast rise" style="position:absolute;left:140px;top:150px;font-size:110px;width:1100px">The team</div>
+  <div class="cap pop" style="left:150px;top:380px;--d:.6s">A small team of comic readers</div>
+  <div class="cap pop" style="left:260px;top:510px;--d:1.6s">…and Monad builders.</div>
+  <div class="cap pop" style="left:150px;top:690px;--d:3.6s;font-size:38px;max-width:1300px">The fans who make a character matter should share in it.</div>
+  <div class="panel pop" style="right:150px;top:150px;width:520px;height:700px;--d:.3s;--r:3deg"><img src="ART/api/art/5a472739fd/cover.jpg"/></div>
+</div>
+<!-- 3 problem -->
+<div class="scene" id="p">
+  <div class="kb" style="background-image:url(ART/api/art/abcad8d37c/cover.jpg)"></div><div class="shade"></div>
+  <div class="mast rise" style="position:absolute;left:140px;top:140px;font-size:110px">The problem</div>
+  <div class="cap pop" style="left:150px;top:370px;--d:.5s">Fans make characters famous.</div>
+  <div class="cap pop" style="left:330px;top:510px;--d:2.4s">They own nothing. They decide nothing.</div>
+  <div class="cap pop" style="left:150px;top:650px;--d:4.6s">Creators get paid once, if at all.</div>
+</div>
+<!-- 4 why now -->
+<div class="scene" id="w">
+  <div class="halftone" style="color:rgba(46,163,242,.18)"></div>
+  <div class="mast rise" style="position:absolute;left:140px;top:140px;font-size:110px">Why now</div>
+  <div class="rise" style="position:absolute;left:150px;top:360px;--d:.9s"><span class="mast" style="font-size:96px;color:var(--kapow)">AI</span><span style="font-size:52px;font-weight:700;margin-left:30px">draws a comic in a minute.</span></div>
+  <div class="rise" style="position:absolute;left:150px;top:560px;--d:3.6s"><span class="mast" style="font-size:96px;color:var(--arb)">Monad</span><span style="font-size:52px;font-weight:700;margin-left:30px">every vote and trade: free, under a second.</span></div>
+</div>
+<!-- 5 three verbs -->
+<div class="scene" id="v">
+  <div class="verb rise" style="left:120px;--d:1.4s"><div class="w">Make</div><div class="panel p" style="position:relative;--r:-2deg"><img src="ART/api/art/5a472739fd/cover.jpg"/></div><div class="t">A comic for 10¢ a page, minted to you.</div></div>
+  <div class="verb rise" style="left:700px;--d:4.6s"><div class="w">Launch</div><div class="panel p" style="position:relative;background:#f6f1e7"><img src="ART/api/art/s-ccc90c5763/sheet.jpg" style="object-fit:contain"/></div><div class="t">Its hero: a character with its own wallet and coin.</div></div>
+  <div class="verb rise" style="left:1280px;--d:8.3s"><div class="w">Vote</div><div class="panel p" style="position:relative;--r:2deg"><img src="ART/api/art/b50a54cb9a/cover.jpg"/></div><div class="t">Holders decide what happens next.</div></div>
+  <div class="stamp" style="left:1500px;top:330px;--d:9.6s">CANON</div>
+</div>
+<!-- 6 proof -->
+<div class="scene" id="pr">
+  <div class="proof pop" style="--d:.2s">
+    <div class="chip" style="color:var(--arb)">● Live on Monad testnet</div>
+    <ul>
+      <li class="rise" style="--d:1.6s"><b>✓</b>Canon settled on chain by Chainlink CRE</li>
+      <li class="rise" style="--d:4.2s"><b>✓</b>A series graduated into Uniswap v4</li>
+      <li class="rise" style="--d:6.6s"><b>✓</b>Trades executed in ~133–450 ms, final in &lt; 1 s</li>
+      <li class="rise" style="--d:8.0s"><b>✓</b>Every payment: one AUSD signature over x402</li>
+    </ul>
+  </div>
+</div>
+<!-- 7 users + go-to-market -->
+<div class="scene" id="u">
+  <div class="kb" style="background-image:url(ART/api/art/b50a54cb9a/cover.jpg)"></div><div class="shade"></div>
+  <div class="mast rise" style="position:absolute;left:140px;top:140px;font-size:100px">Who it's for</div>
+  <div class="cap pop" style="left:150px;top:330px;--d:.6s">Webcomic &amp; manga fandoms</div>
+  <div class="cap pop" style="left:200px;top:450px;--d:2.6s">…and the indie creators behind them</div>
+  <div class="mast rise" style="position:absolute;left:140px;top:620px;font-size:70px;color:var(--kapow);--d:4.4s">How we reach them</div>
+  <div class="rise" style="position:absolute;left:150px;top:730px;--d:5.2s;display:flex;gap:18px">
+    <span class="chip" style="color:var(--paper)">creator-led launches</span><span class="chip" style="color:var(--paper)">share cards</span><span class="chip" style="color:var(--paper)">embeds</span>
+  </div>
+</div>
+<!-- 8 close -->
+<div class="scene" id="c">
+  <div class="halftone"></div>
+  <div class="mast pop" style="position:absolute;left:0;right:0;top:220px;text-align:center;font-size:330px;color:var(--kapow)">KOMA</div>
+  <div class="mast rise" style="position:absolute;left:0;right:0;top:620px;text-align:center;font-size:66px;--d:.4s">Fans write the canon.</div>
+  <div class="rise" style="position:absolute;left:0;right:0;top:740px;text-align:center;font-family:'JetBrains Mono';font-size:36px;color:#c9c4ba;--d:.9s">koma-comics.up.railway.app</div>
+</div>
+<script>
+  const ART = "https://koma-comics.up.railway.app";
+  document.querySelectorAll("img").forEach((i) => (i.src = i.getAttribute("src").replace("ART", ART)));
+  document.querySelectorAll(".kb").forEach((d) => (d.style.backgroundImage = d.style.backgroundImage.replace("ART", ART)));
+  const plan = JSON.parse(new URLSearchParams(location.search).get("plan") || "[]");
+  window.__go = () => plan.forEach(([id, t]) => setTimeout(() => {
+    document.querySelectorAll(".scene").forEach((s) => s.classList.remove("on"));
+    document.getElementById(id).classList.add("on");
+  }, t * 1000));
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 // story so far. Short clip for the edit → work/reveal.webm.
 import { renameSync } from "node:fs";
 import { chromium } from "playwright";
-const BASE = "https://web-production-655c7.up.railway.app";
+const BASE = "https://koma-comics.up.railway.app";
 const CURSOR = `
 (() => {
   const mk = () => {

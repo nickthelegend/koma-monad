@@ -8,7 +8,7 @@ import { chromium } from "playwright";
 import { privateKeyToAccount } from "viem/accounts";
 import { installWallet } from "../scripts/lib/wallet-shim.mjs";
 
-const BASE = "https://web-production-655c7.up.railway.app";
+const BASE = "https://koma-comics.up.railway.app";
 const OUT = "video/work";
 mkdirSync(OUT, { recursive: true });
 const read = (f) => Object.fromEntries(readFileSync(f, "utf8").split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).trim()]));

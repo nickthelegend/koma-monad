@@ -1,7 +1,7 @@
 # Sponsor coverage (13 Oct 2026)
 
 Each sponsor, what KOMA does with it, and where it's proven. "Working" means it ran for real on the live Monad testnet
-app (https://web-production-655c7.up.railway.app) or, where noted, on the local fork with the same code.
+app (https://koma-comics.up.railway.app) or, where noted, on the local fork with the same code.
 
 | Sponsor | What KOMA does with it | Status | Proof |
 |---|---|---|---|

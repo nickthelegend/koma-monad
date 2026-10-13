@@ -1,0 +1,14 @@
+{
+  "name": "koma-promo",
+  "work": "video/work2",
+  "beats": [
+    ["demo.webm", 9.0, 12.0, 1, "q1", 0.3, true],
+    ["demo.webm", 97.0, 100.0, 1, null, 0, true],
+    ["demo.webm", 102.2, 134.7, 8, null, 0, true],
+    ["demo.webm", 170.0, 177.0, 2, null, 0, true],
+    ["demo.webm", 191.0, 194.0, 1, null, 0, true],
+    ["demo.webm", 572.8, 578.5, 1, null, 0, true],
+    ["demo.webm", 690.0, 694.0, 1, null, 0, true],
+    ["outro.mp4", 0, 3.0, 1, "q8", 0.3, false]
+  ]
+}

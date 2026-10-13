@@ -282,6 +282,47 @@
    "id": "w19",
    "scene": "walk",
    "text": "The board ranks series, backers and creators, and every payment step is explained in plain words."
+  },
+  {
+   "id": "q1",
+   "scene": "pitch2",
+   "text": "Every fandom builds the story. None of them own it."
+  },
+  {
+   "id": "q2",
+   "scene": "pitch2",
+   "text": "We're a small team of comic readers and Monad builders, and we're building KOMA because the fans who make a character matter should share in it."
+  },
+  {
+   "id": "q3",
+   "scene": "pitch2",
+   "text": "Today, fans make characters famous, but they own nothing and decide nothing. And creators get paid once, if at all."
+  },
+  {
+   "id": "q4",
+   "scene": "pitch2",
+   "text": "Two things changed. AI can draw a comic in a minute, and on Monad every vote and trade is a free signature that lands in under a second."
+  },
+  {
+   "id": "q5",
+   "scene": "pitch2",
+   "text": "KOMA in three words. Make: a comic for ten cents a page. Launch: its hero, as a character with its own wallet and coin. Vote: holders decide what happens next."
+  },
+  {
+   "id": "q6",
+   "scene": "pitch2",
+   "text": "And it's live on Monad testnet: canon settled by Chainlink CRE, a series graduated into Uniswap v4, and trades that execute in a few hundred milliseconds.",
+   "say": "And it's live on Monad testnet: canon settled by Chainlink C-R-E, a series graduated into Uniswap v-four, and trades that execute in a few hundred milliseconds."
+  },
+  {
+   "id": "q7",
+   "scene": "pitch2",
+   "text": "It's for webcomic and manga fandoms, and the indie creators behind them. We reach them through creator-led launches, and share cards and embeds that pull each fandom in."
+  },
+  {
+   "id": "q8",
+   "scene": "pitch2",
+   "text": "KOMA. Fans write the canon."
   }
  ]
 }

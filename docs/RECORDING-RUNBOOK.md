@@ -1,6 +1,6 @@
 # Recording runbook: the 3-minute video on the live app
 
-The live app is https://web-production-655c7.up.railway.app (Monad testnet). Record at 1280×800, with one phone
+The live app is https://koma-comics.up.railway.app (Monad testnet). Record at 1280×800, with one phone
 segment if you like (390 px, device mode). Everything below is real: real signatures, real Monad transactions.
 
 ## Before you record (T−10 min)

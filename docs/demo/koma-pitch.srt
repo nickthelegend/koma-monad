@@ -1,92 +1,108 @@
 1
-00:00:00,500 --> 00:00:03,519
-Fans make culture. They make characters famous,
+00:00:00,400 --> 00:00:02,768
+Every fandom builds the story. None of
 
 2
-00:00:03,519 --> 00:00:05,944
-but they own nothing and decide nothing.
+00:00:02,768 --> 00:00:03,894
+them own it.
 
 3
-00:00:07,000 --> 00:00:09,403
-Two things changed. AI can draw a
+00:00:05,000 --> 00:00:06,904
+We're a small team of comic readers
 
 4
-00:00:09,403 --> 00:00:11,296
-comic in a minute, and Monad makes
+00:00:06,904 --> 00:00:09,470
+and Monad builders, and we're building KOMA
 
 5
-00:00:11,296 --> 00:00:13,826
-every vote and trade a gasless signature
+00:00:09,470 --> 00:00:11,153
+because the fans who make a character
 
 6
-00:00:13,850 --> 00:00:15,834
-that lands in under a second.
+00:00:11,153 --> 00:00:12,905
+matter should share in it.
 
 7
-00:00:16,800 --> 00:00:19,203
-KOMA puts them together. Make a comic
+00:00:14,000 --> 00:00:16,519
+Today, fans make characters famous, but they
 
 8
-00:00:19,203 --> 00:00:21,363
-for ten cents a page. Launch its
+00:00:16,519 --> 00:00:19,306
+own nothing and decide nothing. And creators
 
 9
-00:00:21,363 --> 00:00:23,278
-hero as a character with its own
+00:00:19,306 --> 00:00:21,302
+get paid once, if at all.
 
 10
-00:00:23,278 --> 00:00:25,844
-wallet and coin. Then holders vote on
+00:00:22,400 --> 00:00:24,803
+Two things changed. AI can draw a
 
 11
-00:00:25,844 --> 00:00:27,260
-what happens next.
+00:00:24,803 --> 00:00:26,916
+comic in a minute, and on Monad
 
 12
-00:00:32,867 --> 00:00:34,690
-Every vote, trade and payment is a
+00:00:26,916 --> 00:00:28,518
+every vote and trade is a free
 
 13
-00:00:34,690 --> 00:00:37,499
-transaction. On Monad they execute in a
+00:00:28,518 --> 00:00:31,095
+signature that lands in under a second.
 
 14
-00:00:37,499 --> 00:00:40,019
-few hundred milliseconds and finalize in under
+00:00:32,200 --> 00:00:35,242
+KOMA in three words. Make: a comic
 
 15
-00:00:40,019 --> 00:00:42,236
-one second, so fans never wait and
+00:00:35,242 --> 00:00:37,668
+for ten cents a page. Launch: its
 
 16
-00:00:42,236 --> 00:00:43,605
-never pay gas.
+00:00:37,668 --> 00:00:39,491
+hero, as a character with its own
 
 17
-00:00:49,400 --> 00:00:52,070
-It's live on Monad testnet today: comics
+00:00:39,491 --> 00:00:42,730
+wallet and coin. Vote: holders decide what
 
 18
-00:00:52,070 --> 00:00:55,762
-paid over x402, series launched, a curve
+00:00:42,730 --> 00:00:44,006
+happens next.
 
 19
-00:00:55,762 --> 00:00:58,932
-graduated into Uniswap v4, and canon rounds
+00:00:45,100 --> 00:00:47,794
+And it's live on Monad testnet: canon
 
 20
-00:00:58,932 --> 00:01:02,460
-settled by Chainlink CRE from verified votes.
+00:00:47,794 --> 00:00:51,230
+settled by Chainlink CRE, a series graduated
 
 21
-00:01:10,133 --> 00:01:12,676
-Next, a character economy where every fandom
+00:00:51,230 --> 00:00:54,283
+into Uniswap v4, and trades that execute
 
 22
-00:01:12,676 --> 00:01:16,426
-writes its own canon. KOMA. Fans write
+00:00:54,283 --> 00:00:56,256
+in a few hundred milliseconds.
 
 23
-00:01:16,426 --> 00:01:17,388
-the canon.
+00:00:57,400 --> 00:00:59,908
+It's for webcomic and manga fandoms, and
+
+24
+00:00:59,908 --> 00:01:02,450
+the indie creators behind them. We reach
+
+25
+00:01:02,450 --> 00:01:05,341
+them through creator-led launches, and share cards
+
+26
+00:01:05,341 --> 00:01:08,092
+and embeds that pull each fandom in.
+
+27
+00:01:09,300 --> 00:01:11,400
+KOMA. Fans write the canon.
 
