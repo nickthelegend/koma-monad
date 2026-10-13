@@ -14,6 +14,22 @@ unpublished twists sit in a **Mera** passkey-encrypted Writers' Room.
 
 **Live on Monad testnet: https://web-production-655c7.up.railway.app** · [demo video (2:56)](docs/demo/koma-demo.mp4) · [pitch (1:18)](docs/demo/koma-pitch.mp4) · [Full walkthrough (4:00)](docs/demo/koma-walkthrough.mp4) · [contracts](deploy/addresses.10143.json) · [tx evidence](SUBMISSION.md#live-on-monad-testnet-evidence-13-oct-2026)
 
+## The problem, and who it's for
+
+**Problem:** fans make characters famous, but they own nothing and get no say in what happens next. Creators get
+paid once, if at all.
+
+**Intended users:**
+- **Comic and fiction fans** who want to own what they read and steer a story.
+- **Indie creators** who want a character to earn from its fandom.
+
+KOMA lets a fan:
+- make a comic for 10¢ a page;
+- launch its hero as a character with its own wallet and coin;
+- vote on the next episode.
+
+Every step is a gasless signature on Monad.
+
 Monad Metropolis · Track 3 (Social, Attention & Culture) · [Submission](SUBMISSION.md) ·
 [Sponsor status](docs/SPONSOR-GAP.md) · [Go-live runbook](docs/DEPLOY-LATER.md) · [Security review](contracts/AUDIT.md) · MIT
 
