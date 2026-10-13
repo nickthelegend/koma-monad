@@ -30,8 +30,10 @@ KOMA's paid endpoints (`POST /api/comics`, `POST /api/series`) speak HTTP 402:
 3. KOMA's x402 facilitator submits it on Monad and starts the job only after the AUSD has settled.
 
 ```ts
-// src/app/api/comics/route.ts (accepts)
-price: { amount: String(Math.round(price * 10 ** USDC_DECIMALS)), asset: config.network.usdc, extra: { ...USDC_DOMAIN } },
+// src/app/api/series/route.ts (accepts): a $1 launch, in AUSD, with the AUSD EIP-712 domain
+price: { amount: String(Math.round(LAUNCH_PRICE_USDC * 10 ** USDC_DECIMALS)), asset: config.network.usdc, extra: { ...USDC_DOMAIN } },
+// src/app/api/comics/route.ts: pages × the page price (10¢, or 30¢ for an episode)
+amount: String(Math.round(pages * pagePrice(episode) * 10 ** USDC_DECIMALS)),
 ```
 
 The receipt shows the settlement's real timings: executed in about 450 ms, final in under 1 s.
