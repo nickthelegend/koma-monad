@@ -12,6 +12,8 @@ episode's script reads the voted canon first (a Kimi tool call). The votes are s
 **Chainlink CRE** workflow, the board's leaderboard is indexed by **Envio**, the account layer is **Privy**, and
 unpublished twists sit in a **Mera** passkey-encrypted Writers' Room.
 
+**Live on Monad testnet: https://web-production-655c7.up.railway.app** · [contracts](deploy/addresses.10143.json) · [tx evidence](SUBMISSION.md#live-on-monad-testnet-evidence-13-oct-2026)
+
 Monad Metropolis · Track 3 (Social, Attention & Culture) · [Submission](SUBMISSION.md) ·
 [Sponsor status](docs/SPONSOR-GAP.md) · [Go-live runbook](docs/DEPLOY-LATER.md) · [Security review](contracts/AUDIT.md) · MIT
 
@@ -102,7 +104,7 @@ local fork · awaiting the testnet go). Full table: [docs/ROADMAP-WIN.md](docs/R
 | **Staking precompile** | `getEpoch()` on `0x1000`, live | live read | `/monad` |
 | **x402 on Monad** | KOMA settles AUSD (EIP-3009) with its own facilitator; `KOMA_X402_FACILITATOR_URL` switches to Monad's hosted facilitator, which understood a signed AUSD authorization in a live verify | built; settlement through it awaits the testnet go | `src/lib/server/x402.ts`, `test:monad` M4 |
 | **Canonical contracts** | Permit2, Multicall3, ERC-6551 registry, x402 Permit2 proxy, CreateX, EntryPoint v0.7, WMON, checked for code on KOMA's chain; 300 ms blocks in KOMA's chain definitions (viem still says 400) | built | `/monad`, `src/lib/network.ts` |
-| `eth_sendRawTransactionSync`, `txpool_statusByHash` | For KOMA's own relays on testnet | awaiting testnet go | — |
+| `eth_sendRawTransactionSync`, `txpool_statusByHash` | KOMA's relays send sync (receipt with the send); in-flight txs report their txpool status | live on testnet | `/api/speed/<tx>`, SUBMISSION evidence |
 
 ## Architecture
 
@@ -217,7 +219,7 @@ docs/         SPONSOR-GAP, DEPLOY-LATER, TEST-PLAN-ZERO-MOCK, screenshots; base-
 
 ## Known limits
 
-- Not deployed to Monad testnet yet (by instruction); see the runbook.
+- Envio Cloud hosting of the indexer awaits the owner's dashboard step; until then the live board reads KOMA's own event index (Envio runs locally with `npm run demo`).
 - SQLite and on-disk art mean one server instance on a persistent volume, with the pipeline in-process.
 - The CRE workflow trusts KOMA's server only to *list* the votes. A withheld vote is detectable from the published
   votes root, but not prevented.

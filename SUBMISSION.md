@@ -4,8 +4,8 @@
 |---|---|
 | **Project** | KOMA: comics fans own, and characters whose stories their holders write |
 | **Track** | **03 · Social, Attention & Culture** |
-| **Network** | Monad testnet (10143). *Not deployed yet; awaiting the owner's go ([runbook](docs/DEPLOY-LATER.md)). Today everything runs on an anvil fork of Monad testnet with `npm run demo`: real contracts, Agora's real AUSD, real AI models, no mocks.* |
-| **Live app** | `TODO after deploy` |
+| **Network** | **Live on Monad testnet (10143)** since 13 Oct 2026: contracts deployed and verified (Sourcify/MonadVision), app hosted, smoke-tested with real signed transactions. `npm run demo` still runs the same stack on a local fork. |
+| **Live app** | https://web-production-655c7.up.railway.app |
 | **Repo** | https://github.com/nickthelegend/koma-monad (MIT) |
 | **Demo video (≤ 3 min)** | `TODO` (script below) |
 | **Judge login** | None needed: connect any wallet (or Privy email once keys are set) and tap **Get 10,000 test AUSD** |
@@ -29,9 +29,9 @@ policy, and Mera passkeys keep next week's twist encrypted in the Writers' Room 
 | Track | 03 · Social, Attention & Culture |
 | Bounties | Tencent Hunyuan · Kimi · Privy · Envio · Chainlink CRE · Mera (One Passkey, Many Keys) (+ Community Team if applicable) |
 | Repo | https://github.com/nickthelegend/koma-monad |
-| Live URL | `TODO after deploy` |
-| Contract addresses | `TODO after deploy`: `deploy/addresses.10143.json` |
-| Demo video | `TODO` |
+| Live URL | https://web-production-655c7.up.railway.app |
+| Contract addresses | `deploy/addresses.10143.json`: SeriesFactory `0x7e413097F12eB49f26bBf8bc5F1a7fcf38370431`, KomaIssues `0x4e4Bad3f390A55F4F5f10F4c6f5E867B2F0B77A5`, CanonRegistry `0x6ee09Bc9ad42EdD588C97AcC4eb1665f080455ea`, CanonSettler `0x5e307d014eb2d46B02cbed483a9fd32b23144825`, v4 PoolManager `0xFd518a5caCDC7cAd0Bc77421b02Ca0dD7fc25cCc` (all verified) |
+| Demo video | (none by the owner's choice; the live app and the tx list below are the demo) |
 | Pre-existing work | KOMA's comic pipeline, x402 payments, launchpad contracts and UI were first built for Arbitrum (29 Sep – 4 Oct 2026, another hackathon). The Monad port and every sponsor integration were built 5–6 Oct 2026. See README → "Built in the Metropolis window". |
 | AI tools | Claude Code wrote most of the code, tests and docs under the author's direction. At runtime: Kimi K2.6, Hunyuan 3, Hunyuan Image 3, FLUX.2. |
 
@@ -102,6 +102,22 @@ Full run on 6 Oct 2026 on a **clean** local deployment (`npm run demo` from an e
 | `test:autopilot` | P0 pass (honestly off); P1–P6 untested (Privy keys) |
 | lint, typecheck (`next build`), slither | clean; slither 8 low/medium findings triaged (see `docs/TEST-PLAN-ZERO-MOCK.md`) |
 | secret scan (13 real secrets checked against the whole history and tree) | none found |
+
+## Live on Monad testnet: evidence (13 Oct 2026)
+
+Smoke test (`KOMA_URL=https://web-production-655c7.up.railway.app node scripts/smoke-testnet.mjs`): real signed transactions, no mocks.
+
+| What | Tx |
+|---|---|
+| x402 launch: AUSD settled, series #1 launched (Character NFT + ERC-6551 wallet + coin + curve) | [`0xe2fa666e…2d05`](https://testnet.monadvision.com/tx/0xe2fa666e80c40503be3a753ed18c61566cb9c568fe1e311d5f3794fb16582d05) |
+| Gasless $3 buy, relayed with `eth_sendRawTransactionSync`: **executed in 133 ms, final in 800 ms** (Monad's real timers) | [`0x2daa3fb7…0ee0d7`](https://testnet.monadvision.com/tx/0x2daa3fb7262915375d8b03fd1f3c98fac2471821beac57de8a6e1630340ee0d7) |
+| `txpool_statusByHash` follows a tx: `tracked` → `committed` | [`0xe353700d…06b3`](https://testnet.monadvision.com/tx/0xe353700d1cc85186be47c862ae4797c93687234982ac55fe201acbed87d506b3) |
+| Episode 1 proposal: paid over x402, scripted by **Kimi K2.6** (after its `get_series_canon` tool call), drawn by FLUX, minted | [`0x6c4860be…874c`](https://testnet.monadvision.com/tx/0x6c4860be7bcae73f7af6c993503ff1817ebebd91d30925806a34fe60ef82874c) |
+| **Chainlink CRE** `cre workflow simulate koma-canon --broadcast`: re-verified the signed vote and settled episode 1 through the forwarder | [`0x054895f6…587e`](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e) |
+
+Deploy: block 70,679,579 from `0x2318…694c`; 14 contracts verified on Sourcify (KOMA's 11, plus Uniswap v4
+PoolManager, PositionManager and V4Quoter). Paid AI is capped per day (20 issues, 10 launches, 150 model calls on
+top of the USD cap), refused before payment.
 
 ## Demo script (3:00)
 
