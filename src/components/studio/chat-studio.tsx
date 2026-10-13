@@ -244,6 +244,7 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
                   {[0, 1, 2].map((d) => (
                     <i key={d} className="h-1.5 w-1.5 animate-pulse rounded-full bg-soft" style={{ animationDelay: `${d * 160}ms` }} />
                   ))}
+                  <ThinkingClock />
                 </span>
               </li>
             )}
@@ -375,4 +376,16 @@ export function ChatStudio({ remix, job, genre, series }: { remix?: Comic; job?:
       <PaySheet state={state} onPay={pay} onCancel={cancel} />
     </>
   );
+}
+
+/** The editor reasons before it answers (~20 s): after a few seconds, say so with a running clock. */
+function ThinkingClock() {
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    const start = Date.now();
+    const id = setInterval(() => setT(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, []);
+  if (t < 5) return null;
+  return <span className="ml-2 font-mono text-[11px] text-mute">Hunyuan 3 is thinking · {t} s{t > 30 ? " · nearly there" : ""}</span>;
 }

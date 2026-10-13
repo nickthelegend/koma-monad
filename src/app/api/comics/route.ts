@@ -79,6 +79,8 @@ const makePaid = () =>
         },
         maxTimeoutSeconds: 300,
       },
+      // The public URL, not the container's own host (it leaked as https://0.0.0.0:8080 behind Railway's proxy).
+      ...(config.publicUrl ? { resource: `${config.publicUrl}/api/comics` } : {}),
       description: "One AI-written, AI-drawn comic issue, lettered and minted to the payer on Monad. $0.10 per page; $0.30 per page for a series episode.",
       mimeType: "application/json",
     },

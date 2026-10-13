@@ -51,6 +51,8 @@ const paid = (req: NextRequest) =>
         price: { amount: String(Math.round(LAUNCH_PRICE_USDC * 10 ** USDC_DECIMALS)), asset: config.network.usdc, extra: { ...USDC_DOMAIN } },
         maxTimeoutSeconds: 300,
       },
+      // The public URL, not the container's own host (it leaked as https://0.0.0.0:8080 behind Railway's proxy).
+      ...(config.publicUrl ? { resource: `${config.publicUrl}/api/series` } : {}),
       description: "Launch a KOMA series: an AI character sheet, a Character NFT with its own wallet, and a Series Coin on an AUSD bonding curve.",
       mimeType: "application/json",
     },

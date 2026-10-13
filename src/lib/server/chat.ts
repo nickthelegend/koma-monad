@@ -2,7 +2,7 @@ import { GENRES, cast as roster, styles } from "@/lib/studio-config";
 import { parseOrder, priceFor } from "@/lib/order";
 import type { Comic, Genre, Pitch } from "@/lib/types";
 import { AiNotConfiguredError, llm } from "./ai";
-import { estimate } from "./budget";
+import { CapacityError, estimate } from "./budget";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -52,7 +52,9 @@ export async function editorTurn(messages: ChatMessage[], current: Pitch | null,
     try {
       output = await llm({ role: "editor", system: SYSTEM, prompt, estimateUsd: estimate.llm("chat"), maxTokens: 1_500, timeoutMs: 60_000 });
     } catch (e) {
-      if (e instanceof AiNotConfiguredError) throw e;
+      // Not-configured and over-capacity are answers, not glitches: say them instead of retrying.
+      if (e instanceof AiNotConfiguredError || e instanceof CapacityError) throw e;
+      console.error("[koma] editor turn failed, retrying:", (e as Error).message);
       continue;
     }
     try {
