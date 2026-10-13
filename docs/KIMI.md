@@ -99,7 +99,9 @@ per change and never per page view.
 - App: https://koma-comics.up.railway.app. Open a series, read "Previously on…", then propose the next episode.
 - A Kimi-written episode, minted:
   [0x6c4860be…874c](https://testnet.monadvision.com/tx/0x6c4860be7bcae73f7af6c993503ff1817ebebd91d30925806a34fe60ef82874c)
-- The canon it reads, settled by Chainlink CRE:
-  [0x054895f6…587e](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e)
+- The canon that later episodes read: Signal Fire's episodes 1 and 2, settled by Chainlink CRE
+  ([0x054895f6…587e](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e),
+  [0x63e90dcd…cd57](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57)).
+  Episode 3, "Ada's Echo", was written after Kimi read both, and its issue page credits the `get_series_canon` call.
 - Code: `src/lib/server/ai.ts` (`writeScript`, `get_series_canon`), `src/lib/server/providers.ts`,
   `src/lib/server/launchpad/recap.ts`.
