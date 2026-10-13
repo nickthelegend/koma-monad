@@ -42,7 +42,7 @@ and nearly free:
 
 **What's live.** The core loop ran on Monad testnet with real signed transactions: x402 launch → gasless buy →
 Kimi-written episode → vote → Chainlink CRE settlement.
-- Votes are off-chain EIP-712 signatures that CRE re-verifies. The settle tx commits their Merkle root on chain.
+- Votes are off-chain EIP-712 signatures that CRE re-verifies. The settle tx commits their votes root (keccak256 of the sorted vote list) on chain.
 - Verified on Sourcify: the 14 core contracts (KOMA's 11 plus Uniswap v4), and series #1's coin, curve and vesting
   wallet. Its character wallet is an ERC-6551 proxy to the verified AccountProxy.
 - Team-seeded, and labelled so: 5 wallets, 2 series, and a contested episode 2 that CRE settled from 5 verified votes ([0x63e90dcd…cd57](https://testnet.monadvision.com/tx/0x63e90dcd958a40d64ea7c9de388533aeb23b4d5ab77a1dfe314143fea833cd57); `docs/evidence/seed-13oct.md`).
