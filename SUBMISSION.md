@@ -33,7 +33,7 @@ policy, and Mera passkeys keep next week's twist encrypted in the Writers' Room 
 | Contract addresses | `deploy/addresses.10143.json`: SeriesFactory `0x7e413097F12eB49f26bBf8bc5F1a7fcf38370431`, KomaIssues `0x4e4Bad3f390A55F4F5f10F4c6f5E867B2F0B77A5`, CanonRegistry `0x6ee09Bc9ad42EdD588C97AcC4eb1665f080455ea`, CanonSettler `0x5e307d014eb2d46B02cbed483a9fd32b23144825`, v4 PoolManager `0xFd518a5caCDC7cAd0Bc77421b02Ca0dD7fc25cCc` (all verified) |
 | Demo video | (none by the owner's choice; the live app and the tx list below are the demo) |
 | Pre-existing work | KOMA's comic pipeline, x402 payments, launchpad contracts and UI were first built for Arbitrum (29 Sep – 4 Oct 2026, another hackathon). The Monad port and every sponsor integration were built 5–6 Oct 2026. See README → "Built in the Metropolis window". |
-| AI tools | Claude Code wrote most of the code, tests and docs under the author's direction. At runtime: Kimi K2.6, Hunyuan 3, Hunyuan Image 3, FLUX.2. |
+| AI tools | Claude Code wrote most of the code, tests and docs under the author's direction. At runtime: Kimi K2.6 (scripts), Hunyuan 3 (editor), FLUX.2 (all images). |
 
 ## Bounties targeted
 
