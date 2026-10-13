@@ -61,6 +61,7 @@ export async function llm(o: {
   const route = textRoute(o.role ?? "script");
   if (!route) throw new AiNotConfiguredError(`No ${o.role ?? "script"} model configured (set MOONSHOT_API_KEY, HUNYUAN_API_KEY or FAL_KEY)`);
   let spent = 0;
+  let paid = false; // false when every turn came from the response cache
   if (o.trace) o.trace.model = `${route.model}${route.via === "fal" ? " (via fal)" : ""}`;
   // Kimi / Hunyuan: a short tool loop, then the final JSON answer.
   const messages: ChatMsg[] = [...(o.system ? [{ role: "system" as const, content: o.system }] : []), { role: "user", content: o.prompt }];
@@ -68,6 +69,7 @@ export async function llm(o: {
     const useTools = Boolean(o.tools?.length && o.onTool) && turn < 3;
     const msg = await openaiChat(route, { messages, maxTokens: o.maxTokens, timeoutMs: o.timeoutMs, json: !useTools, tools: useTools ? o.tools : undefined });
     spent += msg.usage?.cost ?? 0;
+    if (!msg.cached) paid = true;
     if (msg.tool_calls?.length && o.onTool) {
       // Keep reasoning_content on the assistant turn (Kimi's thinking models require it).
       // Keep the reasoning on the assistant turn (Kimi's thinking models require it; OpenRouter calls it `reasoning`).
@@ -91,7 +93,7 @@ export async function llm(o: {
       }
       continue;
     }
-    recordSpend("llm", spent || o.estimateUsd);
+    if (paid) recordSpend("llm", spent || o.estimateUsd);
     if (!msg.content) throw new Error(`${route.model} returned an empty answer`);
     return msg.content;
   }

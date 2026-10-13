@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { db } from "./store";
 /**
  * Which model does what. Every role runs on a real model; with no credential for it the role is "off" and the
  * studio says it isn't configured (no placeholder output, ever).
@@ -94,11 +96,8 @@ type ChatResponse = {
 export async function openaiChat(
   r: TextRoute,
   o: { messages: ChatMsg[]; maxTokens?: number; json?: boolean; tools?: Tool[]; timeoutMs?: number },
-): Promise<ChatResponse["choices"][number]["message"] & { usage?: ChatResponse["usage"] }> {
-  const res = await fetch(`${r.base}/chat/completions`, {
-    method: "POST",
-    headers: { Authorization: r.auth, "Content-Type": "application/json" },
-    body: JSON.stringify({
+): Promise<ChatResponse["choices"][number]["message"] & { usage?: ChatResponse["usage"]; cached?: boolean }> {
+  const body = JSON.stringify({
       model: r.model,
       messages: o.messages,
       max_tokens: o.maxTokens ?? 2_000,
@@ -109,12 +108,49 @@ export async function openaiChat(
       // can use up max_tokens before the script, so it's off for Kimi (KIMI_REASONING=on to keep it). Hunyuan 3 keeps
       // it: without it the editor's JSON drifts (HUNYUAN_REASONING=off to drop it).
       ...(r.via === "fal" && !thinks(r.family) ? { reasoning: { enabled: false } } : {}),
-    }),
+    });
+  // Every paid answer is cached by its exact request (route + body), so a retry, a re-run test or the same chat turn
+  // never pays twice. Moonshot credit in particular is small; LLM_CACHE=off skips the cache.
+  const key = createHash("sha256").update(`${r.via}|${r.base}|${body}`).digest("hex");
+  const hit = llmCache.get(key);
+  if (hit) return { ...(JSON.parse(hit) as ChatResponse["choices"][number]["message"]), usage: { cost: 0 } as ChatResponse["usage"], cached: true };
+  const res = await fetch(`${r.base}/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: r.auth, "Content-Type": "application/json" },
+    body,
     signal: AbortSignal.timeout(o.timeoutMs ?? 120_000),
   });
   if (!res.ok) throw new Error(`${describe(r)} ${res.status}: ${(await res.text()).slice(0, 240)}`);
-  const body = (await res.json()) as ChatResponse;
-  const msg = body.choices?.[0]?.message;
+  const json = (await res.json()) as ChatResponse;
+  const msg = json.choices?.[0]?.message;
   if (!msg) throw new Error(`${describe(r)} returned no message`);
-  return { ...msg, usage: body.usage };
+  if (msg.content || msg.tool_calls?.length) llmCache.set(key, JSON.stringify(msg));
+  return { ...msg, usage: json.usage };
 }
+
+const llmCache = {
+  ready: false,
+  table() {
+    const d = db();
+    if (!this.ready) {
+      d.exec("CREATE TABLE IF NOT EXISTS llm_cache (key TEXT PRIMARY KEY, message TEXT NOT NULL, at INTEGER NOT NULL)");
+      this.ready = true;
+    }
+    return d;
+  },
+  get(key: string): string | null {
+    if (env("LLM_CACHE") === "off") return null;
+    try {
+      return (this.table().prepare("SELECT message FROM llm_cache WHERE key = ?").get(key) as { message: string } | undefined)?.message ?? null;
+    } catch {
+      return null;
+    }
+  },
+  set(key: string, message: string) {
+    try {
+      this.table().prepare("INSERT OR REPLACE INTO llm_cache (key, message, at) VALUES (?, ?, ?)").run(key, message, Date.now());
+    } catch {
+      /* the cache must never break a paid call */
+    }
+  },
+};
