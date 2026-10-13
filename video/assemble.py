@@ -60,7 +60,10 @@ clips, t, placed, live = [], 0.0, [], []
 for n, (src, a, b, sp, line, delay, tag) in enumerate(BEATS):
     hold = holds[n]
     out = f"{W}/seg/{n:02d}.mp4"
-    vf = f"setpts=(PTS-STARTPTS)/{sp},fps=30,scale=1920:1080:flags=lanczos,format=yuv420p" + (f",tpad=stop_mode=clone:stop_duration={hold:.3f}" if hold else "")
+    # Browser captures: Playwright pins a 1600×900 viewport top-left in its 1920×1080 frame, so crop it out and scale
+    # it to fill the frame exactly (×1.2). No grey edges.
+    crop = "crop=1600:900:0:0," if src.endswith(".webm") else ""
+    vf = f"{crop}setpts=(PTS-STARTPTS)/{sp},fps=30,scale=1920:1080:flags=lanczos,format=yuv420p" + (f",tpad=stop_mode=clone:stop_duration={hold:.3f}" if hold else "")
     run("ffmpeg", "-y", "-loglevel", "error", "-ss", str(a), "-to", str(b), "-i", f"{W}/{src}", "-vf", vf, "-an", "-c:v", "libx264", "-crf", "18", "-preset", "medium", out)
     d = dur(out)
     if line:
@@ -118,11 +121,11 @@ ins = ["-i", f"{W}/base.mp4"]
 prev = "0:v"
 ins += ["-i", f"{W}/cap/live.png"]
 live_en = "+".join(f"between(t,{a:.2f},{b:.2f})" for a, b in live)
-fs.append(f"[{prev}][1:v]overlay=x=56:y=44:enable='{live_en}'[v1]")
+fs.append(f"[{prev}][1:v]overlay=x=14:y=92:enable='{live_en}'[v1]")  # a small pill in the left margin, below the nav
 prev, idx = "v1", 2
 for n, c in enumerate(caps):
     ins += ["-i", f"{W}/cap/{n:03d}.png"]
-    fs.append(f"[{prev}][{idx}:v]overlay=x=(W-w)/2:y=H-h-70:enable='between(t,{c['s']:.3f},{c['e']:.3f})'[v{idx}]")
+    fs.append(f"[{prev}][{idx}:v]overlay=x=(W-w)/2:y=H-h-26:enable='between(t,{c['s']:.3f},{c['e']:.3f})'[v{idx}]")
     prev, idx = f"v{idx}", idx + 1
 open(f"{W}/overlay.txt", "w").write(";".join(fs))
 run("ffmpeg", "-y", "-loglevel", "error", *ins, "-i", f"{W}/vo.m4a", "-filter_complex_script", f"{W}/overlay.txt",
