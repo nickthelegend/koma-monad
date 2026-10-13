@@ -29,7 +29,7 @@ const COVERAGE: { item: string; status: string; where: string }[] = [
   { item: "Gas: limit-billed, explicit tight limits; reserve balance (0x1001)", status: "built", where: "relayer refuses relays that would break the 10 MON reserve rule" },
   { item: "x402 on Monad (AUSD, EIP-3009)", status: "built", where: "KOMA's own facilitator by default; KOMA_X402_FACILITATOR_URL switches to Monad's hosted one (verify checked live)" },
   { item: "Canonical contracts (Permit2, Multicall3, ERC-6551, x402 proxies…)", status: "built", where: "present on this chain (below); MonadVision verification awaits the deploy" },
-  { item: "txpool_statusByHash, eth_sendRawTransactionSync", status: "awaiting testnet go", where: "relayer sends need MON on testnet; the fork has neither method" },
+  { item: "eth_sendRawTransactionSync, txpool_statusByHash", status: FORK ? "built · fork polls" : "built · live", where: "relayed trades and votes send sync (the receipt comes back with the send); /api/speed/<tx> reports txpool status while a tx is in flight. A fork has neither method, so it sends and polls" },
 ];
 
 export default async function MonadPage() {

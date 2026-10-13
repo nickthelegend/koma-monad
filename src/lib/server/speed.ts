@@ -1,4 +1,4 @@
-import type { Hex } from "viem";
+import type { Hex, TransactionReceipt } from "viem";
 import { publicClient } from "./config";
 import { db } from "./store";
 
@@ -35,25 +35,37 @@ export function track(kind: SpeedKind, tx: Hex, sentAt: number, feeBudgetWei?: b
   if (feeBudgetWei) inFlight.set(tx.toLowerCase(), feeBudgetWei);
   void publicClient
     .waitForTransactionReceipt({ hash: tx, timeout: 90_000, pollingInterval: 50 })
-    .then(async (r) => {
-      const ms = Date.now() - sentAt;
-      table()
-        .prepare("INSERT OR IGNORE INTO tx_speed (tx, kind, sent_at, ms, gas_used, block) VALUES (?, ?, ?, ?, ?, ?)")
-        .run(tx.toLowerCase(), kind, sentAt, ms, Number(r.gasUsed), Number(r.blockNumber));
-      // Monad's second timer: the receipt comes at Proposed; the block is final when `finalized` reaches it (two
-      // slots on Monad). An anvil fork doesn't model finality (its `finalized` tag trails `latest` by many blocks),
-      // so there the timer gives up after 5 s and stays empty rather than report something meaningless.
-      for (let i = 0; i < 50; i++) {
-        const f = await publicClient.getBlock({ blockTag: "finalized" }).catch(() => null);
-        if (f && f.number >= r.blockNumber) {
-          table().prepare("UPDATE tx_speed SET final_ms = ? WHERE tx = ?").run(Date.now() - sentAt, tx.toLowerCase());
-          return;
-        }
-        await new Promise((res) => setTimeout(res, 100));
-      }
-    })
+    .then((r) => recordReceipt(kind, tx, r, sentAt, Date.now() - sentAt))
     .catch(() => {})
     .finally(() => inFlight.delete(tx.toLowerCase()));
+}
+
+/**
+ * Records a receipt the sender already has (eth_sendRawTransactionSync returns it with the send), then starts the
+ * second timer. `ms` is send → receipt as the sender measured it.
+ */
+export async function recordReceipt(kind: SpeedKind, tx: Hex, r: Pick<TransactionReceipt, "gasUsed" | "blockNumber">, sentAt: number, ms: number) {
+  table()
+    .prepare("INSERT OR IGNORE INTO tx_speed (tx, kind, sent_at, ms, gas_used, block) VALUES (?, ?, ?, ?, ?, ?)")
+    .run(tx.toLowerCase(), kind, sentAt, ms, Number(r.gasUsed), Number(r.blockNumber));
+  // Monad's second timer: the receipt comes at Proposed; the block is final when `finalized` reaches it (two
+  // slots on Monad). An anvil fork doesn't model finality (its `finalized` tag trails `latest` by many blocks),
+  // so there the timer gives up after 5 s and stays empty rather than report something meaningless.
+  for (let i = 0; i < 50; i++) {
+    const f = await publicClient.getBlock({ blockTag: "finalized" }).catch(() => null);
+    if (f && f.number >= r.blockNumber) {
+      table().prepare("UPDATE tx_speed SET final_ms = ? WHERE tx = ?").run(Date.now() - sentAt, tx.toLowerCase());
+      return;
+    }
+    await new Promise((res) => setTimeout(res, 100));
+  }
+}
+
+/** Monad's txpool view of a transaction still in flight (txpool_statusByHash), or null where the node lacks it. */
+export async function txpoolStatus(tx: Hex): Promise<string | null> {
+  const r = await publicClient.request({ method: "txpool_statusByHash" as never, params: [tx] as never }).catch(() => null);
+  if (r == null) return null;
+  return typeof r === "string" ? r : ((r as { status?: string }).status ?? JSON.stringify(r).slice(0, 60));
 }
 
 type Row = { tx: string; kind: SpeedKind; sent_at: number; ms: number; final_ms: number | null; gas_used: number; block: number };

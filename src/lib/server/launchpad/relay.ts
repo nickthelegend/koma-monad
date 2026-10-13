@@ -1,4 +1,4 @@
-import { BaseError, ContractFunctionRevertedError, keccak256, parseSignature, stringToBytes, type Hex } from "viem";
+import { BaseError, ContractFunctionRevertedError, encodeFunctionData, keccak256, parseSignature, stringToBytes, type Hex } from "viem";
 import { canonAbi, characterAbi, curveAbi, swapperAbi } from "@/lib/launchpad/abi";
 import type { Addr } from "@/lib/launchpad/types";
 import { publicClient, serverWallet } from "../config";
@@ -6,7 +6,8 @@ import { GASLESS_MIN_USDC } from "@/lib/network";
 import { launchpad, requireLaunchpad } from "./addresses";
 import { db } from "./db";
 import { votesFor } from "./queries";
-import { inFlightFeesWei, track, type SpeedKind } from "../speed";
+import { inFlightFeesWei, recordReceipt, track, type SpeedKind } from "../speed";
+import { KOMA } from "@/lib/network";
 import { reserveBudget, tightGasLimit } from "@/lib/monad";
 import { chainNow } from "./chain-time";
 
@@ -42,11 +43,42 @@ async function send(req: Parameters<NonNullable<typeof serverWallet>["simulateCo
   const [{ maxFeePerGas }, balanceWei] = await Promise.all([w.estimateFeesPerGas(), w.getBalance({ address: w.account.address })]);
   const budget = reserveBudget({ balanceWei, inFlightFeesWei: inFlightFeesWei(), gasLimit: gas, maxFeePerGasWei: maxFeePerGas ?? BigInt(0) });
   if (!budget.ok) throw new Error("KOMA's relayer is at Monad's reserve-balance limit for in-flight gas. Try again in a moment.");
+  // Sign here, so the hash is known before anything is sent: whatever happens to the send, the transaction can be
+  // traced and never sent twice.
+  const r = request as unknown as { address: Hex; abi: never; functionName: string; args?: readonly unknown[]; value?: bigint };
+  const prepared = await w.prepareTransactionRequest({
+    account: w.account,
+    chain: w.chain,
+    to: r.address,
+    data: encodeFunctionData({ abi: r.abi, functionName: r.functionName, args: r.args } as never),
+    value: r.value,
+    gas,
+  } as never);
+  const raw = await w.signTransaction(prepared as never);
+  const hash = keccak256(raw);
   const sentAt = Date.now();
-  const hash = await w.writeContract({ ...(request as object), gas } as never);
+  if (SYNC_SEND) {
+    // eth_sendRawTransactionSync (EIP-7966, on Monad): the node answers with the receipt itself, so the speed
+    // receipt's "executed in" is one round trip, with no polling.
+    try {
+      const receipt = await w.sendRawTransactionSync({ serializedTransaction: raw, timeout: 10_000 } as never);
+      void recordReceipt(kind, hash, receipt as never, sentAt, Date.now() - sentAt);
+      return hash;
+    } catch (e) {
+      // The sync call failed, but the transaction may still be in flight: if the node knows it, follow it as usual.
+      const known = await publicClient.getTransaction({ hash }).then(() => true, () => false);
+      if (!known) throw e;
+      track(kind, hash, sentAt, budget.feeWei);
+      return hash;
+    }
+  }
+  await w.sendRawTransaction({ serializedTransaction: raw });
   track(kind, hash, sentAt, budget.feeWei); // Monad speed receipt: send → receipt, from the real receipt
   return hash;
 }
+
+/** Monad nodes answer eth_sendRawTransactionSync; an anvil fork doesn't, so the fork sends and polls. */
+const SYNC_SEND = KOMA.key !== "koma-localnet" && process.env.KOMA_SYNC_SEND !== "0";
 
 async function confirm(hash: Hex) {
   const receipt = await wallet().waitForTransactionReceipt({ hash, timeout: 90_000 });
