@@ -89,3 +89,43 @@ The architecture is impressive and the on-chain receipts are real, but the "econ
 8. Drop or soften the Privy and Envio bounty claims until they're live, or deploy Envio hosted and allow-list the Privy origin.
 9. Make the portal copy and home page agree on which model draws the art.
 10. On mobile /s/1, move the trade box above the chart, hide the chart when there are fewer than 3 trades, and shrink the footer wordmark.
+
+---
+
+## Fixes after round 1 (13 Oct, 20:05–20:20 IST)
+
+| Round-1 finding | Fix | Commit |
+|---|---|---|
+| Studio editor 502 / spins forever | The thinking clock; capacity errors surface; failures are logged | 5351229 |
+| x402 `resource.url` leaked `https://0.0.0.0:8080` | Built from `KOMA_PUBLIC_URL` (verified live: `…up.railway.app/api/comics`) | 5351229 |
+| Leaderboard said "4 holders" vs the card's 1 | The same holder count as the cards (contracts excluded) | 297d67a |
+| Fee chips 40/20/40 vs the actual 60/40 | Chips match: 60% to the character when there's no parent | 297d67a |
+| Subscript prices ("$0.0₅101") | "$10.10 / 1M", with the exact per-coin price as the tooltip | 297d67a |
+| Home said Hunyuan Image 3 draws the art; Envio/Privy implied live | FLUX.2 credited; Envio/Privy lines say "pending" | 297d67a |
+| A one-trade chart is a flat block; a 900 px footer wordmark | Chart from 3 trades; wordmark a third the size | 297d67a |
+| `cre/README` said "nothing on testnet" | Records the testnet `simulate --broadcast` via MockKeystoneForwarder, and the DON deploy as not done | ccc733b |
+| Unverifiable or overstated portal claims | Measurement explained; fork-only features labelled; Privy/Envio marked built-not-live; series #1's coin/curve/vesting verified on Sourcify | ccc733b |
+
+## Round 2 (fresh judge, 13 Oct ~20:35 IST): 7.0 / 10
+
+Main track: product 6 · technical 7 · Monad 8 · track fit 7 · innovation 7. Bounties: Kimi 7 · Hunyuan 4 ·
+CRE 6 · Mera 5 · Privy 2 · Envio 2. The second judge was stricter on the same evidence. Its top finding was that the
+editor still returned a 502.
+
+## Root cause and fix after round 2
+
+The logs showed `tencent/hy3 returned an empty answer`: Hunyuan 3 reasons first and spent its whole 1,500-token
+budget doing it.
+- The editor now gets 4,000 tokens.
+- If two tries still fail, Kimi K2.6 answers that one turn, labelled "answered by Kimi K2.6 (standing in for
+  Hunyuan 3)".
+- PORTAL-COPY's numbers now match the live app: 40% vs 60% fee share, 10¢ vs 30¢ episode pages, and the median
+  timing next to the best case.
+
+Commit f819d0d.
+
+## What only the owner can change
+
+- **Social proof.** Several distinct wallets buying, proposing and voting on a contested episode 2 needs testnet MON,
+  which is reserved for the recording. The recording runbook stages exactly this.
+- **Privy:** the dashboard origin. **Envio:** Cloud hosting. **CRE:** a DON deploy (`cre account access`).
