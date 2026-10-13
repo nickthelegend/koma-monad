@@ -101,7 +101,10 @@ export async function openaiChat(
       model: r.model,
       messages: o.messages,
       max_tokens: o.maxTokens ?? 2_000,
-      temperature: 0.8,
+      // Moonshot's kimi-k2.6 pins temperature: 1 while thinking, 0.6 with thinking off. Thinking stays off by default
+      // (as on fal) or it spends max_tokens reasoning and answers empty; KIMI_REASONING=on keeps it.
+      temperature: r.via === "direct" && r.family === "kimi" ? (thinks("kimi") ? 1 : 0.6) : 0.8,
+      ...(r.via === "direct" && r.family === "kimi" && !thinks("kimi") ? { thinking: { type: "disabled" } } : {}),
       ...(o.json ? { response_format: { type: "json_object" } } : {}),
       ...(o.tools ? { tools: o.tools, tool_choice: "auto" } : {}),
       // On OpenRouter (via fal) both models think before answering by default. Kimi's think is ~5× the tokens and
