@@ -77,4 +77,15 @@ cre workflow simulate koma-canon --target staging-settings --non-interactive --t
   test:cre` 7 of 7: two holders vote on two fresh proposals, the keeper leaves the closed slot to CRE,
   `fork-settle.ts` delivers the report through the forwarder, `canonOf` is the bigger holder's pick, the on-chain
   votes root equals the keeper's formula, and the series page shows "Settled by Chainlink CRE".
-- Not run: `cre workflow simulate` itself (needs `cre login`), and anything on public testnet (no deploys yet).
+- **On Monad testnet (13 Oct 2026):**
+  - Ran `cre workflow simulate koma-canon --target staging-settings --non-interactive --trigger-index 0 --broadcast`
+    against the live app.
+  - The CRE CLI delivered the report through Chainlink's **MockKeystoneForwarder** (`0xB9F79d86…`) to `CanonSettler`
+    `0x5e307d01…4825`.
+  - It settled series #1 episode 1 in
+    [`0x054895f6…587e`](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e),
+    and the app shows `settledBy: cre`.
+  - That round had one proposal and one voter. The fork run above (`test:cre`) covers two voters on two competing
+    proposals.
+- Not done: deploying the workflow to the DON (`cre account access`, then `cre workflow deploy`) against a settler
+  bound to the production KeystoneForwarder.

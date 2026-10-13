@@ -63,6 +63,9 @@ fi
 # 5. The app.
 say "Building the app"
 [ -d node_modules ] || npm ci --no-audit --no-fund
+# Privy on a local fork is opt-in (KOMA_LOCAL_PRIVY=1): it can't sponsor gas on anvil, and the e2e wallet connects
+# as an injected wallet. An empty value set here wins over .env.local's at build time.
+[ "${KOMA_LOCAL_PRIVY:-0}" = "1" ] || export NEXT_PUBLIC_PRIVY_APP_ID=""
 npx next build > .data/build.log 2>&1 || { tail -30 .data/build.log; exit 1; }
 [ -f .data/web.pid ] && kill "$(cat .data/web.pid)" 2>/dev/null || true
 say "Serving http://localhost:4320"

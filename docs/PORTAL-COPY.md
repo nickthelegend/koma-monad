@@ -25,19 +25,26 @@ CRE settles the canon on chain.
   writing it. Holders vote for free with a signature. A Chainlink CRE workflow re-verifies every signature and
   snapshot weight on Monad and settles the winner.
 - **Graduation.** At its target, the curve graduates into a locked Uniswap v4 pool.
+  This is built and tested on a fork of Monad testnet (`check:economics`); no live series has reached its target yet.
 - **Writers' Room.** Next week's twist stays encrypted in a Mera passkey Writers' Room.
 
 **Why Monad.** Every vote, trade and payment is a transaction. That only works as a fan experience when it's instant
 and nearly free:
 - KOMA's relayer sends with `eth_sendRawTransactionSync`. A live buy executed in **133 ms** and was final in
   **800 ms**.
+  "Executed" is measured by the relayer from the send to the receipt that the sync call returns. "Final" is when
+  the `finalized` tag reaches that block. Block timestamps are whole seconds, so they can't show this.
 - Receipts show both timers.
 - `/monad` streams the commit states (Proposed → Voted → Finalized → Verified).
 - Passkey signatures are verified by Monad's P256 precompile.
 - The relayer respects the 10 MON reserve rule with tight, limit-billed gas.
 
-**What's live.** The full loop ran on Monad testnet with real signed transactions: x402 launch → gasless buy →
-Kimi-written episode → vote → Chainlink CRE settlement. All 14 contracts (KOMA's 11 plus Uniswap v4) are verified.
+**What's live.** The core loop ran on Monad testnet with real signed transactions: x402 launch → gasless buy →
+Kimi-written episode → vote → Chainlink CRE settlement.
+- Votes are off-chain EIP-712 signatures that CRE re-verifies. The settle tx commits their Merkle root on chain.
+- Verified on Sourcify: the 14 core contracts (KOMA's 11 plus Uniswap v4), and series #1's coin, curve and vesting
+  wallet. Its character wallet is an ERC-6551 proxy to the verified AccountProxy.
+- Remix royalties and graduation are built and tested on a fork; the live testnet so far has one series.
 
 ## Track
 03 · Social, Attention & Culture
@@ -49,9 +56,9 @@ Kimi-written episode → vote → Chainlink CRE settlement. All 14 contracts (KO
 | **Kimi (Moonshot)** | Kimi K2.6 writes every script. It calls a `get_series_canon` tool to read the voted canon first, and writes the "Previously on…" recaps | `src/lib/server/ai.ts`, `providers.ts` | episode mint [0x6c4860be…874c](https://testnet.monadvision.com/tx/0x6c4860be7bcae73f7af6c993503ff1817ebebd91d30925806a34fe60ef82874c); credits on the issue page |
 | **Tencent Hunyuan** | Hunyuan 3 is the studio's editor (idea → pitch, JSON) | `/create`, `src/lib/server/ai.ts` | `test:ai`; "Editor · Hunyuan 3" in the studio |
 | **Chainlink CRE** | `cre/koma-canon` re-verifies every EIP-712 vote and snapshot weight, then settles the winner through `CanonSettler` | `cre/`, `contracts/src/CanonSettler.sol` | settle [0x054895f6…587e](https://testnet.monadvision.com/tx/0x054895f670667690274759331cbb65bba0b34c9c31f691c87a52be9764a0587e) |
-| **Mera (One Passkey, Many Keys)** | One passkey → WebAuthn PRF → an Ed25519 identity key plus an AES draft key. The server stores only ciphertext. Each unlock is verified by P256VERIFY (0x0100) | `/room`, `src/lib/room/` | `test:room` R1–R4b |
-| **Privy** | Account layer, plus the backer autopilot as a Privy session signer under a policy (key quorum created on the app) | `src/lib/server/autopilot/`, `scripts/privy-setup.mjs` | configured; live login needs the origin allow-listed |
-| **Envio** | HyperIndex indexer for the `/series` leaderboard (volume, top series, backers) | `indexer/` | `test:envio` parity (local); cloud hosting pending |
+| **Mera (One Passkey, Many Keys)** | One passkey → WebAuthn PRF → an Ed25519 identity key plus an AES draft key. The server stores only ciphertext. Each unlock's passkey signature is checked with P256VERIFY (0x0100) by `eth_call` | `/room`, `src/lib/room/` | `test:room` R1–R4b (fork, virtual authenticator). Try `/room` with a passkey on the live app; `/monad` shows the live precompile check |
+| **Privy** *(built, not live yet)* | Account layer, plus the backer autopilot as a Privy session signer under a policy | `src/lib/server/autopilot/`, `scripts/privy-setup.mjs` | The key quorum is created on the app. Live login waits for the owner to allow-list the origin, so we don't claim it as working |
+| **Envio** *(built, local only)* | HyperIndex indexer for the `/series` leaderboard (volume, top series, backers) | `indexer/` | `test:envio` parity on the fork. The live board reads KOMA's own index until Envio Cloud hosting is set up |
 | Agora AUSD (payments) | Every payment and trade is in AUSD (EIP-3009 + permit) | everywhere | launch [0xe2fa666e…2d05](https://testnet.monadvision.com/tx/0xe2fa666e80c40503be3a753ed18c61566cb9c568fe1e311d5f3794fb16582d05) |
 
 ## Links

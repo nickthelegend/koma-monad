@@ -103,7 +103,8 @@ if (run("W2")) {
   await page.goto(`${BASE}/c/${id}`, { waitUntil: "networkidle" });
   const credits = await page.locator("[data-credits]").innerText().catch(() => "");
   const comic = (await getJson("/api/comics")).comics.find((c) => c.id === id);
-  check("W3", "the issue page credits the models that made it: Kimi wrote it, Hunyuan Image 3 drew the cover", /Kimi/.test(credits) && /Hunyuan Image 3/.test(credits) && comic?.chain?.tokenId > 0, credits);
+  // The cover is Hunyuan Image 3 when HUNYUAN_IMAGE/HUNYUAN_COVERS are on, FLUX.2 otherwise (the owner's default).
+  check("W3", "the issue page credits the models that made it: Kimi wrote it, its art model drew it", /Kimi/.test(credits) && /Hunyuan Image 3|FLUX/.test(credits) && comic?.chain?.tokenId > 0, credits);
 }
 
 // ——— W4 gasless buy from the trade widget ———
