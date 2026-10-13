@@ -119,3 +119,49 @@ export function recordSpend(kind: SpendKind, usd: number) {
     console.error("[koma] could not record fal spend", e);
   }
 }
+
+// ——— Daily capacity: counts on top of the USD cap ———
+// Public endpoints are paid in free testnet AUSD, so a stranger could otherwise spend the real Moonshot credit and
+// fal balance behind them. Each kind has a persisted per-day (UTC) count; over it, routes refuse *before* taking any
+// payment. Env overrides (e.g. for a demo recording): KOMA_DAILY_ISSUES, KOMA_DAILY_LAUNCHES, KOMA_DAILY_LLM_CALLS.
+export type CapacityKind = "issue" | "launch" | "llm";
+const CAP_ENV: Record<CapacityKind, [string, number]> = { issue: ["KOMA_DAILY_ISSUES", 20], launch: ["KOMA_DAILY_LAUNCHES", 10], llm: ["KOMA_DAILY_LLM_CALLS", 150] };
+const capOf = (k: CapacityKind) => {
+  const [name, def] = CAP_ENV[k];
+  const n = Number(process.env[name]);
+  return process.env[name] && Number.isFinite(n) && n >= 0 ? n : def;
+};
+
+export class CapacityError extends Error {
+  constructor(readonly kind: CapacityKind, readonly cap: number) {
+    super(
+      kind === "llm"
+        ? "KOMA's writers have reached today's capacity. Try again after 00:00 UTC."
+        : `Daily capacity reached: KOMA makes ${cap} ${kind === "issue" ? "issues" : "launches"} a day on this testnet, and today's are done. Nothing was charged. Try again after 00:00 UTC.`,
+    );
+    this.name = "CapacityError";
+  }
+}
+
+function countTable() {
+  const conn = db();
+  conn.exec("CREATE TABLE IF NOT EXISTS daily_count (day TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (day, kind))");
+  return conn;
+}
+export function usedToday(k: CapacityKind): number {
+  return (countTable().prepare("SELECT n FROM daily_count WHERE day = ? AND kind = ?").get(today(), k) as { n: number } | undefined)?.n ?? 0;
+}
+/** Throws CapacityError when today's count for `k` is at its cap. Call before quoting or charging. */
+export function assertCapacity(k: CapacityKind) {
+  const cap = capOf(k);
+  if (usedToday(k) >= cap) throw new CapacityError(k, cap);
+}
+/** Counts one use (after payment is accepted, or after a paid model call). Never throws. */
+export function countUse(k: CapacityKind) {
+  try {
+    countTable().prepare("INSERT INTO daily_count (day, kind, n) VALUES (?, ?, 1) ON CONFLICT(day, kind) DO UPDATE SET n = n + 1").run(today(), k);
+  } catch (e) {
+    console.error("[koma] could not count", k, e);
+  }
+}
+export const capacityStatus = () => Object.fromEntries((Object.keys(CAP_ENV) as CapacityKind[]).map((k) => [k, { used: usedToday(k), cap: capOf(k) }]));

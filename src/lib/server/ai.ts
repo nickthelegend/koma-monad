@@ -1,5 +1,5 @@
 import type { BalloonKind, Genre } from "@/lib/types";
-import { estimate, recordSpend } from "./budget";
+import { assertCapacity, countUse, estimate, recordSpend } from "./budget";
 import { config } from "./config";
 import { markFalDown } from "./fal-health";
 import { soften } from "./soften";
@@ -67,7 +67,9 @@ export async function llm(o: {
   const messages: ChatMsg[] = [...(o.system ? [{ role: "system" as const, content: o.system }] : []), { role: "user", content: o.prompt }];
   for (let turn = 0; turn < 4; turn++) {
     const useTools = Boolean(o.tools?.length && o.onTool) && turn < 3;
+    assertCapacity("llm"); // a cached answer would be free, but the cap is checked first: it's cheap and safe
     const msg = await openaiChat(route, { messages, maxTokens: o.maxTokens, timeoutMs: o.timeoutMs, json: !useTools, tools: useTools ? o.tools : undefined });
+    if (!msg.cached) countUse("llm");
     spent += msg.usage?.cost ?? 0;
     if (!msg.cached) paid = true;
     if (msg.tool_calls?.length && o.onTool) {

@@ -7,7 +7,7 @@ import { USDC_DECIMALS, USDC_DOMAIN } from "@/lib/network";
 import { config, publicClient } from "@/lib/server/config";
 import { listIssues, saveJob } from "@/lib/server/store";
 import { network, pendingByNonce, resourceServer } from "@/lib/server/x402";
-import { assertBudget, BudgetExceededError, estimate } from "@/lib/server/budget";
+import { assertBudget, assertCapacity, BudgetExceededError, CapacityError, countUse, estimate } from "@/lib/server/budget";
 import { canPropose } from "@/lib/server/launchpad/canon";
 import { FAL_DOWN_MESSAGE, falHealth } from "@/lib/server/fal-health";
 import type { Job } from "@/lib/types";
@@ -47,6 +47,7 @@ async function create(req: NextRequest): Promise<NextResponse> {
     updatedAt: now,
   };
   await saveJob(job);
+  countUse("issue");
   pendingByNonce.set(auth.nonce, { job });
   return NextResponse.json({ jobId: job.id, status: `/api/jobs/${job.id}`, issue: `/c/${job.id}` }, { status: 202 });
 }
@@ -97,8 +98,10 @@ export async function POST(req: NextRequest) {
   if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
   if (!(await falHealth()).ok) return NextResponse.json({ error: FAL_DOWN_MESSAGE }, { status: 503 });
   try {
+    assertCapacity("issue");
     assertBudget(estimate.comic(parsed.order.pages, { refs: parsed.order.seriesId ? 1 : 0 }));
   } catch (e) {
+    if (e instanceof CapacityError) return NextResponse.json({ error: e.message, capacity: true }, { status: 503 });
     if (e instanceof BudgetExceededError) return NextResponse.json({ error: "The studio has drawn its fill for today. Come back tomorrow (UTC)." }, { status: 503 });
     throw e;
   }

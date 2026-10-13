@@ -10,7 +10,7 @@ import { saveLaunchJob } from "@/lib/server/launchpad/db";
 import { LAUNCH_PRICE_USDC, parseLaunch } from "@/lib/server/launchpad/launch";
 import { listSeries } from "@/lib/server/launchpad/queries";
 import { network, pendingByNonce, resourceServer } from "@/lib/server/x402";
-import { assertBudget, BudgetExceededError, estimate } from "@/lib/server/budget";
+import { assertBudget, assertCapacity, BudgetExceededError, CapacityError, countUse, estimate } from "@/lib/server/budget";
 import { FAL_DOWN_MESSAGE, falHealth } from "@/lib/server/fal-health";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +35,7 @@ async function create(req: NextRequest): Promise<NextResponse> {
   };
   saveLaunchJob(job);
   pendingByNonce.set(auth.nonce, { launch: job });
+  countUse("launch");
   return NextResponse.json({ jobId: job.id, status: `/api/launches/${job.id}` }, { status: 202 });
 }
 
@@ -64,8 +65,10 @@ export async function POST(req: NextRequest) {
   if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
   if (!(await falHealth()).ok) return NextResponse.json({ error: FAL_DOWN_MESSAGE }, { status: 503 });
   try {
+    assertCapacity("launch");
     assertBudget(estimate.sheet());
   } catch (e) {
+    if (e instanceof CapacityError) return NextResponse.json({ error: e.message, capacity: true }, { status: 503 });
     if (e instanceof BudgetExceededError) return NextResponse.json({ error: "The studio has drawn its fill for today. Come back tomorrow (UTC)." }, { status: 503 });
     throw e;
   }
